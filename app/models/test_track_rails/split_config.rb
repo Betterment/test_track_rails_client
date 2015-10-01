@@ -2,7 +2,7 @@ module TestTrackRails
   class SplitConfig
     include TestTrackModel
 
-    collection_path '/split_config'
+    collection_path '/api/split_config'
 
     attributes :name, :weighting_registry
 

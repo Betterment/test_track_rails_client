@@ -2,7 +2,7 @@ module TestTrackRails
   class IdentifierType
     include TestTrackModel
 
-    collection_path '/identifier_type'
+    collection_path '/api/identifier_type'
 
     attributes :name
 
