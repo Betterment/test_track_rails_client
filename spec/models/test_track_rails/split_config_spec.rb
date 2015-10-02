@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrackRails::SplitConfig do
   let(:params) { { name: "my_split", weighting_registry: { foo: 25, bar: 75 } } }
-  let(:url) { "http://dummy:fakepassword@testtrack.dev/split_config" }
+  let(:url) { "http://dummy:fakepassword@testtrack.dev/api/split_config" }
 
   subject { described_class.new(params) }
 

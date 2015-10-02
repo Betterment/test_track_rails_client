@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrackRails::IdentifierType do
   let(:params) { { name: "bettermentdb_user_id" } }
-  let(:url) { "http://dummy:fakepassword@testtrack.dev/identifier_type" }
+  let(:url) { "http://dummy:fakepassword@testtrack.dev/api/identifier_type" }
 
   subject { described_class.new(params) }
 
