@@ -11,7 +11,7 @@ RSpec.describe TestTrackRails::ApplicationHelper do
     end
 
     it "returns a reasonable-looking script tag" do
-      result = with_env(TEST_TRACK_ENABLED: true) { result = helper.test_track_setup_tag }
+      result = with_env(TEST_TRACK_ENABLED: 1) { result = helper.test_track_setup_tag }
 
       expect(result).to include("<script>")
       expect(result).to include("window.TEST_TRACK = {")
