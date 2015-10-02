@@ -1,7 +1,7 @@
 module TestTrackRails
   module ApplicationHelper
     def test_track_setup_tag
-      javascript_tag(render partial: 'test_track_rails/setup.js.erb')
+      javascript_tag(render(partial: 'test_track_rails/setup.js.erb').chomp)
     end
   end
 end
