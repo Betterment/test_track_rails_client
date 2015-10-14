@@ -8,15 +8,7 @@ module TestTrackRails
     yield(ConfigUpdater.new)
   end
 
-  def cookie_domain(default = nil)
-    "*." + PublicSuffix.parse(host || default).domain
-  end
-
-  def default_url_options
-    Rails.application.config.action_mailer.default_url_options
-  end
-
-  def host
-    default_url_options && default_url_options[:host]
+  def cookie_domain(host)
+    "." + PublicSuffix.parse(host).domain
   end
 end

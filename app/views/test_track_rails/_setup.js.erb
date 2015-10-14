@@ -1,8 +1,8 @@
 <% cache 'test_track_rails_config', expires_in: 5.seconds do -%>
 window.TEST_TRACK = {
     host: '<%= j ENV['TEST_TRACK_API_URL'] %>',
-    cookieDomain: '<%= j TestTrackRails.cookie_domain(request.host) %>',
-    registry: <%= raw TestTrackRails::SplitRegistry.instance.attributes.to_json %>
+    cookieDomain: '<%= j tt_cookie_domain %>',
+    registry: <%= tt_split_registry_json %>,
 <% end -%>
-    assignments: <%= raw TestTrackRails::AssignmentRegistry.for_visitor(cookies[:tt_visitor_id]).attributes.to_json %>
+    assignments: <%= tt_assignment_registry_json %>
 };
