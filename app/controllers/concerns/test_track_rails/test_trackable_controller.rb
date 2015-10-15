@@ -14,7 +14,9 @@ module TestTrackRails
     end
 
     def tt_split_registry
-      @tt_split_registry ||= TestTrackRails::SplitRegistry.instance.attributes
+      @tt_split_registry ||= cache('test_track_split_registry', expires_in: 5.seconds) do
+        TestTrackRails::SplitRegistry.instance.attributes
+      end
     end
 
     def tt_assignment_registry
