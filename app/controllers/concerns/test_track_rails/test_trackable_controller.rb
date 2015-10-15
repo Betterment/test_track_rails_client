@@ -10,7 +10,7 @@ module TestTrackRails
     end
 
     def tt_cookie_domain
-      TestTrackRails.cookie_domain(request.host)
+      @tt_cookie_domain ||= TestTrackRails.cookie_domain(request.host)
     end
 
     def tt_split_registry
