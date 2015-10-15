@@ -22,7 +22,7 @@ RSpec.describe TestTrackRails::ApplicationHelper do
 
       expect(result).to include("<script>")
       expect(result).to include("window.TEST_TRACK = {")
-      expect(result).to include("host: 'http://dummy:fakepassword@testtrack.dev',")
+      expect(result).to include("url: 'http://testtrack.dev',")
       expect(result).to include("cookieDomain: '.example.com',")
       expect(result).to include('registry: {"time":{"hammertime":0,"millertime":100}},')
       expect(result).to include('assignments: {"time":"hammertime"}')
