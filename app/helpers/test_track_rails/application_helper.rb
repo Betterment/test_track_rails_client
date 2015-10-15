@@ -1,7 +1,7 @@
 module TestTrackRails
   module ApplicationHelper
     def test_track_setup_tag
-      javascript_tag(render(partial: 'test_track_rails/setup.js.erb').chomp)
+      javascript_tag(render(partial: 'test_track_rails/setup.js.erb').chomp, class: '_tt')
     end
 
     def tt_split_registry_json
