@@ -20,7 +20,8 @@ RSpec.describe TestTrackRails::ApplicationHelper do
     it "returns a reasonable-looking script tag" do
       result = with_env(TEST_TRACK_ENABLED: 1) { helper.test_track_setup_tag }
 
-      expect(result).to include("<script class=\"_tt\">")
+      expect(result).to include('<div class="_tt" style="visibility:hidden;width:0;height:0;">')
+      expect(result).to include("<script>")
       expect(result).to include("window.TT = {")
       expect(result).to include("url: 'http://testtrack.dev',")
       expect(result).to include("cookieDomain: '.example.com',")
