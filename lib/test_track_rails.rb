@@ -8,15 +8,19 @@ module TestTrackRails
     yield(ConfigUpdater.new)
   end
 
-  def cookie_domain(default = nil)
-    "*." + PublicSuffix.parse(host || default).domain
+  def cookie_domain(host)
+    "." + PublicSuffix.parse(host).domain
   end
 
-  def default_url_options
-    Rails.application.config.action_mailer.default_url_options
+  def url
+    return nil unless private_url
+    full_uri = URI.parse(private_url)
+    full_uri.user = nil
+    full_uri.password = nil
+    full_uri.to_s
   end
 
-  def host
-    default_url_options && default_url_options[:host]
+  def private_url
+    ENV['TEST_TRACK_API_URL']
   end
 end
