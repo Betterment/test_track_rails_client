@@ -9,11 +9,10 @@ module TestTrackRails
 
     def initialize(controller)
       @controller = controller
-      read_mixpanel_distinct_id || generate_mixpanel_distinct_id
-      set_cookie(:tt_visitor_id, visitor_id)
     end
 
     def manage
+      manage_cookies!
       yield
     ensure
       flush_events!
@@ -40,6 +39,11 @@ module TestTrackRails
     private
 
     attr_reader :controller
+
+    def manage_cookies!
+      read_mixpanel_distinct_id || generate_mixpanel_distinct_id
+      set_cookie(:tt_visitor_id, visitor_id)
+    end
 
     def visitor_id
       visitor.id

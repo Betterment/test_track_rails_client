@@ -37,7 +37,9 @@ RSpec.describe TestTrackRails::Session do
       let(:cookies) { { tt_visitor_id: "fake_visitor_id" } }
 
       it "sets mixpanel_distinct_id to visitor_id" do
-        expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
+        subject.manage do
+          expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
+        end
       end
 
       it "sets a mixpanel cookie" do
