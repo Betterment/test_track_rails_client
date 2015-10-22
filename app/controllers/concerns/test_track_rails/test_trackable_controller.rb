@@ -13,12 +13,6 @@ module TestTrackRails
       @tt_cookie_domain ||= TestTrackRails.cookie_domain(request.host)
     end
 
-    def tt_split_registry
-      @tt_split_registry ||= cache('test_track_split_registry', expires_in: 5.seconds) do
-        TestTrackRails::SplitRegistry.instance.attributes
-      end
-    end
-
     def tt_assignment_registry
       @tt_assignment_registry ||= TestTrackRails::AssignmentRegistry.for_visitor(tt_visitor_id).attributes
     end
