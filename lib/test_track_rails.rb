@@ -8,10 +8,6 @@ module TestTrackRails
     yield(ConfigUpdater.new)
   end
 
-  def cookie_domain(host)
-    "." + PublicSuffix.parse(host).domain
-  end
-
   def url
     return nil unless private_url
     full_uri = URI.parse(private_url)

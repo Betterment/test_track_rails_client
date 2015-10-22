@@ -3,39 +3,24 @@ module TestTrackRails
     extend ActiveSupport::Concern
 
     included do
-      attr_reader :tt_visitor_id
-      helper_method :tt_visitor_id, :tt_cookie_domain, :tt_split_registry, :tt_assignment_registry
-
-      before_action :initialize_test_track
-    end
-
-    def tt_cookie_domain
-      @tt_cookie_domain ||= TestTrackRails.cookie_domain(request.host)
-    end
-
-    def tt_assignment_registry
-      @tt_assignment_registry ||= TestTrackRails::AssignmentRegistry.for_visitor(tt_visitor_id).attributes
+      helper_method :test_track_session, :test_track_visitor
+      around_action :manage_test_track_session
     end
 
     private
 
-    def initialize_test_track
-      read_test_track_visitor_id || generate_test_track_visitor_id
-      cookies.permanent[:tt_visitor_id] = {
-        value: tt_visitor_id,
-        domain: tt_cookie_domain,
-        secure: request.ssl?,
-        httponly: false
-      }
+    def test_track_session
+      @test_track_session ||= TestTrackRails::Session.new(self)
     end
 
-    def read_test_track_visitor_id
-      @tt_visitor_id = cookies[:tt_visitor_id]
+    def test_track_visitor
+      test_track_session.visitor
     end
 
-    def generate_test_track_visitor_id
-      @tt_visitor_id = SecureRandom.uuid
-      @tt_assignment_registry = {} # Generated visitors don't need to query the server for assignments
+    def manage_test_track_session
+      test_track_session.manage do
+        yield
+      end
     end
   end
 end
