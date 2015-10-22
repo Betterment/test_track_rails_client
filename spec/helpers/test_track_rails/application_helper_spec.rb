@@ -2,18 +2,21 @@ require 'rails_helper'
 
 RSpec.describe TestTrackRails::ApplicationHelper do
   describe "#test_track_setup_tag" do
+    let(:session) { instance_double(TestTrackRails::Session, cookie_domain: ".example.com") }
+    let(:visitor) { instance_double(TestTrackRails::Visitor, split_registry: split_registry, assignment_registry: assignment_registry) }
+    let(:split_registry) { { time: { hammertime: 0, millertime: 100 } } }
+    let(:assignment_registry) { { time: "hammertime" } }
+
     before do
       # can't stub methods that don't exist, so define singleton methods emulating the TestTrackableController mixin
-      def view.tt_cookie_domain
-        '.example.com'
+      session_var = session
+      view.define_singleton_method(:test_track_session) do
+        session_var
       end
 
-      def view.tt_split_registry
-        { time: { hammertime: 0, millertime: 100 } }
-      end
-
-      def view.tt_assignment_registry
-        { time: "hammertime" }
+      visitor_var = visitor
+      view.define_singleton_method(:test_track_visitor) do
+        visitor_var
       end
     end
 

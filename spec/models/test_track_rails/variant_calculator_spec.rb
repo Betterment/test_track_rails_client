@@ -84,7 +84,6 @@ RSpec.describe TestTrackRails::VariantCalculator do
 
   describe "#variant" do
     context "in logo_size split" do
-
       let(:split_registry) do
         {
           'logo_size' => {

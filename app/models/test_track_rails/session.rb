@@ -33,6 +33,10 @@ module TestTrackRails
       }
     end
 
+    def cookie_domain
+      @cookie_domian ||= "." + PublicSuffix.parse(request.host).domain
+    end
+
     private
 
     attr_reader :controller
@@ -50,9 +54,13 @@ module TestTrackRails
     end
 
     def flush_events!
-      if visitor.new_assignments.present?
-        Delayed::Job.enqueue(NotificationJob.new(mixpanel_distinct_id: mixpanel_distinct_id, visitor_id: visitor.id, new_assignments: visitor.new_assignments))
-      end
+      return unless visitor.new_assignments.present?
+      job = NotificationJob.new(
+        mixpanel_distinct_id: mixpanel_distinct_id,
+        visitor_id: visitor.id,
+        new_assignments: visitor.new_assignments
+      )
+      Delayed::Job.enqueue(job)
     end
 
     def read_mixpanel_distinct_id
@@ -71,10 +79,6 @@ module TestTrackRails
 
     def mixpanel_cookie_name
       "mp_#{mixpanel_token}_mixpanel"
-    end
-
-    def cookie_domain
-      "." + PublicSuffix.parse(request.host).domain
     end
   end
 end

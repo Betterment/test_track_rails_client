@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe TestTrackRails::Visitor do
-
   let(:new_visitor) { described_class.new }
   let(:existing_visitor) { described_class.new(id: existing_visitor_id) }
   let(:existing_visitor_id) { "00000000-0000-0000-0000-000000000000" }
@@ -35,7 +34,6 @@ RSpec.describe TestTrackRails::Visitor do
   end
 
   describe "#assignment_registry" do
-
     it "doesn't request the registry for a newly-generated visitor" do
       expect(new_visitor.assignment_registry).to eq({})
       expect(TestTrackRails::AssignmentRegistry).not_to have_received(:for_visitor)
@@ -66,7 +64,6 @@ RSpec.describe TestTrackRails::Visitor do
     end
 
     it "assigns a new split via VariantCalculator" do
-
       expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
 
       expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: existing_visitor, split_name: 'quagmire')

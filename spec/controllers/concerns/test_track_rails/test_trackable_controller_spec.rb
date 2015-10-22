@@ -24,7 +24,6 @@ RSpec.describe TestTrackRails::TestTrackableController do
     allow(TestTrackRails::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
   end
 
-
   it "responds with the action's usual http status" do
     get :index
     expect(response).to have_http_status(:ok)

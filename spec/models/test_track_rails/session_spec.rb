@@ -42,7 +42,7 @@ RSpec.describe TestTrackRails::Session do
 
       it "sets a mixpanel cookie" do
         subject.manage do
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({distinct_id: 'fake_visitor_id'}.to_json)
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
         end
       end
     end
@@ -51,7 +51,10 @@ RSpec.describe TestTrackRails::Session do
       subject.manage do
         subject.visitor.new_assignments['bar'] = 'baz'
       end
-      expect(TestTrackRails::NotificationJob).to have_received(:new).with(mixpanel_distinct_id: 'fake_distinct_id', visitor_id: 'fake_visitor_id', new_assignments: {'bar' => 'baz'})
+      expect(TestTrackRails::NotificationJob).to have_received(:new).with(
+        mixpanel_distinct_id: 'fake_distinct_id',
+        visitor_id: 'fake_visitor_id',
+        new_assignments: { 'bar' => 'baz' })
     end
 
     it "doesn't flush notifications if there haven't been new assignments" do
