@@ -82,6 +82,16 @@ RSpec.describe TestTrackRails::VariantCalculator do
     end
   end
 
+  describe "#weighting" do
+    it "returns the weighting hash for a split" do
+      expect(subject.weighting).to eq('true' => 60, 'false' => 40)
+    end
+
+    it "blows up if the split doesn't exist" do
+      expect { described_class.new(params.merge(split_name: 'nonexistent')).weighting }.to raise_error(/nonexistent.*not found/)
+    end
+  end
+
   describe "#variant" do
     context "in logo_size split" do
       let(:split_registry) do

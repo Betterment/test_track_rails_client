@@ -31,7 +31,7 @@ module TestTrackRails
     end
 
     def weighting
-      @weighting ||= split_registry[split_name]
+      @weighting ||= split_registry[split_name] || raise("TestTrack split '#{split_name}' not found. Need to write/run a migration?")
     end
 
     def assignment_bucket
