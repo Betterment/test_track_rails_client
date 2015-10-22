@@ -31,9 +31,9 @@ module TestTrackRails
     private
 
     def generate_assignment_for(split_name)
-      variant = VariantCalculator.new(visitor: self, split_name: split_name).variant
-      new_assignments[split_name] = variant
-      assignment_registry[split_name] = variant
+      VariantCalculator.new(visitor: self, split_name: split_name).variant.tap do |v|
+        new_assignments[split_name] = assignment_registry[split_name] = v
+      end
     end
 
     def coerce_booleans(str)
