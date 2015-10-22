@@ -17,21 +17,18 @@ module TestTrackRails
 
     def perform
       new_assignments.each do |split_name, variant|
-        flush_test_track_assignment(split_name, variant)
-        flush_mixpanel_event(split_name, variant)
+        Assignment.create!(visitor_id: visitor_id, split_name: split_name, variant: variant)
+        mixpanel.track(
+          mixpanel_distinct_id,
+          "SplitAssigned",
+          "SplitName" => split_name,
+          "SplitVariant" => variant,
+          "TTVisitorID" => visitor_id
+        )
       end
     end
 
     private
-
-    def flush_test_track_assignment(split_name, variant)
-      Assignment.create!(visitor_id: visitor_id, split_name: split_name, variant: variant)
-    end
-
-    def flush_mixpanel_event(split_name, variant)
-      mixpanel_properties = { "SplitName" => split_name, "SplitVariant" => variant, "TTVisitorID" => visitor_id }
-      mixpanel.track(mixpanel_distinct_id, "SplitAssigned", mixpanel_properties)
-    end
 
     def mixpanel
       raise "ENV['MIXPANEL_TOKEN'] must be set" unless ENV['MIXPANEL_TOKEN']
