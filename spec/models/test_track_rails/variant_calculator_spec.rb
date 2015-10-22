@@ -38,18 +38,18 @@ RSpec.describe TestTrackRails::VariantCalculator do
   end
 
   describe "#hash_fixnum" do
-    it "converts 00000000-dead-beef-0000-000000000000 into 0" do
-      allow(subject).to receive(:split_visitor_hash).and_return("00000000-dead-beef-0000-00000000000")
+    it "converts 00000000deadbeef into 0" do
+      allow(subject).to receive(:split_visitor_hash).and_return("00000000deadbeef")
       expect(subject.hash_fixnum).to eq 0
     end
 
-    it "converts 0000000f-dead-beef-0000-0000000000 into 15" do
-      allow(subject).to receive(:split_visitor_hash).and_return("0000000f-dead-beef-0000-00000000000")
+    it "converts 0000000fdeadbeef into 15" do
+      allow(subject).to receive(:split_visitor_hash).and_return("0000000fdeadbeef")
       expect(subject.hash_fixnum).to eq 15
     end
 
-    it "converts ffffffff-dead-beef-0000-0000000000 into 4294967295" do
-      allow(subject).to receive(:split_visitor_hash).and_return("ffffffff-dead-beef-0000-000000000000")
+    it "converts ffffffffdeadbeef into 4294967295" do
+      allow(subject).to receive(:split_visitor_hash).and_return("ffffffffdeadbeef")
       expect(subject.hash_fixnum).to eq 4_294_967_295
     end
   end
