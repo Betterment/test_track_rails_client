@@ -5,12 +5,12 @@ module TestTrackRails
       content_tag(:div, js, class: '_tt', style: 'visibility:hidden;width:0;height:0;')
     end
 
-    def tt_split_registry_json
-      raw(tt_split_registry.to_json) # rubocop:disable Betterment/Raw
+    def test_track_split_registry_json
+      raw(test_track_visitor.split_registry.to_json) # rubocop:disable Betterment/Raw
     end
 
-    def tt_assignment_registry_json
-      raw(tt_assignment_registry.to_json) # rubocop:disable Betterment/Raw
+    def test_track_assignment_registry_json
+      raw(test_track_visitor.assignment_registry.to_json) # rubocop:disable Betterment/Raw
     end
   end
 end

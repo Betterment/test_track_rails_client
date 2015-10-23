@@ -16,5 +16,11 @@ module TestTrackRails
         new(fake_instance_attributes(nil))
       end
     end
+
+    def self.to_hash
+      Rails.cache.fetch('test_track_split_registry', expires_in: 5.seconds) do
+        instance.attributes
+      end.freeze
+    end
   end
 end

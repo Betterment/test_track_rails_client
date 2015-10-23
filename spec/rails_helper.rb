@@ -6,6 +6,9 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'spec_helper'
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
+require 'timecop'
+require 'delayed_job'
+require 'delayed_job_active_record'
 
 # load all files in support folders
 Dir[TestTrackRails::Engine.root.join("spec/support/**/*.rb")].each { |f| require f }
@@ -55,3 +58,6 @@ RSpec.configure do |config|
 
   config.include EnvironmentSpecHelper
 end
+
+ENV['MIXPANEL_TOKEN'] = 'fakemixpaneltoken'
+Delayed::Worker.delay_jobs = false
