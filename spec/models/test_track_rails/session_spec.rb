@@ -10,6 +10,7 @@ RSpec.describe TestTrackRails::Session do
   subject { described_class.new(controller) }
 
   before do
+    allow(Delayed::Job).to receive(:enqueue).and_return(true)
     allow(TestTrackRails::NotificationJob).to receive(:new).and_return(notification_job)
     ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
@@ -57,6 +58,7 @@ RSpec.describe TestTrackRails::Session do
         mixpanel_distinct_id: 'fake_distinct_id',
         visitor_id: 'fake_visitor_id',
         new_assignments: { 'bar' => 'baz' })
+      expect(Delayed::Job).to have_received(:enqueue).with(notification_job)
     end
 
     it "doesn't flush notifications if there haven't been new assignments" do
