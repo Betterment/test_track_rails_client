@@ -42,11 +42,7 @@ module TestTrackRails
 
     def manage_cookies!
       read_mixpanel_distinct_id || generate_mixpanel_distinct_id
-      set_cookie(:tt_visitor_id, visitor_id)
-    end
-
-    def visitor_id
-      visitor.id
+      set_cookie(:tt_visitor_id, visitor.id)
     end
 
     def request
@@ -73,8 +69,8 @@ module TestTrackRails
     end
 
     def generate_mixpanel_distinct_id
-      set_cookie(mixpanel_cookie_name, URI.escape({ distinct_id: visitor_id }.to_json))
-      @mixpanel_distinct_id = visitor_id
+      set_cookie(mixpanel_cookie_name, URI.escape({ distinct_id: visitor.id }.to_json))
+      @mixpanel_distinct_id = visitor.id
     end
 
     def mixpanel_token
