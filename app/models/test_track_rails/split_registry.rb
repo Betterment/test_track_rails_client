@@ -20,7 +20,7 @@ module TestTrackRails
     def self.to_hash
       Rails.cache.fetch('test_track_split_registry', expires_in: 5.seconds) do
         instance.attributes
-      end
+      end.freeze
     end
   end
 end
