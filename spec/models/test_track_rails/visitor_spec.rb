@@ -52,6 +52,66 @@ RSpec.describe TestTrackRails::Visitor do
     end
   end
 
+  describe "#vary" do
+    let(:blue_block) { ->{ '.blue' } }
+    let(:red_block) { ->{ '.red' } }
+
+    let(:win_block) { ->{ '#win' } }
+    let(:fail_block) { ->{ '#fail' } }
+
+    before do
+      allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
+    end
+
+    it "branches with existing assignment" do
+      expect(
+        existing_visitor.vary(:blue_button) do |v|
+          v.when :true, &blue_block
+          v.default :false, &red_block
+        end
+      ).to eq '.blue'
+    end
+
+    it "branches with brand new assignment" do
+      expect(
+        new_visitor.vary(:quagmire) do |v|
+          v.when :untenable, &fail_block
+          v.default :manageable, &win_block
+        end
+      ).to eq '#fail'
+    end
+
+    context "structure" do
+      it "must be given a block" do
+        expect { new_visitor.vary(:blue_button) }.to raise_error("must provide block to `vary` for blue_button")
+      end
+
+      it "requires less than two defaults" do
+        expect {
+          new_visitor.vary(:blue_button) do |v|
+            v.when :true, &blue_block
+            v.default :false, &red_block
+            v.default :false, &red_block
+          end
+        }.to raise_error("cannot provide more than one `default`")
+      end
+
+      it "requires more than zero defaults" do
+        expect { new_visitor.vary(:blue_button) { |v| v.when(:true, &blue_block) } }.to raise_error("must provide exactly one `default`")
+      end
+
+      it "requires at least one when" do
+        expect {
+          new_visitor.vary(:blue_button) do |v|
+            v.default :true, &red_block
+          end
+        }.to raise_error("must provide at least one `when`")
+      end
+    end
+
+  end
+
+
   describe "#assignment_for" do
     before do
       allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))

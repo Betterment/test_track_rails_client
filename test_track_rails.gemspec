@@ -26,4 +26,5 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "timecop"
+  s.add_development_dependency "pry-rails"
 end
