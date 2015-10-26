@@ -44,14 +44,6 @@ RSpec.describe TestTrackRails::Visitor do
     end
   end
 
-  describe "#new_assignments" do
-    it "doesn't include a server-provided assignment, even if requested" do
-      expect(existing_visitor.assignment_for('blue_button')).to eq(true)
-
-      expect(existing_visitor.new_assignments).not_to have_key('blue_button')
-    end
-  end
-
   describe "#vary" do
     let(:blue_block) { ->{ '.blue' } }
     let(:red_block) { ->{ '.red' } }
@@ -63,22 +55,40 @@ RSpec.describe TestTrackRails::Visitor do
       allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
     end
 
-    it "branches with existing assignment" do
-      expect(
-        existing_visitor.vary(:blue_button) do |v|
-          v.when :true, &blue_block
-          v.default :false, &red_block
-        end
-      ).to eq '.blue'
-    end
-
-    it "branches with brand new assignment" do
-      expect(
+    context "new_visitor" do
+      let(:variant_result) do
         new_visitor.vary(:quagmire) do |v|
           v.when :untenable, &fail_block
           v.default :manageable, &win_block
         end
-      ).to eq '#fail'
+      end
+
+      it "asks the VariantCalculator for an assignment" do
+        expect(variant_result).to eq "#fail"
+        expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: new_visitor, split_name: 'quagmire')
+      end
+
+      it "updates #new_assignments with assignment" do
+        expect(variant_result).to eq "#fail"
+        expect(new_visitor.new_assignments['quagmire']).to eq 'untenable'
+      end
+    end
+
+    context "existing_visitor" do
+      let(:variant_result) do
+        existing_visitor.vary(:blue_button) do |v|
+          v.when :true, &blue_block
+          v.default :false, &red_block
+        end
+      end
+
+      it "pulls previous assignment from registry" do
+        expect(variant_result).to eq ".blue"
+        expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
+
+        expect(existing_visitor.assignment_registry['blue_button']).to eq 'true'
+        expect(existing_visitor.new_assignments.key?('blue_button')).to be_falsey
+      end
     end
 
     context "structure" do
@@ -107,38 +117,6 @@ RSpec.describe TestTrackRails::Visitor do
           end
         }.to raise_error("must provide at least one `when`")
       end
-    end
-
-  end
-
-
-  describe "#assignment_for" do
-    before do
-      allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
-    end
-
-    it "returns an existing assignment without generating" do
-      expect(existing_visitor.assignment_for('blue_button')).to eq(true)
-
-      expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
-    end
-
-    it "assigns a new split via VariantCalculator" do
-      expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
-
-      expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: existing_visitor, split_name: 'quagmire')
-    end
-
-    it "adds new assignments to new_assignments" do
-      expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
-
-      expect(existing_visitor.new_assignments['quagmire']).to eq 'untenable'
-    end
-
-    it "adds new assigments to assignment_registry" do
-      expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
-
-      expect(existing_visitor.assignment_registry['quagmire']).to eq 'untenable'
     end
   end
 

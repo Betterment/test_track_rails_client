@@ -13,19 +13,23 @@ module TestTrackRails
     end
 
     class Variation
-      def initialize(assignment)
+      def initialize(assignment, split_registry)
         @assignment = assignment.to_s
         @branches = {}
+        @split_registry = split_registry
       end
 
       def when(assignment_name, &block)
-        raise unless block_given?
+        raise ArgumentError, "must provide block to `when` for #{assignment_name}" unless block_given?
+        # raise ArgumentError, "invalid option" unless @split_registry.key? assignment_name
+
         @branches[assignment_name.to_s] = proc
       end
 
       def default(assignment_name, &block)
         raise ArgumentError, "must provide block to `default` for #{assignment_name}" unless block_given?
         raise ArgumentError, "cannot provide more than one `default`" unless @default.nil?
+
         @default = assignment_name
         @branches[assignment_name.to_s] = proc
       end
@@ -41,14 +45,9 @@ module TestTrackRails
 
     def vary(split_name)
       raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-      v = Variation.new(assignment_for(split_name))
+      v = Variation.new(assignment_for(split_name), split_registry)
       yield v
       v.run
-    end
-
-    def assignment_for(split_name)
-      split_name = split_name.to_s
-      coerce_booleans(assignment_registry[split_name] || generate_assignment_for(split_name))
     end
 
     def assignment_registry
@@ -82,6 +81,11 @@ module TestTrackRails
       @id = other.id
       new_assignments.except!(*other.assignment_registry.keys)
       assignment_registry.merge!(other.assignment_registry)
+    end 
+
+    def assignment_for(split_name)
+      split_name = split_name.to_s
+      coerce_booleans(assignment_registry[split_name] || generate_assignment_for(split_name))
     end
 
     def generate_assignment_for(split_name)
