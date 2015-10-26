@@ -13,15 +13,16 @@ module TestTrackRails
     end
 
     class Variation
-      def initialize(assignment, split_registry)
+      def initialize(split_name, assignment, split_registry)
+        @split_name = split_name.to_s
         @assignment = assignment.to_s
         @branches = {}
-        @split_registry = split_registry
+        @options = split_registry[@split_name].keys
       end
 
       def when(assignment_name, &block)
         raise ArgumentError, "must provide block to `when` for #{assignment_name}" unless block_given?
-        # raise ArgumentError, "invalid option" unless @split_registry.key? assignment_name
+        raise ArgumentError, "#{@split_registry} must contain #{assignment_name}" unless @options.include? assignment_name.to_s
 
         @branches[assignment_name.to_s] = proc
       end
@@ -45,7 +46,7 @@ module TestTrackRails
 
     def vary(split_name)
       raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-      v = Variation.new(assignment_for(split_name), split_registry)
+      v = Variation.new(split_name, assignment_for(split_name), split_registry)
       yield v
       v.run
     end
