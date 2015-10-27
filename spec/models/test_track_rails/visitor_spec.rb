@@ -48,29 +48,30 @@ RSpec.describe TestTrackRails::Visitor do
     let(:blue_block) { ->{ '.blue' } }
     let(:red_block) { ->{ '.red' } }
 
-    let(:win_block) { ->{ '#win' } }
-    let(:fail_block) { ->{ '#fail' } }
-
     before do
-      allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
+      allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'manageable'))
     end
 
     context "new_visitor" do
       let(:variant_result) do
         new_visitor.vary(:quagmire) do |v|
-          v.when :untenable, &fail_block
-          v.default :manageable, &win_block
+          v.when :untenable do
+            raise "this branch shouldn't be executed, buddy"
+          end
+          v.default :manageable do
+            "#winning"
+          end
         end
       end
 
       it "asks the VariantCalculator for an assignment" do
-        expect(variant_result).to eq "#fail"
+        expect(variant_result).to eq "#winning"
         expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: new_visitor, split_name: 'quagmire')
       end
 
       it "updates #new_assignments with assignment" do
-        expect(variant_result).to eq "#fail"
-        expect(new_visitor.new_assignments['quagmire']).to eq 'untenable'
+        expect(variant_result).to eq "#winning"
+        expect(new_visitor.new_assignments['quagmire']).to eq 'manageable'
       end
     end
 
