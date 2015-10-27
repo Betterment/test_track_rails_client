@@ -16,13 +16,13 @@ module TestTrackRails
       branches[variant_name.to_s] = proc
     end
 
-    def default(variant_name)
+    def default(variant_name) # rubocop:disable Metrics/AbcSize
       raise ArgumentError, "cannot provide more than one `default`" unless default_variant_name.nil?
 
       raise ArgumentError, "must provide block to `default` for #{variant_name}" unless block_given?
       _errbit(default_variant_name) unless options.include? variant_name.to_s
 
-      @default_variant_name = variant_name
+      @default_variant_name = variant_name.to_s
       branches[variant_name.to_s] = proc
     end
 

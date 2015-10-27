@@ -60,12 +60,12 @@ module TestTrackRails
     end
 
     def assign_to(split_name, variant_name)
-      new_assignments[split_name] = variant_name
+      new_assignments[split_name.to_s] = assignment_registry[split_name.to_s] = variant_name
     end
 
     def generate_assignment_for(split_name)
       VariantCalculator.new(visitor: self, split_name: split_name).variant.tap do |v|
-        new_assignments[split_name] = assignment_registry[split_name] = v
+        assign_to(split_name, v)
       end
     end
 

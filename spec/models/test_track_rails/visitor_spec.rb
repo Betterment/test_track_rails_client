@@ -81,16 +81,20 @@ RSpec.describe TestTrackRails::Visitor do
 
     context "existing_visitor" do
       let(:blue_button_split_result) do
-        existing_visitor.vary(:blue_button) do |v|
+        existing_visitor.vary :blue_button do |v|
           v.when :true, &blue_block
           v.default :false, &red_block
         end
       end
 
       let(:time_split_result) do
-        existing_visitor.vary(:blue_button) do |v|
-          v.when :true, &blue_block
-          v.default :false, &red_block
+        existing_visitor.vary :time do |v|
+          v.when :shoveltime do
+            "mystery men"
+          end
+          v.default :hammertime do
+            "can't touch this"
+          end
         end
       end
 
@@ -98,8 +102,16 @@ RSpec.describe TestTrackRails::Visitor do
         expect(blue_button_split_result).to eq ".blue"
         expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
 
-        expect(existing_visitor.assignment_registry['blue_button']).to eq 'true'
         expect(existing_visitor.new_assignments.key?('blue_button')).to be_falsey
+      end
+
+      it "creates new assignment for unimplemented previous assignment" do
+        expect(existing_visitor.assignment_registry['time']).to eq 'waits_for_no_man'
+
+        expect(time_split_result).to eq "can't touch this"
+        expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
+
+        expect(existing_visitor.new_assignments['time']).to eq 'hammertime'
       end
     end
 
