@@ -14,7 +14,7 @@ RSpec.describe TestTrackRails::VaryConfig do
       },
       'time' => {
         'hammertime' => 100,
-        'shoveltime' => 0
+        'clobberin_time' => 0
       }
     }
   end

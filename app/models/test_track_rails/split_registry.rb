@@ -6,7 +6,7 @@ module TestTrackRails
 
     def self.fake_instance_attributes(_)
       {
-        time: { hammertime: 100, shoveltime: 0 },
+        time: { hammertime: 100, clobberin_time: 0 },
         blue_button: { true: 50, false: 50 }
       }
     end

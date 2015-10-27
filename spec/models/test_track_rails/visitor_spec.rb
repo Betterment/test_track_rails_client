@@ -17,7 +17,7 @@ RSpec.describe TestTrackRails::Visitor do
       },
       'time' => {
         'hammertime' => 100,
-        'shoveltime' => 0
+        'clobberin_time' => 0
       }
     }
   end
@@ -89,8 +89,8 @@ RSpec.describe TestTrackRails::Visitor do
 
       let(:time_split_result) do
         existing_visitor.vary :time do |v|
-          v.when :shoveltime do
-            "mystery men"
+          v.when :clobberin_time do
+            "Fantastic Four IV: The Fantasticing"
           end
           v.default :hammertime do
             "can't touch this"
