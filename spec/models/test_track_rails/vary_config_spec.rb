@@ -23,6 +23,17 @@ RSpec.describe TestTrackRails::VaryConfig do
     expect(vary_config.defaulted?).to be_falsey
   end
 
+  context "#when" do
+    it "supports multiple variant_names" do
+      vary_config.when :one, :two, :three do
+        "one, two, or three"
+      end
+
+      expect(vary_config.branches.size).to eq 3
+      expect(vary_config.branches.keys).to eq %w(one two three)
+    end
+  end
+
   context "#default" do
     it "accepts a block" do
       vary_config.when :hello do

@@ -9,11 +9,13 @@ module TestTrackRails
       @branches = {}
     end
 
-    def when(variant_name)
-      raise ArgumentError, "must provide block to `when` for #{variant_name}" unless block_given?
-      _errbit(variant_name) unless options.include? variant_name.to_s
+    def when(*variant_names)
+      variant_names.each do |variant_name|
+        raise ArgumentError, "must provide block to `when` for #{variant_name}" unless block_given?
+        _errbit(variant_name) unless options.include? variant_name.to_s
 
-      branches[variant_name.to_s] = proc
+        branches[variant_name.to_s] = proc
+      end
     end
 
     def default(variant_name) # rubocop:disable Metrics/AbcSize
