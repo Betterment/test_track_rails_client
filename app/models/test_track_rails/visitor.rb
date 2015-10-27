@@ -12,45 +12,9 @@ module TestTrackRails
       raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
     end
 
-    class Variation
-      def initialize(split_name, assignment, split_registry)
-        @options = split_registry[split_name.to_s].keys
-        @assignment = assignment.to_s
-        @branches = {}
-      end
-
-      def _errbit(assignment_name)
-        puts "#{@options} must include #{assignment_name}"
-      end
-
-      def when(assignment_name, &block)
-        raise ArgumentError, "must provide block to `when` for #{assignment_name}" unless block_given?
-        _errbit(assignment_name) unless @options.include? assignment_name.to_s
-
-        @branches[assignment_name.to_s] = proc
-      end
-
-      def default(assignment_name, &block)
-        raise ArgumentError, "must provide block to `default` for #{assignment_name}" unless block_given?
-        _errbit(assignment_name) unless @options.include? assignment_name.to_s
-        raise ArgumentError, "cannot provide more than one `default`" unless @default.nil?
-
-        @default = assignment_name
-        @branches[assignment_name.to_s] = proc
-      end
-
-      def run
-        raise ArgumentError, "must provide exactly one `default`" unless @default
-        raise ArgumentError, "must provide at least one `when`" unless @branches.size >= 2
-
-        chosen_path = @branches[@assignment].nil? ? @branches[@default] : @branches[@assignment]
-        chosen_path.call
-      end
-    end
-
     def vary(split_name)
       raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-      v = Variation.new(split_name, assignment_for(split_name), split_registry)
+      v = VaryConfig.new(split_name, assignment_for(split_name), split_registry)
       yield v
       v.run
     end
