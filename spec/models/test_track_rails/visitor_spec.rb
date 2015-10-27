@@ -45,8 +45,8 @@ RSpec.describe TestTrackRails::Visitor do
   end
 
   describe "#vary" do
-    let(:blue_block) { ->{ '.blue' } }
-    let(:red_block) { ->{ '.red' } }
+    let(:blue_block) { -> { '.blue' } }
+    let(:red_block) { -> { '.red' } }
 
     before do
       allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'manageable'))
@@ -98,13 +98,13 @@ RSpec.describe TestTrackRails::Visitor do
       end
 
       it "requires less than two defaults" do
-        expect {
+        expect do
           new_visitor.vary(:blue_button) do |v|
             v.when :true, &blue_block
             v.default :false, &red_block
             v.default :false, &red_block
           end
-        }.to raise_error("cannot provide more than one `default`")
+        end.to raise_error("cannot provide more than one `default`")
       end
 
       it "requires more than zero defaults" do
@@ -112,11 +112,11 @@ RSpec.describe TestTrackRails::Visitor do
       end
 
       it "requires at least one when" do
-        expect {
+        expect do
           new_visitor.vary(:blue_button) do |v|
             v.default :true, &red_block
           end
-        }.to raise_error("must provide at least one `when`")
+        end.to raise_error("must provide at least one `when`")
       end
     end
   end

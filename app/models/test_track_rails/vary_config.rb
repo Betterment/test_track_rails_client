@@ -6,15 +6,14 @@ module TestTrackRails
       @branches = {}
     end
 
-    def when(assignment_name, &block)
+    def when(assignment_name, &_block)
       raise ArgumentError, "must provide block to `when` for #{assignment_name}" unless block_given?
       _errbit(assignment_name) unless @options.include? assignment_name.to_s
 
       @branches[assignment_name.to_s] = proc
     end
 
-
-    def default(assignment_name, &block)
+    def default(assignment_name, &_block)
       raise ArgumentError, "must provide block to `default` for #{assignment_name}" unless block_given?
       _errbit(assignment_name) unless @options.include? assignment_name.to_s
       raise ArgumentError, "cannot provide more than one `default`" unless @default.nil?
