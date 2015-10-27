@@ -6,13 +6,13 @@ module TestTrackRails
     def initialize(split_name, assigned_variant_name, split_registry)
       @assigned_variant_name = assigned_variant_name.to_s
       @options = split_registry[split_name.to_s].keys
-      @branches = {}
+      @branches = HashWithIndifferentAccess.new
     end
 
     def when(*variant_names)
       variant_names.each do |variant_name|
         raise ArgumentError, "must provide block to `when` for #{variant_name}" unless block_given?
-        _errbit(variant_name) unless options.include? variant_name.to_s
+        errbit(variant_name) unless options.include? variant_name.to_s
 
         branches[variant_name.to_s] = proc
       end
@@ -22,7 +22,7 @@ module TestTrackRails
       raise ArgumentError, "cannot provide more than one `default`" unless default_variant_name.nil?
 
       raise ArgumentError, "must provide block to `default` for #{variant_name}" unless block_given?
-      _errbit(default_variant_name) unless options.include? variant_name.to_s
+      errbit(default_variant_name) unless options.include? variant_name.to_s
 
       @default_variant_name = variant_name.to_s
       branches[variant_name.to_s] = proc
@@ -34,7 +34,7 @@ module TestTrackRails
       branches[default_variant_name]
     end
 
-    def _errbit(variant_name)
+    def errbit(variant_name)
       puts "#{options} must include #{variant_name}" # rubocop:disable Rails/Output
     end
 

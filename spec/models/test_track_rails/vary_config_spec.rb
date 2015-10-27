@@ -1,22 +1,23 @@
 require 'rails_helper'
 
 RSpec.describe TestTrackRails::VaryConfig do
-  let(:vary_config) { described_class.new(:blue_button, :true, split_registry) }
+  let(:vary_config) { described_class.new(:button_size, :one, split_registry) }
   let(:split_registry) do
     {
-      'blue_button' => {
-        'false' => 50,
-        'true' => 50
-      },
-      'quagmire' => {
-        'untenable' => 50,
-        'manageable' => 50
+      'button_size' => {
+        'one' => 100,
+        'two' => 0,
+        'three' => 0
       },
       'time' => {
-        'hammertime' => 100,
-        'clobberin_time' => 0
+        'hammertime' => 50,
+        'clobberin_time' => 50
       }
     }
+  end
+
+  before do
+    allow(vary_config).to receive(:errbit).and_call_original
   end
 
   it "isn't defaulted by default" do
@@ -32,14 +33,25 @@ RSpec.describe TestTrackRails::VaryConfig do
       expect(vary_config.branches.size).to eq 3
       expect(vary_config.branches.keys).to eq %w(one two three)
     end
+
+    it "tells errbit if variant_name not in registry" do
+      vary_config.when :this_does_not_exist do
+        "That dog won't hunt, Monsignor"
+      end
+
+      expect(vary_config).to have_received(:errbit)
+    end
   end
 
   context "#default" do
     it "accepts a block" do
-      vary_config.when :hello do
+      vary_config.when :one do
         puts "hello"
       end
-      expect(vary_config.branches['hello']).to be_a Proc
+
+      expect(vary_config.branches.size).to eq 1
+      expect(vary_config.branches['one']).to be_a Proc
+      expect(vary_config.branches[:one]).to be_a Proc
     end
   end
 end
