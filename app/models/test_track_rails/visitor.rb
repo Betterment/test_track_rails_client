@@ -14,15 +14,14 @@ module TestTrackRails
 
     class Variation
       def initialize(split_name, assignment, split_registry)
-        @split_name = split_name.to_s
+        @options = split_registry[split_name.to_s].keys
         @assignment = assignment.to_s
         @branches = {}
-        @options = split_registry[@split_name].keys
       end
 
       def when(assignment_name, &block)
         raise ArgumentError, "must provide block to `when` for #{assignment_name}" unless block_given?
-        raise ArgumentError, "#{@split_registry} must contain #{assignment_name}" unless @options.include? assignment_name.to_s
+        raise ArgumentError, "#{@options} must include #{assignment_name}" unless @options.include? assignment_name.to_s
 
         @branches[assignment_name.to_s] = proc
       end
