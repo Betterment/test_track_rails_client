@@ -41,11 +41,5 @@ RSpec.describe TestTrackRails::VaryConfig do
       end
       expect(vary_config.branches['hello']).to be_a Proc
     end
-
-    xit "accepts a proc" do
-      vary_config.when :hello, -> { puts "hello" }
-
-      expect(vary_config.branches['hello']).to be_a Proc
-    end
   end
 end
