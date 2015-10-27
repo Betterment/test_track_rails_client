@@ -16,7 +16,7 @@ module TestTrackRails
       raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
       v = VaryConfig.new(split_name, assignment_for(split_name), split_registry)
       yield v
-      v.run
+      v.send :run
     end
 
     def assignment_registry
