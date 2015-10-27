@@ -28,6 +28,7 @@ module TestTrackRails
 
       def default(assignment_name, &block)
         raise ArgumentError, "must provide block to `default` for #{assignment_name}" unless block_given?
+        raise ArgumentError, "#{@options} must include #{assignment_name}" unless @options.include? assignment_name.to_s
         raise ArgumentError, "cannot provide more than one `default`" unless @default.nil?
 
         @default = assignment_name
