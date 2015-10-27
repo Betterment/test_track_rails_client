@@ -35,7 +35,7 @@ module TestTrackRails
     end
 
     def errbit(variant_name)
-      puts "#{options} must include #{variant_name}" # rubocop:disable Rails/Output
+      puts "error: #{options} does not contains provided \"#{variant_name}\"" # rubocop:disable Rails/Output
     end
 
     def run # rubocop:disable Metrics/AbcSize

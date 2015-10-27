@@ -15,6 +15,7 @@ RSpec.describe TestTrackRails::VaryConfig do
       }
     }
   end
+  let(:noop) { -> {} }
 
   before do
     allow(vary_config).to receive(:errbit).and_call_original
@@ -26,20 +27,22 @@ RSpec.describe TestTrackRails::VaryConfig do
 
   context "#when" do
     it "supports multiple variant_names" do
-      vary_config.when :one, :two, :three do
-        "one, two, or three"
-      end
+      vary_config.when :one, :two, :three, &:noop
 
       expect(vary_config.branches.size).to eq 3
       expect(vary_config.branches.keys).to eq %w(one two three)
     end
 
     it "tells errbit if variant_name not in registry" do
-      vary_config.when :this_does_not_exist do
-        "That dog won't hunt, Monsignor"
-      end
+      vary_config.when :this_does_not_exist, &:noop
 
       expect(vary_config).to have_received(:errbit)
+    end
+
+    it "tells errbit about only invalid variant_name(s)" do
+      vary_config.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
+
+      expect(vary_config).to have_received(:errbit).exactly(:twice)
     end
   end
 
@@ -52,6 +55,12 @@ RSpec.describe TestTrackRails::VaryConfig do
       expect(vary_config.branches.size).to eq 1
       expect(vary_config.branches['one']).to be_a Proc
       expect(vary_config.branches[:one]).to be_a Proc
+    end
+
+    it "tells errbit if variant_name not in registry" do
+      vary_config.default :this_does_not_exist, &:noop
+
+      expect(vary_config).to have_received(:errbit)
     end
   end
 end
