@@ -4,7 +4,7 @@ RSpec.describe TestTrackRails::Visitor do
   let(:new_visitor) { described_class.new }
   let(:existing_visitor) { described_class.new(id: existing_visitor_id) }
   let(:existing_visitor_id) { "00000000-0000-0000-0000-000000000000" }
-  let(:assignment_registry) { { 'blue_button' => 'true' } }
+  let(:assignment_registry) { { 'blue_button' => 'true', 'time' => 'waits_for_no_man' } }
   let(:split_registry) do
     {
       'blue_button' => {
@@ -14,6 +14,10 @@ RSpec.describe TestTrackRails::Visitor do
       'quagmire' => {
         'untenable' => 50,
         'manageable' => 50
+      },
+      'time' => {
+        'hammertime' => 100,
+        'shoveltime' => 0
       }
     }
   end
@@ -76,7 +80,14 @@ RSpec.describe TestTrackRails::Visitor do
     end
 
     context "existing_visitor" do
-      let(:variant_result) do
+      let(:blue_button_split_result) do
+        existing_visitor.vary(:blue_button) do |v|
+          v.when :true, &blue_block
+          v.default :false, &red_block
+        end
+      end
+
+      let(:time_split_result) do
         existing_visitor.vary(:blue_button) do |v|
           v.when :true, &blue_block
           v.default :false, &red_block
@@ -84,7 +95,7 @@ RSpec.describe TestTrackRails::Visitor do
       end
 
       it "pulls previous assignment from registry" do
-        expect(variant_result).to eq ".blue"
+        expect(blue_button_split_result).to eq ".blue"
         expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
 
         expect(existing_visitor.assignment_registry['blue_button']).to eq 'true'
