@@ -7,7 +7,8 @@ RSpec.describe TestTrackRails::VaryConfig do
       'button_size' => {
         'one' => 100,
         'two' => 0,
-        'three' => 0
+        'three' => 0,
+        'four' => 0
       },
       'time' => {
         'hammertime' => 50,
@@ -25,6 +26,19 @@ RSpec.describe TestTrackRails::VaryConfig do
     expect(vary_config.defaulted?).to be_falsey
   end
 
+  context "#run" do
+    let(:one_two_variation) do
+      vary_config.when(:one) { "hello!" }
+      vary_config.default :two, &:noop
+      vary_config.send :run
+    end
+
+    it "tells errbit if all variants aren't covered" do
+      expect(one_two_variation).to eq "hello!"
+      expect(vary_config).to have_received(:errbit).with("three and four are missing")
+    end
+  end
+
   context "#when" do
     it "supports multiple variant_names" do
       vary_config.when :one, :two, :three, &:noop
@@ -36,13 +50,14 @@ RSpec.describe TestTrackRails::VaryConfig do
     it "tells errbit if variant_name not in registry" do
       vary_config.when :this_does_not_exist, &:noop
 
-      expect(vary_config).to have_received(:errbit)
+      expect(vary_config).to have_received(:errbit).with("\"this_does_not_exist\" is not in options [\"one\", \"two\", \"three\", \"four\"]")
     end
 
     it "tells errbit about only invalid variant_name(s)" do
       vary_config.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
 
-      expect(vary_config).to have_received(:errbit).exactly(:twice)
+      expect(vary_config).to have_received(:errbit).with("\"this_does_not_exist\" is not in options [\"one\", \"two\", \"three\", \"four\"]")
+      expect(vary_config).to have_received(:errbit).with("\"and_neither_does_this_one\" is not in options [\"one\", \"two\", \"three\", \"four\"]")
     end
   end
 
