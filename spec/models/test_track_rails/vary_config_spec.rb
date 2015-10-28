@@ -50,14 +50,14 @@ RSpec.describe TestTrackRails::VaryConfig do
     it "tells errbit if variant_name not in registry" do
       vary_config.when :this_does_not_exist, &:noop
 
-      expect(vary_config).to have_received(:errbit).with("\"this_does_not_exist\" is not in options [\"one\", \"two\", \"three\", \"four\"]")
+      expect(vary_config).to have_received(:errbit).with('"this_does_not_exist" is not in options ["one", "two", "three", "four"]')
     end
 
     it "tells errbit about only invalid variant_name(s)" do
       vary_config.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
 
-      expect(vary_config).to have_received(:errbit).with("\"this_does_not_exist\" is not in options [\"one\", \"two\", \"three\", \"four\"]")
-      expect(vary_config).to have_received(:errbit).with("\"and_neither_does_this_one\" is not in options [\"one\", \"two\", \"three\", \"four\"]")
+      expect(vary_config).to have_received(:errbit).with('"this_does_not_exist" is not in options ["one", "two", "three", "four"]')
+      expect(vary_config).to have_received(:errbit).with('"and_neither_does_this_one" is not in options ["one", "two", "three", "four"]')
     end
   end
 

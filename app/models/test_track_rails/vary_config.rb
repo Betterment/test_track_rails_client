@@ -20,7 +20,6 @@ module TestTrackRails
 
     def default(variant_name)
       raise ArgumentError, "cannot provide more than one `default`" unless default_variant_name.nil?
-
       raise ArgumentError, "must provide block to `default` for #{variant_name}" unless block_given?
       errbit "\"#{variant_name}\" is not in options #{options}" unless options.include? variant_name.to_s
 
@@ -36,7 +35,7 @@ module TestTrackRails
 
     alias_method :errbit, :puts
 
-    def run # rubocop:disable Metrics/AbcSize
+    def run
       raise ArgumentError, "must provide exactly one `default`" unless default_variant_name
       raise ArgumentError, "must provide at least one `when`" unless branches.size >= 2
       missing_variants = options - branches.keys
