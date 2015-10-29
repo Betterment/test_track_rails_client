@@ -13,12 +13,12 @@ module TestTrackRails
     end
 
     def visitor
-      @visitor ||= Visitor.new(visitor_hash!)
+      @visitor ||= Visitor.new(visitor_opts!)
     end
 
     private
 
-    def visitor_hash!
+    def visitor_opts!
       attributes[:visitor] || raise("Visitor data unavailable until you save this identifier.")
     end
   end
