@@ -4,9 +4,10 @@ module TestTrackRails
 
     def initialize(opts = {})
       @id = opts.delete(:id)
+      @assignment_registry = opts.delete(:assignment_registry)
       unless id
         @id = SecureRandom.uuid
-        @assignment_registry = {} # If we're generating a visitor, we don't need to fetch the registry
+        @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the registry
       end
       raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
     end
@@ -28,7 +29,26 @@ module TestTrackRails
       @split_registry ||= SplitRegistry.to_hash
     end
 
+    def log_in!(identifier_type, identifier)
+      identifier_opts = { identifier_type: identifier_type, visitor_id: id, value: identifier.to_s }
+      begin
+        identifier = Identifier.create!(identifier_opts)
+        merge!(identifier.visitor)
+      rescue Faraday::TimeoutError
+        # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
+        # but subsequent requests will be better off
+        Identifier.delay.create!(identifier_opts)
+      end
+      self
+    end
+
     private
+
+    def merge!(other)
+      @id = other.id
+      new_assignments.except!(*other.assignment_registry.keys)
+      assignment_registry.merge!(other.assignment_registry)
+    end
 
     def generate_assignment_for(split_name)
       VariantCalculator.new(visitor: self, split_name: split_name).variant.tap do |v|
