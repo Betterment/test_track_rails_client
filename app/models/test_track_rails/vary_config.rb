@@ -1,6 +1,6 @@
 module TestTrackRails
   class VaryConfig
-    attr_reader :options, :branches, :assigned_variant_name, :default_variant_name, :defaulted
+    attr_reader :defaulted, :default_variant_name
     alias_method :defaulted?, :defaulted
 
     def initialize(split_name, assigned_variant_name, split_registry)
@@ -28,6 +28,8 @@ module TestTrackRails
     end
 
     private
+
+    attr_reader :options, :branches, :assigned_variant_name
 
     def default_branch
       branches[default_variant_name]

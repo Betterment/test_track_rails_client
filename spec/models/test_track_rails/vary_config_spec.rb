@@ -43,8 +43,8 @@ RSpec.describe TestTrackRails::VaryConfig do
     it "supports multiple variant_names" do
       vary_config.when :one, :two, :three, &:noop
 
-      expect(vary_config.branches.size).to eq 3
-      expect(vary_config.branches.keys).to eq %w(one two three)
+      expect(vary_config.send(:branches).size).to eq 3
+      expect(vary_config.send(:branches).keys).to eq %w(one two three)
     end
 
     it "tells errbit if variant_name not in registry" do
@@ -67,9 +67,9 @@ RSpec.describe TestTrackRails::VaryConfig do
         puts "hello"
       end
 
-      expect(vary_config.branches.size).to eq 1
-      expect(vary_config.branches['one']).to be_a Proc
-      expect(vary_config.branches[:one]).to be_a Proc
+      expect(vary_config.send(:branches).size).to eq 1
+      expect(vary_config.send(:branches)['one']).to be_a Proc
+      expect(vary_config.send(:branches)[:one]).to be_a Proc
     end
 
     it "tells errbit if variant_name not in registry" do
