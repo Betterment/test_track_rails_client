@@ -4,9 +4,6 @@
 require:
   - ruby_spec_helpers/rubocop
 
-inherit_from:
-  - .rubocop_todo.yml
-
 AllCops:
   Exclude:
     - 'bin/**/*'
