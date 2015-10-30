@@ -60,7 +60,7 @@ module TestTrackRails
 
     def assignment_for(split_name)
       split_name = split_name
-      coerce_booleans(assignment_registry[split_name] || generate_assignment_for(split_name))
+      assignment_registry[split_name] || generate_assignment_for(split_name)
     end
 
     def assign_to(split_name, variant)
@@ -70,17 +70,6 @@ module TestTrackRails
     def generate_assignment_for(split_name)
       VariantCalculator.new(visitor: self, split_name: split_name).variant.tap do |v|
         assign_to(split_name, v)
-      end
-    end
-
-    def coerce_booleans(str)
-      case str
-        when "true"
-          true
-        when "false"
-          false
-        else
-          str
       end
     end
   end
