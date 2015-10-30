@@ -43,7 +43,7 @@ module TestTrackRails
       variant
     end
 
-    def require_option(opts, opt_name)
+    def require_option!(opts, opt_name)
       opts.delete(opt_name) || raise(ArgumentError, "Must provide #{opt_name}")
     end
 
