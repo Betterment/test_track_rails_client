@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrackRails::VaryConfig do
+RSpec.describe TestTrackRails::VariantProcRunner do
   let(:vary_config) do
     described_class.new(
       split_name: :button_size,

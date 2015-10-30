@@ -1,5 +1,5 @@
 module TestTrackRails
-  class VaryConfig
+  class VariantProcRunner
     attr_reader :defaulted, :default_variant
     alias_method :defaulted?, :defaulted
 
