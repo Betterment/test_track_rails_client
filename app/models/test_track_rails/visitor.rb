@@ -17,7 +17,7 @@ module TestTrackRails
       v = VaryConfig.new(
         split_name: split_name,
         assigned_variant: assignment_for(split_name.to_s),
-        split_registry:split_registry
+        split_registry: split_registry
       )
       yield v
       result = v.send :run
@@ -56,7 +56,7 @@ module TestTrackRails
       @id = other.id
       new_assignments.except!(*other.assignment_registry.keys)
       assignment_registry.merge!(other.assignment_registry)
-    end 
+    end
 
     def assignment_for(split_name)
       split_name = split_name
