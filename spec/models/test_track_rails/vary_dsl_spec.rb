@@ -65,6 +65,10 @@ RSpec.describe TestTrackRails::VaryDSL do
   end
 
   context "#when" do
+    it "requires at least one variant" do
+      expect { subject.when { "huh?" } }.to raise_error ArgumentError
+    end
+
     it "supports multiple variants" do
       subject.when :one, :two, :three, &:noop
 

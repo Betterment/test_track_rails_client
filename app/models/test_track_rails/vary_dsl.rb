@@ -14,7 +14,7 @@ module TestTrackRails
     end
 
     def when(*variants)
-      raise ArgumentError, "must provide at least one variant" unless variants
+      raise ArgumentError, "must provide at least one variant" unless variants.present?
       variants.each do |variant|
         assign_proc_to_variant(variant, proc)
       end
