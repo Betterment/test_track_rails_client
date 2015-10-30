@@ -67,9 +67,7 @@ module TestTrackRails
     end
 
     def generate_assignment_for(split_name)
-      VariantCalculator.new(visitor: self, split_name: split_name).variant.tap do |v|
-        assign_to(split_name, v)
-      end
+      assign_to(split_name, VariantCalculator.new(visitor: self, split_name: split_name).variant)
     end
   end
 end
