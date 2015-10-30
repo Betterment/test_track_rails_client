@@ -11,7 +11,7 @@ module TestTrackRails
 
       @assigned_variant = assigned_variant.to_s
       @split_variants = split_registry[split_name.to_s].keys
-      @variant_procs = HashWithIndifferentAccess.new
+      @variant_procs = {}
     end
 
     def when(*variants)
