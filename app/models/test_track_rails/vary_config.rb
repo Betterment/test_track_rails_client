@@ -13,14 +13,14 @@ module TestTrackRails
       raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
       @assigned_variant = assigned_variant.to_s
-      @options = split_registry[split_name.to_s].keys
+      @split_variants = split_registry[split_name.to_s].keys
       @branches = HashWithIndifferentAccess.new
     end
 
     def when(*variants)
+      raise ArgumentError, "must provide block to `when` for #{variants.to_sentence}" unless block_given?
       variants.each do |variant|
-        raise ArgumentError, "must provide block to `when` for #{variant}" unless block_given?
-        errbit "\"#{variant}\" is not in options #{options}" unless options.include? variant.to_s
+        errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant.to_s
 
         branches[variant.to_s] = proc
       end
@@ -29,7 +29,7 @@ module TestTrackRails
     def default(variant)
       raise ArgumentError, "cannot provide more than one `default`" unless default_variant.nil?
       raise ArgumentError, "must provide block to `default` for #{variant}" unless block_given?
-      errbit "\"#{variant}\" is not in options #{options}" unless options.include? variant.to_s
+      errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant.to_s
 
       @default_variant = variant.to_s
       branches[variant.to_s] = proc
@@ -37,7 +37,7 @@ module TestTrackRails
 
     private
 
-    attr_reader :options, :branches, :assigned_variant
+    attr_reader :split_variants, :branches, :assigned_variant
 
     def default_branch
       branches[default_variant]
@@ -48,7 +48,7 @@ module TestTrackRails
     def run
       raise ArgumentError, "must provide exactly one `default`" unless default_variant
       raise ArgumentError, "must provide at least one `when`" unless branches.size >= 2
-      missing_variants = options - branches.keys
+      missing_variants = split_variants - branches.keys
       errbit "#{missing_variants.to_sentence} are missing" unless missing_variants.empty?
 
       if branches[assigned_variant].present?
