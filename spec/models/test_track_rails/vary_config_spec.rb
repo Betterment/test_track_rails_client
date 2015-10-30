@@ -55,12 +55,10 @@ RSpec.describe TestTrackRails::VaryConfig do
   end
 
   context "#run" do
-    let(:one_two_variation) do
+    it "tells errbit if all variants aren't covered" do
       vary_config.when(:one) { "hello!" }
       vary_config.default :two, &:noop
-    end
 
-    it "tells errbit if all variants aren't covered" do
       expect(vary_config.send :run).to eq "hello!"
       expect(vary_config).to have_received(:errbit).with("three and four are missing")
     end
@@ -96,7 +94,7 @@ RSpec.describe TestTrackRails::VaryConfig do
 
       expect(vary_config.send(:branches).size).to eq 1
       expect(vary_config.send(:branches)['one']).to be_a Proc
-      expect(vary_config.send(:branches)[:one]).to be_a Proc
+      expect(vary_config.send(:branches)[:one]).to be_nil
     end
 
     it "tells errbit if variant not in registry" do

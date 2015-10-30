@@ -57,7 +57,7 @@ RSpec.describe TestTrackRails::Visitor do
     end
 
     context "new_visitor" do
-      let(:variant_result) do
+      let(:vary_quagmire_split) do
         new_visitor.vary(:quagmire) do |v|
           v.when :untenable do
             raise "this branch shouldn't be executed, buddy"
@@ -69,25 +69,25 @@ RSpec.describe TestTrackRails::Visitor do
       end
 
       it "asks the VariantCalculator for an assignment" do
-        expect(variant_result).to eq "#winning"
+        expect(vary_quagmire_split).to eq "#winning"
         expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: new_visitor, split_name: 'quagmire')
       end
 
       it "updates #new_assignments with assignment" do
-        expect(variant_result).to eq "#winning"
+        expect(vary_quagmire_split).to eq "#winning"
         expect(new_visitor.new_assignments['quagmire']).to eq 'manageable'
       end
     end
 
     context "existing_visitor" do
-      let(:blue_button_split_result) do
+      let(:vary_blue_button_split) do
         existing_visitor.vary :blue_button do |v|
           v.when :true, &blue_block
           v.default :false, &red_block
         end
       end
 
-      let(:time_split_result) do
+      let(:vary_time_split) do
         existing_visitor.vary :time do |v|
           v.when :clobberin_time do
             "Fantastic Four IV: The Fantasticing"
@@ -99,16 +99,16 @@ RSpec.describe TestTrackRails::Visitor do
       end
 
       it "pulls previous assignment from registry" do
-        expect(blue_button_split_result).to eq ".blue"
+        expect(vary_blue_button_split).to eq ".blue"
         expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
 
-        expect(existing_visitor.new_assignments.key?('blue_button')).to be_falsey
+        expect(existing_visitor.new_assignments).not_to have_key('blue_button')
       end
 
       it "creates new assignment for unimplemented previous assignment" do
         expect(existing_visitor.assignment_registry['time']).to eq 'waits_for_no_man'
 
-        expect(time_split_result).to eq "can't touch this"
+        expect(vary_time_split).to eq "can't touch this"
         expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
 
         expect(existing_visitor.new_assignments['time']).to eq 'hammertime'
