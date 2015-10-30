@@ -29,8 +29,10 @@ module TestTrackRails
 
     attr_reader :split_variants, :assigned_variant
 
-    # VERY TEMPORARY. DON'T DO THIS.
-    alias_method :errbit, :puts
+    def errbit(msg)
+      Rails.logger.error(msg)
+      Airbrake.notify_or_ignore(msg)
+    end
 
     def variant_procs
       @variant_procs ||= {}
