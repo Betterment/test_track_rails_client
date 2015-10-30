@@ -58,11 +58,10 @@ RSpec.describe TestTrackRails::VaryConfig do
     let(:one_two_variation) do
       vary_config.when(:one) { "hello!" }
       vary_config.default :two, &:noop
-      vary_config.send :run
     end
 
     it "tells errbit if all variants aren't covered" do
-      expect(one_two_variation).to eq "hello!"
+      expect(vary_config.send :run).to eq "hello!"
       expect(vary_config).to have_received(:errbit).with("three and four are missing")
     end
   end
