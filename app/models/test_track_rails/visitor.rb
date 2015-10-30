@@ -59,7 +59,6 @@ module TestTrackRails
     end
 
     def assignment_for(split_name)
-      split_name = split_name
       assignment_registry[split_name] || generate_assignment_for(split_name)
     end
 
