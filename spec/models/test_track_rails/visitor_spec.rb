@@ -57,7 +57,7 @@ RSpec.describe TestTrackRails::Visitor do
     end
 
     context "new_visitor" do
-      let(:vary_quagmire_split) do
+      def vary_quagmire_split
         new_visitor.vary(:quagmire) do |v|
           v.when :untenable do
             raise "this branch shouldn't be executed, buddy"
@@ -80,14 +80,14 @@ RSpec.describe TestTrackRails::Visitor do
     end
 
     context "existing_visitor" do
-      let(:vary_blue_button_split) do
+      def vary_blue_button_split
         existing_visitor.vary :blue_button do |v|
           v.when :true, &blue_block
           v.default :false, &red_block
         end
       end
 
-      let(:vary_time_split) do
+      def vary_time_split
         existing_visitor.vary :time do |v|
           v.when :clobberin_time do
             "Fantastic Four IV: The Fantasticing"
