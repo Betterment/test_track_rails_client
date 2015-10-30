@@ -14,7 +14,7 @@ module TestTrackRails
 
     def vary(split_name)
       raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-      v = VariantProcRunner.new(
+      v = VaryDSL.new(
         split_name: split_name.to_s,
         assigned_variant: assignment_for(split_name.to_s),
         split_registry: split_registry
