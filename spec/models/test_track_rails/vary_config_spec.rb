@@ -1,7 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe TestTrackRails::VaryConfig do
-  let(:vary_config) { described_class.new(:button_size, :one, split_registry) }
+  let(:vary_config) do
+    described_class.new(
+      split_name: :button_size,
+      assigned_variant_name: :one,
+      split_registry: split_registry
+    )
+  end
   let(:split_registry) do
     {
       'button_size' => {
@@ -24,6 +30,28 @@ RSpec.describe TestTrackRails::VaryConfig do
 
   it "isn't defaulted by default" do
     expect(vary_config.defaulted?).to be_falsey
+  end
+
+  context "#initialize" do
+    it "raises when given an unknown option" do
+      expect do
+        described_class.new(
+          split_name: :button_size,
+          assigned_variant_name: :one,
+          split_registry: split_registry,
+          one_of_these_things_is_not_like_the_other: "hint: its me!"
+        )
+      end.to raise_error ArgumentError
+    end
+
+    it "raises when missing a required option" do
+      expect do
+        described_class.new(
+          assigned_variant_name: :one,
+          split_registry: split_registry
+        )
+      end.to raise_error ArgumentError
+    end
   end
 
   context "#run" do

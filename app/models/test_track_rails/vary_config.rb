@@ -3,7 +3,15 @@ module TestTrackRails
     attr_reader :defaulted, :default_variant_name
     alias_method :defaulted?, :defaulted
 
-    def initialize(split_name, assigned_variant_name, split_registry)
+    def initialize(opts)
+      split_name = opts.delete(:split_name)
+      raise ArgumentError, "Must provide split_name" unless split_name
+      assigned_variant_name = opts.delete(:assigned_variant_name)
+      raise ArgumentError, "Must provide assigned_variant_name" unless assigned_variant_name
+      split_registry = opts.delete(:split_registry)
+      raise ArgumentError, "Must provide split_registry" unless split_registry
+      raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
+
       @assigned_variant_name = assigned_variant_name.to_s
       @options = split_registry[split_name.to_s].keys
       @branches = HashWithIndifferentAccess.new

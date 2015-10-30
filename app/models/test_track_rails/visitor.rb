@@ -14,7 +14,11 @@ module TestTrackRails
 
     def vary(split_name)
       raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-      v = VaryConfig.new(split_name, assignment_for(split_name), split_registry)
+      v = VaryConfig.new(
+        split_name: split_name,
+        assigned_variant_name: assignment_for(split_name),
+        split_registry:split_registry
+      )
       yield v
       result = v.send :run
       assign_to(split_name, v.default_variant_name) if v.defaulted?
