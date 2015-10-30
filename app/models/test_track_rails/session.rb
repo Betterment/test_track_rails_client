@@ -36,6 +36,15 @@ module TestTrackRails
       @cookie_domian ||= "." + PublicSuffix.parse(request.host).domain
     end
 
+    def state_hash
+      {
+        url: TestTrackRails.url,
+        cookieDomain: cookie_domain,
+        registry: visitor.split_registry,
+        assignments: visitor.assignment_registry
+      }
+    end
+
     private
 
     attr_reader :controller

@@ -113,4 +113,28 @@ RSpec.describe TestTrackRails::Session do
       expect(cookies[:foo][:expires]).to eq Time.zone.parse('2012-01-01')
     end
   end
+
+  describe "#state_hash" do
+    let(:visitor) { instance_double(TestTrackRails::Visitor, split_registry: "split registry", assignment_registry: "assignment registry") }
+    before do
+      allow(subject).to receive(:visitor).and_return(visitor)
+    end
+
+    it "includes the test track URL" do
+      expect(subject.state_hash[:url]).to eq "http://testtrack.dev"
+    end
+
+    it "includes the cookie_domain" do
+      allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
+      expect(subject.state_hash[:cookieDomain]).to eq(".boom.com")
+    end
+
+    it "includes the split registry" do
+      expect(subject.state_hash[:registry]).to eq("split registry")
+    end
+
+    it "includes the assignment registry" do
+      expect(subject.state_hash[:assignments]).to eq("assignment registry")
+    end
+  end
 end
