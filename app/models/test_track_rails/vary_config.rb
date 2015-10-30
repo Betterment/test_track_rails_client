@@ -4,13 +4,9 @@ module TestTrackRails
     alias_method :defaulted?, :defaulted
 
     def initialize(opts)
-      def require_option(opt_name)
-        opts.delete(opt_name) || raise(ArgumentError, "Must provide #{opt_name}")
-      end
-
-      split_name = require_option(:split_name)
-      assigned_variant = require_option(:assigned_variant)
-      split_registry = require_option(:split_registry)
+      split_name = require_option(opts, :split_name)
+      assigned_variant = require_option(opts, :assigned_variant)
+      split_registry = require_option(opts, :split_registry)
       raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
       @assigned_variant = assigned_variant.to_s
@@ -45,6 +41,10 @@ module TestTrackRails
 
       variant_procs[variant] = proc
       variant
+    end
+
+    def require_option(opts, opt_name)
+      opts.delete(opt_name) || raise(ArgumentError, "Must provide #{opt_name}")
     end
 
     def default_branch
