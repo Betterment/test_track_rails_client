@@ -15,7 +15,7 @@ module TestTrackRails
 
       @assigned_variant = assigned_variant.to_s
       @split_variants = split_registry[split_name.to_s].keys
-      @branches = HashWithIndifferentAccess.new
+      @variant_procs = HashWithIndifferentAccess.new
     end
 
     def when(*variants)
@@ -32,7 +32,7 @@ module TestTrackRails
 
     private
 
-    attr_reader :split_variants, :branches, :assigned_variant
+    attr_reader :split_variants, :variant_procs, :assigned_variant
 
     # VERY TEMPORARY. DON'T DO THIS.
     alias_method :errbit, :puts
@@ -43,22 +43,22 @@ module TestTrackRails
       raise ArgumentError, "must provide block for #{variant}" unless proc.present?
       errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant
 
-      branches[variant] = proc
+      variant_procs[variant] = proc
       variant
     end
 
     def default_branch
-      branches[default_variant]
+      variant_procs[default_variant]
     end
 
     def run
       raise ArgumentError, "must provide exactly one `default`" unless default_variant
-      raise ArgumentError, "must provide at least one `when`" unless branches.size >= 2
-      missing_variants = split_variants - branches.keys
+      raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
+      missing_variants = split_variants - variant_procs.keys
       errbit "#{missing_variants.to_sentence} are missing" unless missing_variants.empty?
 
-      if branches[assigned_variant].present?
-        chosen_path = branches[assigned_variant]
+      if variant_procs[assigned_variant].present?
+        chosen_path = variant_procs[assigned_variant]
       else
         chosen_path = default_branch
         @defaulted = true
