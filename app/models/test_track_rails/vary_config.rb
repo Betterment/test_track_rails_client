@@ -52,10 +52,7 @@ module TestTrackRails
     end
 
     def run
-      raise ArgumentError, "must provide exactly one `default`" unless default_variant
-      raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
-      missing_variants = split_variants - variant_procs.keys
-      errbit "#{missing_variants.to_sentence} are missing" unless missing_variants.empty?
+      validate!
 
       if variant_procs[assigned_variant].present?
         chosen_path = variant_procs[assigned_variant]
@@ -64,6 +61,13 @@ module TestTrackRails
         @defaulted = true
       end
       chosen_path.call
+    end
+
+    def validate!
+      raise ArgumentError, "must provide exactly one `default`" unless default_variant
+      raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
+      missing_variants = split_variants - variant_procs.keys
+      errbit "#{missing_variants.to_sentence} are missing" unless missing_variants.empty?
     end
   end
 end
