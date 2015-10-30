@@ -4,12 +4,13 @@ module TestTrackRails
     alias_method :defaulted?, :defaulted
 
     def initialize(opts)
-      split_name = opts.delete(:split_name)
-      raise ArgumentError, "Must provide split_name" unless split_name
-      assigned_variant = opts.delete(:assigned_variant)
-      raise ArgumentError, "Must provide assigned_variant" unless assigned_variant
-      split_registry = opts.delete(:split_registry)
-      raise ArgumentError, "Must provide split_registry" unless split_registry
+      def require_option(opt_name)
+        opts.delete(opt_name) || raise(ArgumentError, "Must provide #{opt_name}")
+      end
+
+      split_name = require_option(:split_name)
+      assigned_variant = require_option(:assigned_variant)
+      split_registry = require_option(:split_registry)
       raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
       @assigned_variant = assigned_variant.to_s
@@ -18,32 +19,37 @@ module TestTrackRails
     end
 
     def when(*variants)
-      raise ArgumentError, "must provide block to `when` for #{variants.to_sentence}" unless block_given?
+      raise ArgumentError, "must provide at least one variant" unless variants
       variants.each do |variant|
-        errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant.to_s
-
-        branches[variant.to_s] = proc
+        assign_proc_to_variant(variant, proc)
       end
     end
 
     def default(variant)
       raise ArgumentError, "cannot provide more than one `default`" unless default_variant.nil?
-      raise ArgumentError, "must provide block to `default` for #{variant}" unless block_given?
-      errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant.to_s
-
-      @default_variant = variant.to_s
-      branches[variant.to_s] = proc
+      @default_variant = assign_proc_to_variant(variant, proc)
     end
 
     private
 
     attr_reader :split_variants, :branches, :assigned_variant
 
+    # VERY TEMPORARY. DON'T DO THIS.
+    alias_method :errbit, :puts
+
+    def assign_proc_to_variant(variant, proc)
+      variant = variant.to_s
+
+      raise ArgumentError, "must provide block for #{variant}" unless proc.present?
+      errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant
+
+      branches[variant] = proc
+      variant
+    end
+
     def default_branch
       branches[default_variant]
     end
-
-    alias_method :errbit, :puts
 
     def run
       raise ArgumentError, "must provide exactly one `default`" unless default_variant
