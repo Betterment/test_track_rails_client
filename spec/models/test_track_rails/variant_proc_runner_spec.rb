@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrackRails::VariantProcRunner do
-  let(:vary_config) do
+  subject do
     described_class.new(
       split_name: :button_size,
       assigned_variant: :one,
@@ -25,11 +25,11 @@ RSpec.describe TestTrackRails::VariantProcRunner do
   let(:noop) { -> {} }
 
   before do
-    allow(vary_config).to receive(:errbit).and_call_original
+    allow(subject).to receive(:errbit).and_call_original
   end
 
   it "isn't defaulted by default" do
-    expect(vary_config.defaulted?).to be_falsey
+    expect(subject.defaulted?).to be_falsey
   end
 
   context "#initialize" do
@@ -56,53 +56,53 @@ RSpec.describe TestTrackRails::VariantProcRunner do
 
   context "#run" do
     it "tells errbit if all variants aren't covered" do
-      vary_config.when(:one) { "hello!" }
-      vary_config.default :two, &:noop
+      subject.when(:one) { "hello!" }
+      subject.default :two, &:noop
 
-      expect(vary_config.send :run).to eq "hello!"
-      expect(vary_config).to have_received(:errbit).with("three and four are missing")
+      expect(subject.send :run).to eq "hello!"
+      expect(subject).to have_received(:errbit).with("three and four are missing")
     end
   end
 
   context "#when" do
     it "supports multiple variants" do
-      vary_config.when :one, :two, :three, &:noop
+      subject.when :one, :two, :three, &:noop
 
-      expect(vary_config.send(:variant_procs).size).to eq 3
-      expect(vary_config.send(:variant_procs).keys).to eq %w(one two three)
+      expect(subject.send(:variant_procs).size).to eq 3
+      expect(subject.send(:variant_procs).keys).to eq %w(one two three)
     end
 
     it "tells errbit if variant not in registry" do
-      vary_config.when :this_does_not_exist, &:noop
+      subject.when :this_does_not_exist, &:noop
 
-      expect(vary_config).to have_received(:errbit).with('"this_does_not_exist" is not in split_variants ["one", "two", "three", "four"]')
+      expect(subject).to have_received(:errbit).with('"this_does_not_exist" is not in split_variants ["one", "two", "three", "four"]')
     end
 
     it "tells errbit about only invalid variant(s)" do
-      vary_config.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
+      subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
 
-      expect(vary_config).to have_received(:errbit).with(
+      expect(subject).to have_received(:errbit).with(
         '"this_does_not_exist" is not in split_variants ["one", "two", "three", "four"]')
-      expect(vary_config).to have_received(:errbit).with(
+      expect(subject).to have_received(:errbit).with(
         '"and_neither_does_this_one" is not in split_variants ["one", "two", "three", "four"]')
     end
   end
 
   context "#default" do
     it "accepts a block" do
-      vary_config.when :one do
+      subject.when :one do
         puts "hello"
       end
 
-      expect(vary_config.send(:variant_procs).size).to eq 1
-      expect(vary_config.send(:variant_procs)['one']).to be_a Proc
-      expect(vary_config.send(:variant_procs)[:one]).to be_nil
+      expect(subject.send(:variant_procs).size).to eq 1
+      expect(subject.send(:variant_procs)['one']).to be_a Proc
+      expect(subject.send(:variant_procs)[:one]).to be_nil
     end
 
     it "tells errbit if variant not in registry" do
-      vary_config.default :this_does_not_exist, &:noop
+      subject.default :this_does_not_exist, &:noop
 
-      expect(vary_config).to have_received(:errbit)
+      expect(subject).to have_received(:errbit)
     end
   end
 end
