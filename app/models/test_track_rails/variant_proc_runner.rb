@@ -4,14 +4,13 @@ module TestTrackRails
     alias_method :defaulted?, :defaulted
 
     def initialize(opts)
-      split_name = require_option(opts, :split_name)
-      assigned_variant = require_option(opts, :assigned_variant)
-      split_registry = require_option(opts, :split_registry)
+      split_name = require_option!(opts, :split_name)
+      assigned_variant = require_option!(opts, :assigned_variant)
+      split_registry = require_option!(opts, :split_registry)
       raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
       @assigned_variant = assigned_variant.to_s
       @split_variants = split_registry[split_name.to_s].keys
-      @variant_procs = {}
     end
 
     def when(*variants)
@@ -28,10 +27,14 @@ module TestTrackRails
 
     private
 
-    attr_reader :split_variants, :variant_procs, :assigned_variant
+    attr_reader :split_variants, :assigned_variant
 
     # VERY TEMPORARY. DON'T DO THIS.
     alias_method :errbit, :puts
+
+    def variant_procs
+      @variant_procs ||= {}
+    end
 
     def assign_proc_to_variant(variant, proc)
       variant = variant.to_s
