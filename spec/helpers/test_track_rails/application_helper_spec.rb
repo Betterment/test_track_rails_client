@@ -25,11 +25,17 @@ RSpec.describe TestTrackRails::ApplicationHelper do
 
       expect(result).to include('<div class="_tt" style="visibility:hidden;width:0;height:0;">')
       expect(result).to include("<script>")
-      expect(result).to include("window.TT = {")
-      expect(result).to include("url: 'http://testtrack.dev',")
-      expect(result).to include("cookieDomain: '.example.com',")
-      expect(result).to include('registry: {"time":{"hammertime":0,"millertime":100}},')
-      expect(result).to include('assignments: {"time":"hammertime"}')
+
+      base64_variable_match = result.match(/window.TT = '(.+)';/)
+
+      expect(base64_variable_match).to be_present
+
+      state_hash = JSON.load(Base64.strict_decode64(base64_variable_match[1]))
+
+      expect(state_hash).to include('url' => 'http://testtrack.dev')
+      expect(state_hash).to include('cookieDomain' => '.example.com')
+      expect(state_hash).to include('registry' => { "time" => { "hammertime" => 0, "millertime" => 100 } })
+      expect(state_hash).to include('assignments' => { "time" => "hammertime" })
     end
   end
 end
