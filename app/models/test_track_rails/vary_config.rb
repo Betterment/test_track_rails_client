@@ -47,7 +47,7 @@ module TestTrackRails
       opts.delete(opt_name) || raise(ArgumentError, "Must provide #{opt_name}")
     end
 
-    def default_branch
+    def default_proc
       variant_procs[default_variant]
     end
 
@@ -55,12 +55,12 @@ module TestTrackRails
       validate!
 
       if variant_procs[assigned_variant].present?
-        chosen_path = variant_procs[assigned_variant]
+        chosen_proc = variant_procs[assigned_variant]
       else
-        chosen_path = default_branch
+        chosen_proc = default_proc
         @defaulted = true
       end
-      chosen_path.call
+      chosen_proc.call
     end
 
     def validate!
