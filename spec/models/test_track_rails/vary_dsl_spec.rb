@@ -41,7 +41,7 @@ RSpec.describe TestTrackRails::VaryDSL do
           split_registry: split_registry,
           one_of_these_things_is_not_like_the_other: "hint: its me!"
         )
-      end.to raise_error ArgumentError
+      end.to raise_error("unknown opts: one_of_these_things_is_not_like_the_other")
     end
 
     it "raises when missing a required option" do
@@ -50,7 +50,7 @@ RSpec.describe TestTrackRails::VaryDSL do
           assigned_variant: :one,
           split_registry: split_registry
         )
-      end.to raise_error ArgumentError
+      end.to raise_error("Must provide split_name")
     end
   end
 
@@ -66,7 +66,7 @@ RSpec.describe TestTrackRails::VaryDSL do
 
   context "#when" do
     it "requires at least one variant" do
-      expect { subject.when { "huh?" } }.to raise_error ArgumentError
+      expect { subject.when { "huh?" } }.to raise_error("must provide at least one variant")
     end
 
     it "supports multiple variants" do
