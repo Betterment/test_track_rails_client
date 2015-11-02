@@ -80,7 +80,7 @@ module TestTrackRails
       raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
       return true unless split_variants
       missing_variants = split_variants - variant_procs.keys
-      errbit_because_vary "does not configure variants #{missing_variants.to_sentence}" unless missing_variants.empty?
+      errbit_because_vary("does not configure variants #{missing_variants.to_sentence}") && false unless missing_variants.empty?
     end
   end
 end
