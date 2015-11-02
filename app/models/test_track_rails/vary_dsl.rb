@@ -5,13 +5,13 @@ module TestTrackRails
 
     def initialize(opts)
       split_name = require_option!(opts, :split_name)
-      assigned_variant = require_option!(opts, :assigned_variant)
-      split_registry = require_option!(opts, :split_registry)
+      assigned_variant = require_option!(opts, :assigned_variant, allow_nil: true)
+      split_registry = require_option!(opts, :split_registry, allow_nil: true)
       raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
       @split_name = split_name.to_s
-      @assigned_variant = assigned_variant.to_s
-      @split_variants = split_registry[split_name.to_s].keys
+      @assigned_variant = assigned_variant.to_s if assigned_variant
+      @split_variants = split_registry[split_name.to_s].keys if split_registry
     end
 
     def when(*variants)
@@ -42,15 +42,21 @@ module TestTrackRails
     def assign_proc_to_variant(variant, proc)
       variant = variant.to_s
 
-      raise ArgumentError, "must provide block for #{variant}" unless proc.present?
-      errbit_because_vary "configures unknown variant \"#{variant}\"" unless split_variants.include? variant
+      raise ArgumentError, "must provide block for #{variant}" unless proc
+      errbit_because_vary "configures unknown variant \"#{variant}\"" unless variant_acceptable?(variant)
 
       variant_procs[variant] = proc
       variant
     end
 
-    def require_option!(opts, opt_name)
-      opts.delete(opt_name) || raise(ArgumentError, "Must provide #{opt_name}")
+    def variant_acceptable?(variant)
+      split_variants ? split_variants.include?(variant) : true # If we're flying blind (with no split registry), assume the dev is correct
+    end
+
+    def require_option!(opts, opt_name, my_opts = {})
+      opt_provided = my_opts[:allow_nil] ? opts.key?(opt_name) : opts[opt_name]
+      raise(ArgumentError, "Must provide #{opt_name}") unless opt_provided
+      opts.delete(opt_name)
     end
 
     def default_proc
@@ -60,7 +66,7 @@ module TestTrackRails
     def run
       validate!
 
-      if variant_procs[assigned_variant].present?
+      if variant_procs[assigned_variant]
         chosen_proc = variant_procs[assigned_variant]
       else
         chosen_proc = default_proc
@@ -72,6 +78,7 @@ module TestTrackRails
     def validate!
       raise ArgumentError, "must provide exactly one `default`" unless default_variant
       raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
+      return true unless split_variants
       missing_variants = split_variants - variant_procs.keys
       errbit_because_vary "does not configure variants #{missing_variants.to_sentence}" unless missing_variants.empty?
     end
