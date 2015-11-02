@@ -36,7 +36,7 @@ PATH
     test_track_rails_client (0.0.1)
       airbrake
       delayed-plugins-airbrake
-      delayed_job (~> 4.1)
+      delayed_job (~> 4.0)
       delayed_job_active_record
       fakeable_her
       faraday_middleware
