@@ -18,5 +18,13 @@ RSpec.describe TestTrackRails::SplitRegistry do
     it "freezes the returned hash even when retrieving from cache" do
       2.times { expect { described_class.to_hash[:foo] = "bar" }.to raise_error(/frozen/) }
     end
+
+    it "returns nil if the server times out" do
+      allow(described_class).to receive(:instance) { raise(Faraday::TimeoutError, "too slow!") }
+
+      expect(described_class.to_hash).to eq(nil)
+
+      expect(described_class).to have_received(:instance)
+    end
   end
 end

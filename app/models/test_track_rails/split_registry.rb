@@ -24,6 +24,8 @@ module TestTrackRails
       Rails.cache.fetch('test_track_split_registry', expires_in: 5.seconds) do
         instance.attributes
       end.freeze
+    rescue Faraday::TimeoutError
+      nil # Return a nil hash if we can't get a split regsitry
     end
   end
 end

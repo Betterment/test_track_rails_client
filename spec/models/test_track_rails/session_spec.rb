@@ -136,5 +136,17 @@ RSpec.describe TestTrackRails::Session do
     it "includes the assignment registry" do
       expect(subject.state_hash[:assignments]).to eq("assignment registry")
     end
+
+    it "includes a nil :registry if visitor returns a nil split_registry" do
+      allow(visitor).to receive(:split_registry).and_return(nil)
+      expect(subject.state_hash).to have_key(:registry)
+      expect(subject.state_hash[:registry]).to eq(nil)
+    end
+
+    it "includes a nil :assignments if visitor returns a nil assignment_registry" do
+      allow(visitor).to receive(:assignment_registry).and_return(nil)
+      expect(subject.state_hash).to have_key(:assignments)
+      expect(subject.state_hash[:assignments]).to eq(nil)
+    end
   end
 end

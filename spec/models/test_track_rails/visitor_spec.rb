@@ -46,6 +46,14 @@ RSpec.describe TestTrackRails::Visitor do
     it "returns the server-provided assignments for an existing visitor" do
       expect(existing_visitor.assignment_registry).to eq assignment_registry
     end
+
+    it "returns nil if fetching the registry times out" do
+      allow(TestTrackRails::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "Womp womp") }
+
+      expect(existing_visitor.assignment_registry).to eq nil
+
+      expect(TestTrackRails::AssignmentRegistry).to have_received(:for_visitor)
+    end
   end
 
   describe "#vary" do
