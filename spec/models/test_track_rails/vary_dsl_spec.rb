@@ -75,7 +75,7 @@ RSpec.describe TestTrackRails::VaryDSL do
         expect(subject.send :run).to eq "hello!"
       end
 
-      it "alert airbrake about misconfiguration" do
+      it "doesn't alert airbrake about misconfiguration" do
         expect(Airbrake).not_to have_received(:notify_or_ignore)
       end
     end
