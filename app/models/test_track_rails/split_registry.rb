@@ -25,7 +25,7 @@ module TestTrackRails
         instance.attributes
       end.freeze
     rescue Faraday::TimeoutError
-      nil # Return a nil hash if we can't get a split regsitry
+      nil # if we can't get a split registry
     end
   end
 end
