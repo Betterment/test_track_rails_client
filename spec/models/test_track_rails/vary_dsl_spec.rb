@@ -85,8 +85,10 @@ RSpec.describe TestTrackRails::VaryDSL do
     it "tells errbit about only invalid variant(s)" do
       subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
 
-      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_does_not_exist"')
-      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "and_neither_does_this_one"')
+      expect(Airbrake).to have_received(:notify_or_ignore)
+        .with('vary for "button_size" configures unknown variant "this_does_not_exist"')
+      expect(Airbrake).to have_received(:notify_or_ignore)
+        .with('vary for "button_size" configures unknown variant "and_neither_does_this_one"')
     end
   end
 
@@ -104,7 +106,8 @@ RSpec.describe TestTrackRails::VaryDSL do
     it "tells errbit if variant not in registry" do
       subject.default :this_default_does_not_exist, &:noop
 
-      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_default_does_not_exist"')
+      expect(Airbrake).to have_received(:notify_or_ignore)
+        .with('vary for "button_size" configures unknown variant "this_default_does_not_exist"')
     end
   end
 end
