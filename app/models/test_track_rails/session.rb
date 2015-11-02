@@ -5,6 +5,8 @@ module TestTrackRails
   class Session
     COOKIE_LIFESPAN = 1.year # Used for mixpanel cookie and tt_visitor_id cookie
 
+    delegate :split_registry, to: :visitor # for memoize sharing, visitor needs it too
+
     attr_reader :mixpanel_distinct_id
 
     def initialize(controller)
@@ -40,7 +42,7 @@ module TestTrackRails
       {
         url: TestTrackRails.url,
         cookieDomain: cookie_domain,
-        registry: visitor.split_registry,
+        registry: split_registry,
         assignments: visitor.assignment_registry
       }
     end

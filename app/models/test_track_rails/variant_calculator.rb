@@ -15,6 +15,7 @@ module TestTrackRails
     end
 
     def variant
+      return nil unless split_registry
       @variant ||= _variant || raise("Assignment bucket out of range. #{assignment_bucket} unmatched in #{split_name}: #{weighting}")
     end
 

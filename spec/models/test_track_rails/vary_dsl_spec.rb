@@ -57,10 +57,46 @@ RSpec.describe TestTrackRails::VaryDSL do
   context "#run" do
     it "tells errbit if all variants aren't covered" do
       subject.when(:one) { "hello!" }
-      subject.default :two, &:noop
+      subject.default :two, &noop
 
       expect(subject.send :run).to eq "hello!"
       expect(Airbrake).to have_received(:notify_or_ignore).with("vary for \"button_size\" does not configure variants three and four")
+    end
+
+    context "with a nil split_registry" do
+      let(:split_registry) { nil }
+
+      before do
+        subject.when(:one) { "hello!" }
+        subject.default :two, &noop
+      end
+
+      it "still runs the correct proc" do
+        expect(subject.send :run).to eq "hello!"
+      end
+
+      it "doesn't alert airbrake about misconfiguration" do
+        expect(Airbrake).not_to have_received(:notify_or_ignore)
+      end
+    end
+
+    context "with a nil assignment" do
+      before do
+        subject.when(:one) { "regular" }
+        subject.default(:two) { "default" }
+      end
+
+      subject do
+        described_class.new(
+          split_name: :button_size,
+          assigned_variant: nil,
+          split_registry: split_registry
+        )
+      end
+
+      it "runs the default proc" do
+        expect(subject.send(:run)).to eq "default"
+      end
     end
   end
 
@@ -70,25 +106,35 @@ RSpec.describe TestTrackRails::VaryDSL do
     end
 
     it "supports multiple variants" do
-      subject.when :one, :two, :three, &:noop
+      subject.when :one, :two, :three, &noop
 
       expect(subject.send(:variant_procs).size).to eq 3
       expect(subject.send(:variant_procs).keys).to eq %w(one two three)
     end
 
     it "tells errbit if variant not in registry" do
-      subject.when :this_does_not_exist, &:noop
+      subject.when :this_does_not_exist, &noop
 
       expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_does_not_exist"')
     end
 
     it "tells errbit about only invalid variant(s)" do
-      subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
+      subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &noop
 
       expect(Airbrake).to have_received(:notify_or_ignore)
         .with('vary for "button_size" configures unknown variant "this_does_not_exist"')
       expect(Airbrake).to have_received(:notify_or_ignore)
         .with('vary for "button_size" configures unknown variant "and_neither_does_this_one"')
+    end
+
+    context "with a nil split_registry" do
+      let(:split_registry) { nil }
+
+      it "assumes all variants are valid" do
+        subject.when :something_random, &noop
+
+        expect(Airbrake).not_to have_received(:notify_or_ignore)
+      end
     end
   end
 
@@ -104,10 +150,20 @@ RSpec.describe TestTrackRails::VaryDSL do
     end
 
     it "tells errbit if variant not in registry" do
-      subject.default :this_default_does_not_exist, &:noop
+      subject.default :this_default_does_not_exist, &noop
 
       expect(Airbrake).to have_received(:notify_or_ignore)
         .with('vary for "button_size" configures unknown variant "this_default_does_not_exist"')
+    end
+
+    context "with a nil split_registry" do
+      let(:split_registry) { nil }
+
+      it "assumes all variants are valid" do
+        subject.default :something_random, &noop
+
+        expect(Airbrake).not_to have_received(:notify_or_ignore)
+      end
     end
   end
 end

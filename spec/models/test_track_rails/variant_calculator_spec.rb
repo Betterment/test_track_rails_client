@@ -93,6 +93,14 @@ RSpec.describe TestTrackRails::VariantCalculator do
   end
 
   describe "#variant" do
+    context "with a nil split_registry" do
+      let(:split_registry) { nil }
+
+      it "returns nil if split registry isn't present" do
+        expect(subject.variant).to eq nil
+      end
+    end
+
     context "in logo_size split" do
       let(:split_registry) do
         {

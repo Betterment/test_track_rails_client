@@ -25,6 +25,8 @@ module TestTrackRails
 
     def assignment_registry
       @assignment_registry ||= TestTrackRails::AssignmentRegistry.for_visitor(id).attributes
+    rescue Faraday::TimeoutError
+      nil
     end
 
     def new_assignments
@@ -59,15 +61,19 @@ module TestTrackRails
     end
 
     def assignment_for(split_name)
-      assignment_registry[split_name] || generate_assignment_for(split_name)
+      fetch_assignment_for(split_name) || generate_assignment_for(split_name)
     end
 
-    def assign_to(split_name, variant)
-      new_assignments[split_name] = assignment_registry[split_name] = variant
+    def fetch_assignment_for(split_name)
+      assignment_registry[split_name] if assignment_registry
     end
 
     def generate_assignment_for(split_name)
       assign_to(split_name, VariantCalculator.new(visitor: self, split_name: split_name).variant)
+    end
+
+    def assign_to(split_name, variant)
+      new_assignments[split_name] = assignment_registry[split_name] = variant
     end
   end
 end
