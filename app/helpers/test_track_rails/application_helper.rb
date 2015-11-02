@@ -1,16 +1,9 @@
 module TestTrackRails
   module ApplicationHelper
     def test_track_setup_tag
-      js = javascript_tag(render(partial: 'test_track_rails/setup.js.erb').chomp)
+      state_json_base64 = Base64.strict_encode64(test_track_session.state_hash.to_json)
+      js = javascript_tag("window.TT = '#{state_json_base64}';")
       content_tag(:div, js, class: '_tt', style: 'visibility:hidden;width:0;height:0;')
-    end
-
-    def test_track_split_registry_json
-      raw(test_track_visitor.split_registry.to_json) # rubocop:disable Betterment/Raw
-    end
-
-    def test_track_assignment_registry_json
-      raw(test_track_visitor.assignment_registry.to_json) # rubocop:disable Betterment/Raw
     end
   end
 end
