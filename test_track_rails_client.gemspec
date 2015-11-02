@@ -5,7 +5,7 @@ require "test_track_rails/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "test_track_rails"
+  s.name        = "test_track_rails_client"
   s.version     = TestTrackRails::VERSION
   s.authors     = ["John Mileham", "Alan Norton"]
   s.email       = ["john@betterment.com"]

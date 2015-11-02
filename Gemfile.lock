@@ -33,7 +33,7 @@ GIT
 PATH
   remote: .
   specs:
-    test_track_rails (0.0.1)
+    test_track_rails_client (0.0.1)
       airbrake
       delayed-plugins-airbrake
       delayed_job (~> 4.1)
@@ -225,5 +225,5 @@ DEPENDENCIES
   rubocop
   ruby_spec_helpers!
   sqlite3
-  test_track_rails!
+  test_track_rails_client!
   timecop
