@@ -12,9 +12,15 @@ module TestTrackRails
       raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
     end
 
-    def assignment_for(split_name)
+    def vary(split_name)
       split_name = split_name.to_s
-      coerce_booleans(assignment_registry[split_name] || generate_assignment_for(split_name))
+
+      raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
+      v = VaryDSL.new(split_name: split_name, assigned_variant: assignment_for(split_name), split_registry: split_registry)
+      yield v
+      result = v.send :run
+      assign_to(split_name, v.default_variant) if v.defaulted?
+      result
     end
 
     def assignment_registry
@@ -50,21 +56,16 @@ module TestTrackRails
       assignment_registry.merge!(other.assignment_registry)
     end
 
-    def generate_assignment_for(split_name)
-      VariantCalculator.new(visitor: self, split_name: split_name).variant.tap do |v|
-        new_assignments[split_name] = assignment_registry[split_name] = v
-      end
+    def assignment_for(split_name)
+      assignment_registry[split_name] || generate_assignment_for(split_name)
     end
 
-    def coerce_booleans(str)
-      case str
-        when "true"
-          true
-        when "false"
-          false
-        else
-          str
-      end
+    def assign_to(split_name, variant)
+      new_assignments[split_name] = assignment_registry[split_name] = variant
+    end
+
+    def generate_assignment_for(split_name)
+      assign_to(split_name, VariantCalculator.new(visitor: self, split_name: split_name).variant)
     end
   end
 end

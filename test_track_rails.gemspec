@@ -23,7 +23,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'mixpanel-ruby', '~> 2.2.0'
   s.add_dependency 'delayed_job', '~> 4.1'
   s.add_dependency 'delayed_job_active_record'
+  s.add_dependency 'airbrake'
+  s.add_dependency 'delayed-plugins-airbrake'
 
   s.add_development_dependency "sqlite3"
+  s.add_development_dependency "pry-rails"
   s.add_development_dependency "timecop"
 end

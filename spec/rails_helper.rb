@@ -9,6 +9,7 @@ require 'rspec/rails'
 require 'timecop'
 require 'delayed_job'
 require 'delayed_job_active_record'
+require 'pry'
 
 # load all files in support folders
 Dir[TestTrackRails::Engine.root.join("spec/support/**/*.rb")].each { |f| require f }

@@ -4,7 +4,7 @@ RSpec.describe TestTrackRails::Visitor do
   let(:new_visitor) { described_class.new }
   let(:existing_visitor) { described_class.new(id: existing_visitor_id) }
   let(:existing_visitor_id) { "00000000-0000-0000-0000-000000000000" }
-  let(:assignment_registry) { { 'blue_button' => 'true' } }
+  let(:assignment_registry) { { 'blue_button' => 'true', 'time' => 'waits_for_no_man' } }
   let(:split_registry) do
     {
       'blue_button' => {
@@ -14,6 +14,10 @@ RSpec.describe TestTrackRails::Visitor do
       'quagmire' => {
         'untenable' => 50,
         'manageable' => 50
+      },
+      'time' => {
+        'hammertime' => 100,
+        'clobberin_time' => 0
       }
     }
   end
@@ -44,41 +48,99 @@ RSpec.describe TestTrackRails::Visitor do
     end
   end
 
-  describe "#new_assignments" do
-    it "doesn't include a server-provided assignment, even if requested" do
-      expect(existing_visitor.assignment_for('blue_button')).to eq(true)
+  describe "#vary" do
+    let(:blue_block) { -> { '.blue' } }
+    let(:red_block) { -> { '.red' } }
 
-      expect(existing_visitor.new_assignments).not_to have_key('blue_button')
-    end
-  end
-
-  describe "#assignment_for" do
     before do
-      allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
+      allow(TestTrackRails::VariantCalculator).to receive(:new).and_return(double(variant: 'manageable'))
     end
 
-    it "returns an existing assignment without generating" do
-      expect(existing_visitor.assignment_for('blue_button')).to eq(true)
+    context "new_visitor" do
+      def vary_quagmire_split
+        new_visitor.vary(:quagmire) do |v|
+          v.when :untenable do
+            raise "this branch shouldn't be executed, buddy"
+          end
+          v.default :manageable do
+            "#winning"
+          end
+        end
+      end
 
-      expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
+      it "asks the VariantCalculator for an assignment" do
+        expect(vary_quagmire_split).to eq "#winning"
+        expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: new_visitor, split_name: 'quagmire')
+      end
+
+      it "updates #new_assignments with assignment" do
+        expect(vary_quagmire_split).to eq "#winning"
+        expect(new_visitor.new_assignments['quagmire']).to eq 'manageable'
+      end
     end
 
-    it "assigns a new split via VariantCalculator" do
-      expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
+    context "existing_visitor" do
+      def vary_blue_button_split
+        existing_visitor.vary :blue_button do |v|
+          v.when :true, &blue_block
+          v.default :false, &red_block
+        end
+      end
 
-      expect(TestTrackRails::VariantCalculator).to have_received(:new).with(visitor: existing_visitor, split_name: 'quagmire')
+      def vary_time_split
+        existing_visitor.vary :time do |v|
+          v.when :clobberin_time do
+            "Fantastic Four IV: The Fantasticing"
+          end
+          v.default :hammertime do
+            "can't touch this"
+          end
+        end
+      end
+
+      it "pulls previous assignment from registry" do
+        expect(vary_blue_button_split).to eq ".blue"
+        expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
+
+        expect(existing_visitor.new_assignments).not_to have_key('blue_button')
+      end
+
+      it "creates new assignment for unimplemented previous assignment" do
+        expect(existing_visitor.assignment_registry['time']).to eq 'waits_for_no_man'
+
+        expect(vary_time_split).to eq "can't touch this"
+        expect(TestTrackRails::VariantCalculator).not_to have_received(:new)
+
+        expect(existing_visitor.new_assignments['time']).to eq 'hammertime'
+      end
     end
 
-    it "adds new assignments to new_assignments" do
-      expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
+    context "structure" do
+      it "must be given a block" do
+        expect { new_visitor.vary(:blue_button) }.to raise_error("must provide block to `vary` for blue_button")
+      end
 
-      expect(existing_visitor.new_assignments['quagmire']).to eq 'untenable'
-    end
+      it "requires less than two defaults" do
+        expect do
+          new_visitor.vary(:blue_button) do |v|
+            v.when :true, &blue_block
+            v.default :false, &red_block
+            v.default :false, &red_block
+          end
+        end.to raise_error("cannot provide more than one `default`")
+      end
 
-    it "adds new assigments to assignment_registry" do
-      expect(existing_visitor.assignment_for('quagmire')).to eq('untenable')
+      it "requires more than zero defaults" do
+        expect { new_visitor.vary(:blue_button) { |v| v.when(:true, &blue_block) } }.to raise_error("must provide exactly one `default`")
+      end
 
-      expect(existing_visitor.assignment_registry['quagmire']).to eq 'untenable'
+      it "requires at least one when" do
+        expect do
+          new_visitor.vary(:blue_button) do |v|
+            v.default :true, &red_block
+          end
+        end.to raise_error("must provide at least one `when`")
+      end
     end
   end
 
