@@ -48,6 +48,8 @@ module TestTrackRails
       self
     end
 
+    alias_method :sign_up!, :log_in!
+
     private
 
     def merge!(other)
