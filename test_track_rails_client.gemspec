@@ -7,12 +7,12 @@ require "test_track_rails/version"
 Gem::Specification.new do |s|
   s.name        = "test_track_rails"
   s.version     = TestTrackRails::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of TestTrackRails."
-  s.description = "TODO: Description of TestTrackRails."
-  s.license     = "MIT"
+  s.authors     = ["John Mileham", "Alan Norton"]
+  s.email       = ["john@betterment.com"]
+  s.homepage    = "https://github.com/Betterment"
+  s.summary     = "Rails client for TestTrack"
+  s.description = "Easy split testing and feature flagging for Rails with TestTrack server and Mixpanel"
+  s.license     = "All Rights Reserved"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
 
