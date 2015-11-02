@@ -25,7 +25,7 @@ RSpec.describe TestTrackRails::VaryDSL do
   let(:noop) { -> {} }
 
   before do
-    allow(subject).to receive(:errbit).and_call_original
+    allow(Airbrake).to receive(:notify_or_ignore).and_call_original
   end
 
   it "isn't defaulted by default" do
@@ -60,7 +60,7 @@ RSpec.describe TestTrackRails::VaryDSL do
       subject.default :two, &:noop
 
       expect(subject.send :run).to eq "hello!"
-      expect(subject).to have_received(:errbit).with("three and four are missing")
+      expect(Airbrake).to have_received(:notify_or_ignore).with("vary for \"button_size\" does not configure variants three and four")
     end
   end
 
@@ -79,16 +79,14 @@ RSpec.describe TestTrackRails::VaryDSL do
     it "tells errbit if variant not in registry" do
       subject.when :this_does_not_exist, &:noop
 
-      expect(subject).to have_received(:errbit).with('"this_does_not_exist" is not in split_variants ["one", "two", "three", "four"]')
+      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_does_not_exist"')
     end
 
     it "tells errbit about only invalid variant(s)" do
       subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &:noop
 
-      expect(subject).to have_received(:errbit).with(
-        '"this_does_not_exist" is not in split_variants ["one", "two", "three", "four"]')
-      expect(subject).to have_received(:errbit).with(
-        '"and_neither_does_this_one" is not in split_variants ["one", "two", "three", "four"]')
+      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_does_not_exist"')
+      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "and_neither_does_this_one"')
     end
   end
 
@@ -104,9 +102,9 @@ RSpec.describe TestTrackRails::VaryDSL do
     end
 
     it "tells errbit if variant not in registry" do
-      subject.default :this_does_not_exist, &:noop
+      subject.default :this_default_does_not_exist, &:noop
 
-      expect(subject).to have_received(:errbit)
+      expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_default_does_not_exist"')
     end
   end
 end

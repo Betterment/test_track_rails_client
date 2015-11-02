@@ -9,6 +9,7 @@ module TestTrackRails
       split_registry = require_option!(opts, :split_registry)
       raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
+      @split_name = split_name.to_s
       @assigned_variant = assigned_variant.to_s
       @split_variants = split_registry[split_name.to_s].keys
     end
@@ -27,11 +28,11 @@ module TestTrackRails
 
     private
 
-    attr_reader :split_variants, :assigned_variant
+    attr_reader :split_name, :split_variants, :assigned_variant
 
-    def errbit(msg)
+    def errbit_because_vary(msg)
       Rails.logger.error(msg)
-      Airbrake.notify_or_ignore(msg)
+      Airbrake.notify_or_ignore("vary for \"#{split_name}\" #{msg}")
     end
 
     def variant_procs
@@ -42,7 +43,7 @@ module TestTrackRails
       variant = variant.to_s
 
       raise ArgumentError, "must provide block for #{variant}" unless proc.present?
-      errbit "\"#{variant}\" is not in split_variants #{split_variants}" unless split_variants.include? variant
+      errbit_because_vary "configures unknown variant \"#{variant}\"" unless split_variants.include? variant
 
       variant_procs[variant] = proc
       variant
@@ -72,7 +73,7 @@ module TestTrackRails
       raise ArgumentError, "must provide exactly one `default`" unless default_variant
       raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
       missing_variants = split_variants - variant_procs.keys
-      errbit "#{missing_variants.to_sentence} are missing" unless missing_variants.empty?
+      errbit_because_vary "does not configure variants #{missing_variants.to_sentence}" unless missing_variants.empty?
     end
   end
 end
