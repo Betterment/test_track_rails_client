@@ -24,8 +24,9 @@ module TestTrackRails
     end
 
     def assignment_registry
-      @assignment_registry ||= TestTrackRails::AssignmentRegistry.for_visitor(id).attributes
+      @assignment_registry ||= TestTrackRails::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
     rescue Faraday::TimeoutError
+      @tt_offline = true
       nil
     end
 
@@ -49,10 +50,13 @@ module TestTrackRails
       end
       self
     end
-
     alias_method :sign_up!, :log_in!
 
     private
+
+    def tt_offline?
+      @tt_offline || false
+    end
 
     def merge!(other)
       @id = other.id
@@ -73,7 +77,8 @@ module TestTrackRails
     end
 
     def assign_to(split_name, variant)
-      new_assignments[split_name] = assignment_registry[split_name] = variant
+      assignment_registry[split_name] = variant if assignment_registry
+      new_assignments[split_name] = variant
     end
   end
 end
