@@ -1,15 +1,13 @@
-module TestTrack
-  class Assignment
-    include TestTrackModel
+class TestTrack::Assignment
+  include TestTrack::TestTrackModel
 
-    collection_path '/api/assignment'
+  collection_path '/api/assignment'
 
-    attributes :visitor_id, :split_name, :variant
+  attributes :visitor_id, :split_name, :variant
 
-    validates :visitor_id, :split_name, :variant, presence: true
+  validates :visitor_id, :split_name, :variant, presence: true
 
-    def fake_save_response_attributes
-      nil # :no_content is the expected response type
-    end
+  def fake_save_response_attributes
+    nil # :no_content is the expected response type
   end
 end

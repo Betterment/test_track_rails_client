@@ -1,6 +1,7 @@
 require 'airbrake'
 require 'delayed_job'
 require 'delayed-plugins-airbrake'
+require 'test_track'
 
 module TestTrackRailsClient
   class Engine < ::Rails::Engine

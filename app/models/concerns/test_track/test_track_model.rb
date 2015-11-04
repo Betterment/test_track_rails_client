@@ -1,16 +1,14 @@
-module TestTrack
-  module TestTrackModel
-    extend ActiveSupport::Concern
-    include FakeableHer::Model
+module TestTrack::TestTrackModel
+  extend ActiveSupport::Concern
+  include FakeableHer::Model
 
-    included do
-      use_api TestTrackApi
-    end
+  included do
+    use_api TestTrack::TestTrackApi
+  end
 
-    module ClassMethods
-      def service_name
-        :test_track
-      end
+  module ClassMethods
+    def service_name
+      :test_track
     end
   end
 end
