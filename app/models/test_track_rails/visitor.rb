@@ -77,8 +77,7 @@ module TestTrackRails
     end
 
     def assign_to(split_name, variant)
-      assignment_registry[split_name] = variant if assignment_registry
-      new_assignments[split_name] = variant
+      new_assignments[split_name] = assignment_registry[split_name] = variant unless tt_offline?
     end
   end
 end
