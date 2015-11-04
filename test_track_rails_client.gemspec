@@ -1,12 +1,12 @@
 $LOAD_PATH.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "test_track_rails/version"
+require "test_track_rails_client/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "test_track_rails_client"
-  s.version     = TestTrackRails::VERSION
+  s.version     = TestTrackRailsClient::VERSION
   s.authors     = ["John Mileham", "Alan Norton"]
   s.email       = ["john@betterment.com"]
   s.homepage    = "https://github.com/Betterment"
