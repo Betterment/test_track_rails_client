@@ -1,15 +1,13 @@
-module TestTrack
-  class IdentifierType
-    include TestTrackModel
+class TestTrack::IdentifierType
+  include TestTrack::TestTrackModel
 
-    collection_path '/api/identifier_type'
+  collection_path '/api/identifier_type'
 
-    attributes :name
+  attributes :name
 
-    validates :name, presence: true
+  validates :name, presence: true
 
-    def fake_save_response_attributes
-      nil # :no_content is the expected response type
-    end
+  def fake_save_response_attributes
+    nil # :no_content is the expected response type
   end
 end

@@ -1,15 +1,13 @@
-module TestTrack
-  class SplitConfig
-    include TestTrackModel
+class TestTrack::SplitConfig
+  include TestTrack::TestTrackModel
 
-    collection_path '/api/split_config'
+  collection_path '/api/split_config'
 
-    attributes :name, :weighting_registry
+  attributes :name, :weighting_registry
 
-    validates :name, :weighting_registry, presence: true
+  validates :name, :weighting_registry, presence: true
 
-    def fake_save_response_attributes
-      nil # :no_content is the expected response type
-    end
+  def fake_save_response_attributes
+    nil # :no_content is the expected response type
   end
 end
