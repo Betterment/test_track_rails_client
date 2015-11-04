@@ -123,6 +123,18 @@ RSpec.describe TestTrackRails::Visitor do
 
         expect(existing_visitor.new_assignments['time']).to eq 'hammertime'
       end
+
+      context "when TestTrack server is unavailable" do
+        before do
+          allow(TestTrackRails::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "woopsie") }
+        end
+
+        it "doesn't assign anything" do
+          expect(vary_time_split).to eq "can't touch this"
+          expect(existing_visitor.new_assignments).to eq({})
+          expect(existing_visitor.assignment_registry).to eq nil
+        end
+      end
     end
 
     context "structure" do
