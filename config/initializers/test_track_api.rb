@@ -1,6 +1,6 @@
 require 'faraday_middleware'
 
-module TestTrackRails
+module TestTrack
   TestTrackApi = Her::API.new.setup url: ENV['TEST_TRACK_API_URL'] do |c|
     # request
     c.request :json
