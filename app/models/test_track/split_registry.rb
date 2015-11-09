@@ -1,6 +1,8 @@
 class TestTrack::SplitRegistry
   include TestTrack::TestTrackModel
 
+  CACHE_KEY = 'test_track_split_registry'
+
   collection_path '/api/split_registry'
 
   def self.fake_instance_attributes(_)
@@ -19,8 +21,12 @@ class TestTrack::SplitRegistry
     end
   end
 
+  def self.reset
+    Rails.cache.delete(CACHE_KEY)
+  end
+
   def self.to_hash
-    Rails.cache.fetch('test_track_split_registry', expires_in: 5.seconds) do
+    Rails.cache.fetch(CACHE_KEY, expires_in: 5.seconds) do
       instance.attributes
     end.freeze
   rescue Faraday::TimeoutError
