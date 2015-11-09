@@ -98,7 +98,7 @@ test_track_visitor.log_in!(:myapp_user_id, 1234)
 
 ## Tracking signups
 
-The `test_track_visitor.sign_up! method tells TestTrack when a new identifier has been created and assigned to a visitor.  It works a lot like the `log_in!` method, but should only be used once per customer signup.
+The `test_track_visitor.sign_up!` method tells TestTrack when a new identifier has been created and assigned to a visitor.  It works a lot like the `log_in!` method, but should only be used once per customer signup.
 
 ```ruby
 test_track_visitor.sign_up!(:myapp_user_id, 2345)
