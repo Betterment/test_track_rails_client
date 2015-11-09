@@ -90,7 +90,7 @@ test_track_visitor.vary :name_of_split do |v|
 
 ## Tracking visitor logins
 
-The `test_track_visitor.log_in!` method is used to identify a visitor in Test Track's system using identity information particular to an app. This is needed to grab split assignments for a user if they log in on a new device (e.g. their phone) or if two people are using the same device:
+The `test_track_visitor.log_in!` is used to ensure a consistent experience across devices. For instance, when a user logs in to your app on their mobile device we can log in to Test Track in order to grab their existing split assignments instead of treating them like a new visitor.
 
 ```ruby
 test_track_visitor.log_in!(:myapp_user_id, 1234)
