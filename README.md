@@ -1,2 +1,97 @@
 # test_track_rails_client
 Rails client for the test_track service
+
+## Installation
+
+Install the gem:
+
+```ruby
+# Gemfile
+  
+gem 'test_track_rails_client', git: 'https://[GITHUB AUTH CREDS GO HERE]@github.com/Betterment/test_track_rails_client'
+```
+
+Cut an App record via the TestTrack rails console:
+
+```ruby
+> App.create!(name: "[myapp]", auth_secret: SecureRandom.urlsafe_base64(32)).auth_secret
+=> "[your new app password]"
+```
+
+Set up ENV vars:
+
+* `MIXPANEL_TOKEN` - Set this to your mixpanel key
+* `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@testtrack.dev/`
+
+Mix `TestTrack::Controller` into any controllers needing access to TestTrack:
+
+```ruby
+class MyController < ApplicationController
+  include TestTrack::Controller
+end
+```
+
+# Concepts
+
+* **Visitor** - a person using your application.  `test_track_rails_client` manages visitors for you and ensures that `test_track_visitor` is available in any controller that mixes in 
+* **Split** - A feature for which TestTrack will be assigning different behavior for different visitors.  Split names must be strings and should be expressed in `snake_case`. E.g. `my_new_feature` or `signup_button_color`.
+* **Variant** - one the values that a given visitor will be assigned for a split, e.g. `true` or `false` for a classic A/B test or e.g. `red`, `blue`, and `green` for a multi-way split.  Variants may be strings or booleans, and they should be expressed in `snake_case`.
+* **Weighting** - Variants are assigned pseudo-randomly to visitors based on their visitor IDs and the weightings for the variants.  Weightings describe the probability of a visitor being assigned to a given variant in integer percentages.  All the variant weightings for a given split must sum to 100, though variants may have a weighting of 0.
+* **IdentifierType** - A name for a customer identifier that is meaningful in your application, typically things that people sign up as, log in as.  They should be expressed in `snake_case` and conventionally are prefixed with the application name that the identifier is for, e.g. `myapp_user_id`, `myapp_lead_id`.
+
+## Configuring the TestTrack server from your app
+
+TestTrack leans on ActiveRecord migrations to run idempotent configuration changes.  There are two things an app can configure about TestTrack.  It can define `identifier_type`s and configure `split`s.
+
+### Defining identifier types:
+
+```ruby
+class AddIdentifierType < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.identifier_type :myapp_user_id
+    end
+  end
+end
+```
+
+### Configuring splits
+
+Splits can be created or reconfigured using the config DSL.  Variants can be added to an existing split, and weightings can be reassigned, but note that once a variant is added to a split, it doesn't ever completely disappear.  Attempts to remove it will simply result in it having a `0` weighting moving forward.  People who were already assigned to a given variant will continue to see the experience associated with that split.
+
+```ruby
+class ConfigureMySplit < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.split :signup_button_color, red: 34, green: 33, blue: 33, indigo: 0
+    end
+  end
+end
+```
+
+## Varying app behavior based on assigned variant
+
+The `test_track_visitor`, which is accessible from all controllers and views that mix in `TestTrack::Controller` provides a `vary` DSL.
+
+You must provide at least one call to `when` and only one call to `default`. `when` can take multiple variant names if you'd like to map multiple variants to one user experience.
+  
+If the user is assigned to a variant that is not represented in your vary configuration, Test Track will execute the `default` handler and re-assign the user to the variant specified in the `default` call. You should not rely on this defaulting behavior, it is merely provided to ensure we don't break the customer experience. You should instead make sure that you represent all variants of the split and if variants are added to the split on the backend, update your code to reflect the new variants. Because `default` re-assigns the user to the default variant, no data will be recorded for the variant that is not represented. This will impede our abiltiy to collect meaningful data for the split.
+
+```ruby
+test_track_visitor.vary :name_of_split do |v|
+  v.when :variant_1, variant_2 do
+    # Do something
+  v.when :variant_3 do
+    # Do another thing
+  v.default :variant_4 do
+    # Do something else
+  end
+```
+
+## Logging visitors in
+
+The `test_track_visitor.log_in!` method is used to identify a visitor in Test Track's system using identity information particular to an app. This is needed to grab split assignments for a user if they log in on a new device (e.g. their phone) or if two people are using the same device:
+
+```ruby
+test_track_visitor.log_in!(:myapp_user_id, 1234)
+```
