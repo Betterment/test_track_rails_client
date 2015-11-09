@@ -122,4 +122,3 @@ it "shows the right info" do
   end
 end
 ```
-
