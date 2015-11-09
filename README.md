@@ -102,3 +102,24 @@ The `test_track_visitor.sign_up!` method tells TestTrack when a new identifier h
 
 ```ruby
 test_track_visitor.sign_up!(:myapp_user_id, 2345)
+```
+
+## Testing splits
+
+Add this line to your `rails_helper.rb`:
+
+```ruby
+# spec/rails_helper.rb
+require 'test_track_rails_client/rspec_helpers'
+```
+
+Force TestTrack to return a specific set of splits during a block:
+
+```ruby
+it "shows the right info" do
+  with_test_track_assignments(button_color: :red) do
+    # All `vary` calls for `button_color` will  run the `red` codepath until the end of this block
+  end
+end
+```
+
