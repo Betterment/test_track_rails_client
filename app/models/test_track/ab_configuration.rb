@@ -13,14 +13,15 @@ class TestTrack::ABConfiguration
   end
 
   def variants
-    unless @variants
-      airbrake_because_ab("configures split with more than 2 variants") if split_variants && split_variants.size != 2
-      @variants = { true: true_variant, false: false_variant }
-    end
-    @variants
+    @variants ||= build_variant_hash
   end
 
   private
+
+  def build_variant_hash
+    airbrake_because_ab("configures split with more than 2 variants") if split_variants && split_variants.size > 2
+    { true: true_variant, false: false_variant }
+  end
 
   def true_variant
     @true_variant ||= true
