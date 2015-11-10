@@ -60,37 +60,44 @@ RSpec.describe TestTrack::ABConfiguration do
         described_class.new initialize_options.merge(split_registry: nil)
       end.not_to raise_error
     end
+  end
 
-    it "tells errbit if there are more than two variants" do
-      described_class.new initialize_options.merge(split_name: :button_size)
+  describe "#variants" do
+    it "should only have true and false keys" do
+      expect(subject.variants.keys).to eq [:true, :false]
+    end
+
+    it "tells airbrake if there are more than two variants" do
+      ab_configuration = described_class.new initialize_options.merge(split_name: :button_size)
+      ab_configuration.variants
       expect(Airbrake).to have_received(:notify_or_ignore).with("A/B for \"button_size\" configures split with more than 2 variants")
     end
-  end
 
-  describe "#true_variant" do
-    it "is true if set to nil during instantiation" do
-      ab_configuration = described_class.new initialize_options.merge(true_variant: nil)
-      expect(ab_configuration.true_variant).to eq true
+    context "true variant" do
+      it "is true if set to nil during instantiation" do
+        ab_configuration = described_class.new initialize_options.merge(true_variant: nil)
+        expect(ab_configuration.variants).to include(true: true)
+      end
+
+      it "is whatever was passed during instantiation" do
+        expect(subject.variants).to include(true: "red")
+      end
     end
 
-    it "is whatever was passed during instantiation" do
-      expect(subject.true_variant).to eq "red"
-    end
-  end
+    context "false variant" do
+      it "is the variant of the split that is not the true_variant" do
+        expect(subject.variants).to include(false: "blue")
+      end
 
-  describe "#false_variant" do
-    it "is the variant of the split that is not the true_variant" do
-      expect(subject.false_variant).to eq "blue"
-    end
+      it "is false when there is no split_registry" do
+        ab_configuration = described_class.new initialize_options.merge(split_registry: nil)
+        expect(ab_configuration.variants).to include(false: false)
+      end
 
-    it "is false when there is no split_registry" do
-      ab_configuration = described_class.new initialize_options.merge(split_registry: nil)
-      expect(ab_configuration.false_variant).to eq false
-    end
-
-    it "is always the same if the split has more than two variants" do
-      ab_configuration = described_class.new initialize_options.merge(split_name: :button_size, true_variant: :one)
-      expect(ab_configuration.false_variant).to eq "four"
+      it "is always the same if the split has more than two variants" do
+        ab_configuration = described_class.new initialize_options.merge(split_name: :button_size, true_variant: :one)
+        expect(ab_configuration.variants).to include(false: "four")
+      end
     end
   end
 end

@@ -55,7 +55,7 @@ RSpec.describe TestTrack::VaryDSL do
   end
 
   context "#run" do
-    it "tells errbit if all variants aren't covered" do
+    it "tells airbrake if all variants aren't covered" do
       subject.when(:one) { "hello!" }
       subject.default :two, &noop
 
@@ -112,13 +112,13 @@ RSpec.describe TestTrack::VaryDSL do
       expect(subject.send(:variant_procs).keys).to eq %w(one two three)
     end
 
-    it "tells errbit if variant not in registry" do
+    it "tells airbrake if variant not in registry" do
       subject.when :this_does_not_exist, &noop
 
       expect(Airbrake).to have_received(:notify_or_ignore).with('vary for "button_size" configures unknown variant "this_does_not_exist"')
     end
 
-    it "tells errbit about only invalid variant(s)" do
+    it "tells airbrake about only invalid variant(s)" do
       subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &noop
 
       expect(Airbrake).to have_received(:notify_or_ignore)
@@ -149,7 +149,7 @@ RSpec.describe TestTrack::VaryDSL do
       expect(subject.send(:variant_procs)[:one]).to be_nil
     end
 
-    it "tells errbit if variant not in registry" do
+    it "tells airbrake if variant not in registry" do
       subject.default :this_default_does_not_exist, &noop
 
       expect(Airbrake).to have_received(:notify_or_ignore)

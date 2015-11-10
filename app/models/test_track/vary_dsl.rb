@@ -1,4 +1,6 @@
 class TestTrack::VaryDSL
+  include TestTrack::RequiredOptions
+
   attr_reader :defaulted, :default_variant
   alias_method :defaulted?, :defaulted
 
@@ -29,7 +31,7 @@ class TestTrack::VaryDSL
 
   attr_reader :split_name, :split_variants, :assigned_variant
 
-  def errbit_because_vary(msg)
+  def airbrake_because_vary(msg)
     Rails.logger.error(msg)
     Airbrake.notify_or_ignore("vary for \"#{split_name}\" #{msg}")
   end
@@ -42,7 +44,7 @@ class TestTrack::VaryDSL
     variant = variant.to_s
 
     raise ArgumentError, "must provide block for #{variant}" unless proc
-    errbit_because_vary "configures unknown variant \"#{variant}\"" unless variant_acceptable?(variant)
+    airbrake_because_vary "configures unknown variant \"#{variant}\"" unless variant_acceptable?(variant)
 
     variant_procs[variant] = proc
     variant
@@ -50,12 +52,6 @@ class TestTrack::VaryDSL
 
   def variant_acceptable?(variant)
     split_variants ? split_variants.include?(variant) : true # If we're flying blind (with no split registry), assume the dev is correct
-  end
-
-  def require_option!(opts, opt_name, my_opts = {})
-    opt_provided = my_opts[:allow_nil] ? opts.key?(opt_name) : opts[opt_name]
-    raise(ArgumentError, "Must provide #{opt_name}") unless opt_provided
-    opts.delete(opt_name)
   end
 
   def default_proc
@@ -79,6 +75,6 @@ class TestTrack::VaryDSL
     raise ArgumentError, "must provide at least one `when`" unless variant_procs.size >= 2
     return true unless split_variants
     missing_variants = split_variants - variant_procs.keys
-    errbit_because_vary("does not configure variants #{missing_variants.to_sentence}") && false unless missing_variants.empty?
+    airbrake_because_vary("does not configure variants #{missing_variants.to_sentence}") && false unless missing_variants.empty?
   end
 end
