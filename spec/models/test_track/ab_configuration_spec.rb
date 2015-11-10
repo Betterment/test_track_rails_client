@@ -70,7 +70,9 @@ RSpec.describe TestTrack::ABConfiguration do
     it "tells airbrake if there are more than two variants" do
       ab_configuration = described_class.new initialize_options.merge(split_name: :button_size)
       ab_configuration.variants
-      expect(Airbrake).to have_received(:notify_or_ignore).with("A/B for \"button_size\" configures split with more than 2 variants").exactly(:once)
+
+      expected_msg = "A/B for \"button_size\" configures split with more than 2 variants"
+      expect(Airbrake).to have_received(:notify_or_ignore).with(expected_msg).exactly(:once)
     end
 
     context "true variant" do
