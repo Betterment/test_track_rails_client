@@ -78,20 +78,6 @@ class TestTrack::Visitor
     assignment_registry.merge!(other.assignment_registry)
   end
 
-  def ab_false_variant_for(split_name, true_variant)
-    sorted_variants = sorted_variants_for(split_name)
-    sorted_variants.nil? ? false : (sorted_variants - [true_variant]).first
-  end
-
-  def sorted_variants_for(split_name)
-    split = split_for(split_name)
-    split.keys.sort if split
-  end
-
-  def split_for(split_name)
-    split_registry[split_name] if split_registry
-  end
-
   def assignment_for(split_name)
     fetch_assignment_for(split_name) || generate_assignment_for(split_name)
   end
