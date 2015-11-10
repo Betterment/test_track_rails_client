@@ -7,7 +7,7 @@ Install the gem:
 
 ```ruby
 # Gemfile
-  
+
 gem 'test_track_rails_client', git: 'https://[GITHUB AUTH CREDS GO HERE]@github.com/Betterment/test_track_rails_client'
 ```
 
@@ -33,7 +33,7 @@ end
 
 # Concepts
 
-* **Visitor** - a person using your application.  `test_track_rails_client` manages visitors for you and ensures that `test_track_visitor` is available in any controller that mixes in 
+* **Visitor** - a person using your application.  `test_track_rails_client` manages visitors for you and ensures that `test_track_visitor` is available in any controller that mixes in
 * **Split** - A feature for which TestTrack will be assigning different behavior for different visitors.  Split names must be strings and should be expressed in `snake_case`. E.g. `my_new_feature` or `signup_button_color`.
 * **Variant** - one the values that a given visitor will be assigned for a split, e.g. `true` or `false` for a classic A/B test or e.g. `red`, `blue`, and `green` for a multi-way split.  Variants may be strings or booleans, and they should be expressed in `snake_case`.
 * **Weighting** - Variants are assigned pseudo-randomly to visitors based on their visitor IDs and the weightings for the variants.  Weightings describe the probability of a visitor being assigned to a given variant in integer percentages.  All the variant weightings for a given split must sum to 100, though variants may have a weighting of 0.
@@ -74,7 +74,7 @@ end
 The `test_track_visitor`, which is accessible from all controllers and views that mix in `TestTrack::Controller` provides a `vary` DSL.
 
 You must provide at least one call to `when` and only one call to `default`. `when` can take multiple variant names if you'd like to map multiple variants to one user experience.
-  
+
 If the user is assigned to a variant that is not represented in your vary configuration, Test Track will execute the `default` handler and re-assign the user to the variant specified in the `default` call. You should not rely on this defaulting behavior, it is merely provided to ensure we don't break the customer experience. You should instead make sure that you represent all variants of the split and if variants are added to the split on the backend, update your code to reflect the new variants. Because `default` re-assigns the user to the default variant, no data will be recorded for the variant that is not represented. This will impede our abiltiy to collect meaningful data for the split.
 
 ```ruby
@@ -86,6 +86,24 @@ test_track_visitor.vary :name_of_split do |v|
   v.default :variant_4 do
     # Do something else
   end
+```
+
+The `test_track_visitor`'s `ab` method provides a convenient way to do two-way splits. The optional second argument is used to tell `ab` which variant is the "true" variant. If no second argument is provided, the "true" variant is assumed to be `true`, which is convient for splits that have variants of `true` and `false`. `ab` can be easily used in an if statement.
+
+```ruby
+# "button_color" split with "blue" and "red" variants
+if test_track_visitor.ab :button_color, :blue
+  # Color the button blue
+else
+  # Color the button red
+end
+```
+
+```ruby
+# "dark_deployed_feature" split with "true" and "false" variants
+if test_track_visitor.ab :dark_deployed_feature
+  # Show the dark deployed feature
+end
 ```
 
 ## Tracking visitor logins
