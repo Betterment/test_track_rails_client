@@ -79,7 +79,7 @@ If the user is assigned to a variant that is not represented in your vary config
 
 ```ruby
 test_track_visitor.vary :name_of_split do |v|
-  v.when :variant_1, variant_2 do
+  v.when :variant_1, :variant_2 do
     # Do something
   v.when :variant_3 do
     # Do another thing
