@@ -22,6 +22,21 @@ class TestTrack::Visitor
     result
   end
 
+  def ab(split_name, true_variant = nil)
+    split_name = split_name.to_s
+
+    ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
+
+    vary(split_name) do |v|
+      v.when ab_configuration.variants[:true] do
+        true
+      end
+      v.default ab_configuration.variants[:false] do
+        false
+      end
+    end
+  end
+
   def assignment_registry
     @assignment_registry ||= TestTrack::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
   rescue Faraday::TimeoutError
