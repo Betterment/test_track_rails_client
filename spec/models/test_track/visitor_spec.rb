@@ -166,6 +166,42 @@ RSpec.describe TestTrack::Visitor do
     end
   end
 
+  describe "#ab" do
+    it "leverages vary to configure the split" do
+      allow(new_visitor).to receive(:vary).and_call_original
+      new_visitor.ab "quagmire", "manageable"
+      expect(new_visitor).to have_received(:vary).with("quagmire").exactly(:once)
+    end
+
+    context "with an explicit true_variant" do
+      it "returns true when assigned to the true_variant" do
+        allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'manageable'))
+        expect(new_visitor.ab "quagmire", "manageable").to eq true
+      end
+
+      it "returns false when not assigned to the true_variant" do
+        allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
+        expect(new_visitor.ab "quagmire", "manageable").to eq false
+      end
+    end
+
+    context "with an implicit true_variant" do
+      it "returns true when variant is true" do
+        allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'true'))
+        expect(new_visitor.ab "blue_button").to eq true
+      end
+
+      it "returns false when variant is false" do
+        allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'false'))
+        expect(new_visitor.ab "blue_button").to eq false
+      end
+
+      it "returns false when split variants are not true and false" do
+        expect(new_visitor.ab "time").to eq false
+      end
+    end
+  end
+
   describe "#split_registry" do
     it "memoizes the global SplitRegistry hash" do
       2.times { existing_visitor.split_registry }

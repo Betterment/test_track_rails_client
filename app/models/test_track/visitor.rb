@@ -22,6 +22,21 @@ class TestTrack::Visitor
     result
   end
 
+  def ab(split_name, true_variant = nil)
+    split_name = split_name.to_s
+
+    ab = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
+
+    vary(split_name) do |v|
+      v.when ab.true_variant do
+        true
+      end
+      v.default ab.false_variant do
+        false
+      end
+    end
+  end
+
   def assignment_registry
     @assignment_registry ||= TestTrack::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
   rescue Faraday::TimeoutError
@@ -61,6 +76,20 @@ class TestTrack::Visitor
     @id = other.id
     new_assignments.except!(*other.assignment_registry.keys)
     assignment_registry.merge!(other.assignment_registry)
+  end
+
+  def ab_false_variant_for(split_name, true_variant)
+    sorted_variants = sorted_variants_for(split_name)
+    sorted_variants.nil? ? false : (sorted_variants - [true_variant]).first
+  end
+
+  def sorted_variants_for(split_name)
+    split = split_for(split_name)
+    split.keys.sort if split
+  end
+
+  def split_for(split_name)
+    split_registry[split_name] if split_registry
   end
 
   def assignment_for(split_name)
