@@ -26,7 +26,7 @@ splits:
   name:
     bar: 80
     foo: 20
-YML
+        YML
       end
 
       it "does not overwrite existing splits" do
@@ -38,7 +38,7 @@ splits:
   red_button:
     'false': 50
     'true': 50
-YML
+        YML
 
         subject.split(:name, foo: 20, bar: 80)
 
@@ -53,7 +53,7 @@ splits:
   red_button:
     'false': 50
     'true': 50
-YML
+        YML
       end
 
       it "deletes splits that are no longer on the test track server" do
@@ -68,7 +68,7 @@ splits:
   really_old_split:
     'false': 50
     'true': 50
-YML
+        YML
 
         allow(TestTrack::SplitRegistry).to receive(:reset).and_call_original
         allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(
@@ -90,7 +90,7 @@ splits:
   name:
     bar: 80
     foo: 20
-YML
+        YML
       end
 
       it "alphabetizes the splits and the weighting registries" do
@@ -107,7 +107,7 @@ splits:
   d:
     'false': 50
     'true': 50
-YML
+        YML
 
         subject.split(:c, true: 50, false: 50)
 
@@ -127,7 +127,7 @@ splits:
   d:
     'false': 50
     'true': 50
-YML
+        YML
       end
     end
   end
@@ -148,7 +148,7 @@ YML
 identifier_types:
 - my_id
 splits: {}
-YML
+        YML
       end
 
       it "alphabetizes the identifier types" do
@@ -165,7 +165,7 @@ identifier_types:
 - c
 - d
 splits: {}
-YML
+        YML
       end
 
       it "does not overwrite existing identifier types" do
@@ -177,7 +177,7 @@ splits:
   blue_button:
     'false': 50
     'true': 50
-YML
+        YML
 
         subject.identifier_type(:my_id)
 
@@ -190,7 +190,7 @@ splits:
   blue_button:
     'false': 50
     'true': 50
-YML
+        YML
       end
     end
   end
@@ -214,7 +214,7 @@ splits:
   blue_button:
     'false': 50
     'true': 50
-YML
+      YML
 
       subject.load_schema
 
@@ -244,7 +244,7 @@ splits:
   blue_button:
     'false': 50
     'true': 50
-YML
+      YML
     end
   end
 
