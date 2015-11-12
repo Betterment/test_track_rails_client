@@ -1,21 +1,60 @@
 class TestTrack::ConfigUpdater
+  def initialize(schema_file_path = "#{Rails.root}/db/test_track_schema.yml")
+    @schema_file_path = schema_file_path
+  end
+
   def split(name, weighting_registry)
-    TestTrack::SplitConfig.create!(name: name, weighting_registry: weighting_registry)
-    splits[name.to_s] = weighting_registry.stringify_keys
+    create_split(name, weighting_registry)
+
+    name = name.to_s
+    splits[name] = weighting_registry.stringify_keys
+    splits.except! *(splits.keys - remote_splits.keys - [name])
+
     persist_schema!
   end
 
   def identifier_type(name)
-    TestTrack::IdentifierType.create!(name: name)
+    create_identifier_type(name)
+
     identifier_types << name.to_s
+
     persist_schema!
+  end
+
+  def load_schema
+    identifier_types.each do |name|
+      create_identifier_type(name)
+    end
+
+    splits.each do |name, weighting_registry|
+      create_split(name, weighting_registry)
+    end
   end
 
   private
 
+  attr_reader :schema_file_path
+
+  def create_split(name, weighting_registry)
+    TestTrack::SplitConfig.create!(name: name, weighting_registry: weighting_registry)
+  end
+
+  def create_identifier_type(name)
+    TestTrack::IdentifierType.create!(name: name)
+  end
+
+  def remote_splits
+    unless @remote_splits
+      TestTrack::SplitRegistry.reset
+      @remote_splits = TestTrack::SplitRegistry.to_hash
+    end
+    @remote_splits
+  end
+
   def persist_schema!
-    file = File.open(schema_file_name, "w")
-    YAML.dump({ "identifier_types" => identifier_types.to_a, "splits" => splits }, file)
+    File.open(schema_file_path, "w") do |f|
+      f.write YAML.dump("identifier_types" => identifier_types.sort, "splits" => splits)
+    end
   end
 
   def identifier_types
@@ -31,10 +70,10 @@ class TestTrack::ConfigUpdater
   end
 
   def schema_file_contents
-    @schema_file_contents ||= File.open(schema_file_name, "a+").read
+    @schema_file_contents ||= schema_file_exists? ? File.open(schema_file_path, "r").read : ""
   end
 
-  def schema_file_name
-    @schema_file_name ||= "#{Rails.root}/db/test_track_schema.yml"
+  def schema_file_exists?
+    File.exist?(schema_file_path)
   end
 end

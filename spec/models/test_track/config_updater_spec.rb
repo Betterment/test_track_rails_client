@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::ConfigUpdater do
-  let(:filename) { "#{Rails.root}/db/test_track_schema.yml" }
-  let(:file) { instance_double(File, read: "") }
+  let(:schema_file_path) { "#{Rails.root}/tmp/test_track_schema.yml" }
+
+  subject { described_class.new(schema_file_path) }
 
   before do
-    allow(File).to receive(:open).and_return(file)
-    allow(YAML).to receive(:dump).and_return(file)
+    File.delete schema_file_path
   end
 
   describe "#split" do
@@ -16,34 +16,55 @@ RSpec.describe TestTrack::ConfigUpdater do
       expect(TestTrack::SplitConfig).to have_received(:create!).with(name: :name, weighting_registry: { foo: 20, bar: 80 })
     end
 
-    it "persists the splits to a schema file" do
-      subject.split(:name, foo: 20, bar: 80)
+    context "schema file" do
+      it "persists the splits" do
+        subject.split(:name, foo: 20, bar: 80)
+        expect_schema "identifier_types" => [], "splits" => { "name" => { "foo" => 20, "bar" => 80 } }
+      end
 
-      expect(File).to have_received(:open).with(filename, "a+")
-      expect(File).to have_received(:open).with(filename, "w")
-      expect(YAML).to have_received(:dump).with({ "identifier_types" => [], "splits" => { "name" => { "foo" => 20, "bar" => 80 } } }, file)
-    end
+      it "does not overwrite existing splits" do
+        given_schema(
+          "identifier_types" => ["some_identifier_type"],
+          "splits" => {
+            "blue_button" => { "true" => 50, "false" => 50 }
+          }
+        )
 
-    it "does not overwrite what is currently in the schema file" do
-      allow(YAML).to receive(:load).and_return(
-        "identifier_types" => ["some_identifier_type"],
-        "splits" => {
-          "blue_button" => { "true" => 50, "false" => 50 }
-        }
-      )
+        subject.split(:name, foo: 20, bar: 80)
 
-      subject.split(:name, foo: 20, bar: 80)
-
-      expect(YAML).to have_received(:dump).with(
-        {
+        expect_schema(
           "identifier_types" => ["some_identifier_type"],
           "splits" => {
             "blue_button" => { "true" => 50, "false" => 50 },
             "name" => { "foo" => 20, "bar" => 80 }
           }
-        },
-        file
-      )
+        )
+      end
+
+      it "deletes splits that are no longer on the test track server" do
+        given_schema(
+          "identifier_types" => ["some_identifier_type"],
+          "splits" => {
+            "really_old_split" => { "true" => 50, "false" => 50 },
+            "blue_button" => { "true" => 50, "false" => 50 }
+          }
+        )
+
+        allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(
+          "split_for_another_app" => { "true" => 50, "false" => 50 },
+          "blue_button" => { "true" => 50, "false" => 50 }
+        )
+
+        subject.split(:name, foo: 20, bar: 80)
+
+        expect_schema(
+          "identifier_types" => ["some_identifier_type"],
+          "splits" => {
+            "blue_button" => { "true" => 50, "false" => 50 },
+            "name" => { "foo" => 20, "bar" => 80 }
+          }
+        )
+      end
     end
   end
 
@@ -54,33 +75,82 @@ RSpec.describe TestTrack::ConfigUpdater do
       expect(TestTrack::IdentifierType).to have_received(:create!).with(name: :my_id)
     end
 
-    it "persists the identifier types to a schema file" do
-      subject.identifier_type(:my_id)
+    context "schema file" do
+      it "persists the identifier types" do
+        subject.identifier_type(:my_id)
 
-      expect(File).to have_received(:open).with(filename, "a+")
-      expect(File).to have_received(:open).with(filename, "w")
-      expect(YAML).to have_received(:dump).with({ "identifier_types" => ["my_id"], "splits" => {} }, file)
-    end
+        expect_schema "identifier_types" => ["my_id"], "splits" => {}
+      end
 
-    it "does not overwrite what is currently in the schema file" do
-      allow(YAML).to receive(:load).and_return(
-        "identifier_types" => ["some_identifier_type"],
-        "splits" => {
-          "blue_button" => { "true" => 50, "false" => 50 }
-        }
-      )
+      it "alphabetizes the identifier types" do
+        subject.identifier_type(:b)
+        subject.identifier_type(:a)
+        subject.identifier_type(:d)
+        subject.identifier_type(:c)
 
-      subject.identifier_type(:my_id)
+        expect_schema "identifier_types" => %w(a b c d), "splits" => {}
+      end
 
-      expect(YAML).to have_received(:dump).with(
-        {
-          "identifier_types" => %w(some_identifier_type my_id),
+      it "does not overwrite existing identifier types" do
+        given_schema(
+          "identifier_types" => ["some_identifier_type"],
           "splits" => {
             "blue_button" => { "true" => 50, "false" => 50 }
           }
-        },
-        file
+        )
+
+        subject.identifier_type(:my_id)
+
+        expect_schema(
+          "identifier_types" => %w(my_id some_identifier_type),
+          "splits" => {
+            "blue_button" => { "true" => 50, "false" => 50 }
+          }
+        )
+      end
+    end
+  end
+
+  describe "#load_schema" do
+    it "updates the split_config and identifier_types" do
+      allow(TestTrack::SplitConfig).to receive(:create!).and_call_original
+      allow(TestTrack::IdentifierType).to receive(:create!).and_call_original
+
+      given_schema(
+        "identifier_types" => %w(one two three),
+        "splits" => {
+          "blue_button" => { "true" => 50, "false" => 50 },
+          "balance_unit" => { "dollar" => 50, "pound" => 25, "doge" => 25 }
+        }
       )
+
+      subject.load_schema
+
+      expect(TestTrack::SplitConfig).to have_received(:create!).with(name: "blue_button", weighting_registry: { "true" => 50, "false" => 50 })
+      expect(TestTrack::SplitConfig).to have_received(:create!).with(name: "balance_unit", weighting_registry: { "dollar" => 50, "pound" => 25, "doge" => 25 })
+      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "one")
+      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "two")
+      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "three")
+
+      expect_schema(
+        "identifier_types" => %w(one two three),
+        "splits" => {
+          "blue_button" => { "true" => 50, "false" => 50 },
+          "balance_unit" => { "dollar" => 50, "pound" => 25, "doge" => 25 }
+        }
+      )
+    end
+  end
+
+  def given_schema(hash)
+    File.open(schema_file_path, "w") do |f|
+      f.write YAML.dump(hash)
+    end
+  end
+
+  def expect_schema(hash)
+    File.open(schema_file_path, "r") do |f|
+      expect(YAML.load(f.read)).to eq hash
     end
   end
 end

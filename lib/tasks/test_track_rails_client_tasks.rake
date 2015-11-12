@@ -1,4 +1,12 @@
-# desc "Explaining what the task does"
-# task :test_track_rails_client do
-#   # Task goes here
-# end
+namespace :test_track do
+  namespace :schema do
+    desc 'Load all Identifier Types and Splits into TestTrack from the schema file'
+    task load: :environment do
+      TestTrack.update_config do |c|
+        c.load_schema
+      end
+    end
+  end
+end
+
+task 'db:schema:load' => ['test_track:schema:load']
