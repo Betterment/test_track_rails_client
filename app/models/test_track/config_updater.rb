@@ -36,11 +36,15 @@ class TestTrack::ConfigUpdater
   attr_reader :schema_file_path
 
   def create_split(name, weighting_registry)
-    TestTrack::SplitConfig.create!(name: name, weighting_registry: weighting_registry)
+    TestTrack::SplitConfig.new(name: name, weighting_registry: weighting_registry).tap do |split_config|
+      raise split_config.errors.full_messages.join("\n") unless split_config.save
+    end
   end
 
   def create_identifier_type(name)
-    TestTrack::IdentifierType.create!(name: name)
+    TestTrack::IdentifierType.new(name: name).tap do |identifier_type|
+      raise identifier_type.errors.full_messages.join("\n") unless identifier_type.save
+    end
   end
 
   def remote_splits
