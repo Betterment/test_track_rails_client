@@ -53,7 +53,7 @@ class TestTrack::ConfigUpdater
 
   def persist_schema!
     File.open(schema_file_path, "w") do |f|
-      f.write YAML.dump("identifier_types" => identifier_types.sort, "splits" => splits)
+      f.write YAML.dump("identifier_types" => identifier_types.sort, "splits" => sorted_splits)
     end
   end
 
@@ -63,6 +63,13 @@ class TestTrack::ConfigUpdater
 
   def splits
     @splits ||= schema_file_hash["splits"] || {}
+  end
+
+  def sorted_splits
+    sorted = splits.sort.to_h
+    sorted.each do |split_name, weighting_registry|
+      sorted[split_name] = weighting_registry.sort.to_h
+    end
   end
 
   def schema_file_hash
