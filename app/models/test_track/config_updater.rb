@@ -8,7 +8,7 @@ class TestTrack::ConfigUpdater
 
     name = name.to_s
     splits[name] = weighting_registry.stringify_keys
-    splits.except! *(splits.keys - remote_splits.keys - [name])
+    splits.except!(*(splits.keys - remote_splits.keys - [name]))
 
     persist_schema!
   end

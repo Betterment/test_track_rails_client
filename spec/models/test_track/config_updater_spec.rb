@@ -50,6 +50,7 @@ RSpec.describe TestTrack::ConfigUpdater do
           }
         )
 
+        allow(TestTrack::SplitRegistry).to receive(:reset).and_call_original
         allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(
           "split_for_another_app" => { "true" => 50, "false" => 50 },
           "blue_button" => { "true" => 50, "false" => 50 }
@@ -57,6 +58,7 @@ RSpec.describe TestTrack::ConfigUpdater do
 
         subject.split(:name, foo: 20, bar: 80)
 
+        expect(TestTrack::SplitRegistry).to have_received(:reset)
         expect_schema(
           "identifier_types" => ["some_identifier_type"],
           "splits" => {
@@ -126,8 +128,14 @@ RSpec.describe TestTrack::ConfigUpdater do
 
       subject.load_schema
 
-      expect(TestTrack::SplitConfig).to have_received(:create!).with(name: "blue_button", weighting_registry: { "true" => 50, "false" => 50 })
-      expect(TestTrack::SplitConfig).to have_received(:create!).with(name: "balance_unit", weighting_registry: { "dollar" => 50, "pound" => 25, "doge" => 25 })
+      expect(TestTrack::SplitConfig).to have_received(:create!).with(
+        name: "blue_button",
+        weighting_registry: { "true" => 50, "false" => 50 }
+      )
+      expect(TestTrack::SplitConfig).to have_received(:create!).with(
+        name: "balance_unit",
+        weighting_registry: { "dollar" => 50, "pound" => 25, "doge" => 25 }
+      )
       expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "one")
       expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "two")
       expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "three")
