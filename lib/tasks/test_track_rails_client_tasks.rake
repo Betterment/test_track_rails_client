@@ -10,3 +10,4 @@ namespace :test_track do
 end
 
 task 'db:schema:load' => ['test_track:schema:load']
+task 'db:structure:load' => ['test_track:schema:load']
