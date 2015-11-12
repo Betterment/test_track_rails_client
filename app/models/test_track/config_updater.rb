@@ -66,9 +66,9 @@ class TestTrack::ConfigUpdater
   end
 
   def sorted_splits
-    sorted = splits.sort.to_h
+    sorted = Hash[splits.sort]
     sorted.each do |split_name, weighting_registry|
-      sorted[split_name] = weighting_registry.sort.to_h
+      sorted[split_name] = Hash[weighting_registry.sort]
     end
   end
 
