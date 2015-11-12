@@ -6,14 +6,14 @@ RSpec.describe TestTrack::ConfigUpdater do
   subject { described_class.new(schema_file_path) }
 
   before do
-    File.delete schema_file_path
+    File.delete(schema_file_path) if File.exist?(schema_file_path)
   end
 
   describe "#split" do
     it "updates split_config" do
-      allow(TestTrack::SplitConfig).to receive(:create!).and_call_original
+      allow(TestTrack::SplitConfig).to receive(:new).and_call_original
       expect(subject.split(:name, foo: 20, bar: 80)).to be_truthy
-      expect(TestTrack::SplitConfig).to have_received(:create!).with(name: :name, weighting_registry: { foo: 20, bar: 80 })
+      expect(TestTrack::SplitConfig).to have_received(:new).with(name: :name, weighting_registry: { foo: 20, bar: 80 })
     end
 
     context "schema file" do
@@ -134,9 +134,9 @@ splits:
 
   describe "#identifier_type" do
     it "updates identifier_type" do
-      allow(TestTrack::IdentifierType).to receive(:create!).and_call_original
+      allow(TestTrack::IdentifierType).to receive(:new).and_call_original
       expect(subject.identifier_type(:my_id)).to be_truthy
-      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: :my_id)
+      expect(TestTrack::IdentifierType).to have_received(:new).with(name: :my_id)
     end
 
     context "schema file" do
@@ -197,8 +197,8 @@ splits:
 
   describe "#load_schema" do
     it "updates the split_config and identifier_types" do
-      allow(TestTrack::SplitConfig).to receive(:create!).and_call_original
-      allow(TestTrack::IdentifierType).to receive(:create!).and_call_original
+      allow(TestTrack::SplitConfig).to receive(:new).and_call_original
+      allow(TestTrack::IdentifierType).to receive(:new).and_call_original
 
       given_schema <<-YML
 ---
@@ -218,17 +218,17 @@ splits:
 
       subject.load_schema
 
-      expect(TestTrack::SplitConfig).to have_received(:create!).with(
+      expect(TestTrack::SplitConfig).to have_received(:new).with(
         name: "balance_unit",
         weighting_registry: { "dollar" => 50, "pound" => 25, "doge" => 25 }
       )
-      expect(TestTrack::SplitConfig).to have_received(:create!).with(
+      expect(TestTrack::SplitConfig).to have_received(:new).with(
         name: "blue_button",
         weighting_registry: { "true" => 50, "false" => 50 }
       )
-      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "a")
-      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "b")
-      expect(TestTrack::IdentifierType).to have_received(:create!).with(name: "c")
+      expect(TestTrack::IdentifierType).to have_received(:new).with(name: "a")
+      expect(TestTrack::IdentifierType).to have_received(:new).with(name: "b")
+      expect(TestTrack::IdentifierType).to have_received(:new).with(name: "c")
 
       expect_schema <<-YML
 ---
