@@ -39,7 +39,7 @@ class TestTrack::Visitor
 
   def assignment_registry
     @assignment_registry ||= TestTrack::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
-  rescue Faraday::TimeoutError
+  rescue *TestTrack::SERVER_ERRORS
     @tt_offline = true
     nil
   end
@@ -57,7 +57,7 @@ class TestTrack::Visitor
     begin
       identifier = TestTrack::Identifier.create!(identifier_opts)
       merge!(identifier.visitor)
-    rescue Faraday::TimeoutError
+    rescue *TestTrack::SERVER_ERRORS
       # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
       # but subsequent requests will be better off
       TestTrack::Identifier.delay.create!(identifier_opts)

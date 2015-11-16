@@ -29,7 +29,7 @@ class TestTrack::SplitRegistry
     Rails.cache.fetch(CACHE_KEY, expires_in: 5.seconds) do
       instance.attributes
     end.freeze
-  rescue Faraday::TimeoutError
+  rescue *TestTrack::SERVER_ERRORS
     nil # if we can't get a split registry
   end
 end
