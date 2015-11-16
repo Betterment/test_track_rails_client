@@ -26,5 +26,13 @@ RSpec.describe TestTrack::SplitRegistry do
 
       expect(described_class).to have_received(:instance)
     end
+
+    it "returns nil if the server 503s" do
+      allow(described_class).to receive(:instance) { raise(Her::Errors::RemoteServerError, "503 is happening") }
+
+      expect(described_class.to_hash).to eq(nil)
+
+      expect(described_class).to have_received(:instance)
+    end
   end
 end

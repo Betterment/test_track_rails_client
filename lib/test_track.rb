@@ -3,6 +3,8 @@ require 'public_suffix'
 module TestTrack
   module_function
 
+  SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError]
+
   def update_config
     yield(ConfigUpdater.new)
   end
