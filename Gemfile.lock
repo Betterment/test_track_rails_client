@@ -39,6 +39,7 @@ PATH
       delayed_job (~> 4.0)
       delayed_job_active_record
       fakeable_her
+      faraday
       faraday_middleware
       mixpanel-ruby (~> 1.4)
       public_suffix (~> 1.4.6)

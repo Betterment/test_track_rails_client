@@ -13,9 +13,9 @@ class TestTrack::Session
   end
 
   def manage
-    manage_cookies!
     yield
   ensure
+    manage_cookies!
     flush_events!
   end
 

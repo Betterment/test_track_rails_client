@@ -18,20 +18,31 @@ RSpec.describe TestTrack::Session do
   describe "#manage" do
     it "recovers mixpanel_distinct_id from an existing cookie" do
       subject.manage do
-        expect(subject.mixpanel_distinct_id).to eq "fake_distinct_id"
       end
+      expect(subject.mixpanel_distinct_id).to eq "fake_distinct_id"
     end
 
     it "doesn't set a mixpanel cookie if already there" do
       subject.manage do
-        expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
       end
+      expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
     end
 
     it "sets a visitor ID cookie" do
       subject.manage do
-        expect(cookies['tt_visitor_id'][:value]).to eq "fake_visitor_id"
       end
+      expect(cookies['tt_visitor_id'][:value]).to eq "fake_visitor_id"
+    end
+
+    it "sets correct visitor id if controller does a #log_in!" do
+      real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
+      identifier = instance_double(TestTrack::Identifier, visitor: real_visitor)
+      allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
+
+      subject.manage do
+        subject.visitor.log_in!("indetifier_type", "value")
+      end
+      expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
     end
 
     context "without mixpanel cookie" do
@@ -39,14 +50,14 @@ RSpec.describe TestTrack::Session do
 
       it "sets mixpanel_distinct_id to visitor_id" do
         subject.manage do
-          expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
         end
+        expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
       end
 
       it "sets a mixpanel cookie" do
         subject.manage do
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
         end
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
       end
     end
 
