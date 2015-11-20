@@ -3,6 +3,7 @@ module TestTrack::Controller
 
   included do
     helper_method :test_track_session, :test_track_visitor
+    helper TestTrack::ApplicationHelper
     around_action :manage_test_track_session
   end
 
