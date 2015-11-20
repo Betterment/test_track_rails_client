@@ -19,7 +19,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '~> 4.1.11'
   s.add_dependency 'fakeable_her'
   s.add_dependency 'faraday_middleware'
-  s.add_dependency 'faraday'
   s.add_dependency 'public_suffix', '~> 1.4.6'
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
   s.add_dependency 'delayed_job', '~> 4.0'
