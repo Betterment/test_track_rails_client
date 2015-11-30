@@ -78,6 +78,7 @@ class TestTrack::Session
     begin
       @mixpanel_distinct_id = JSON.parse(URI.unescape(mixpanel_cookie))['distinct_id'] if mixpanel_cookie
     rescue JSON::ParserError
+      Rails.logger.error("malformed mixpanel JSON from cookie #{URI.unescape(mixpanel_cookie)}")
       nil
     end
   end

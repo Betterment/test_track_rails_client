@@ -59,7 +59,7 @@ RSpec.describe TestTrack::Session do
     context "with malformed mixpanel cookie" do
       let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
       let(:malformed_mixpanel_cookie) do
-        URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://www.bad.com/search?q=\"poor_use_of_quotes\"\"}")
+        URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
       end
 
       it "sets mixpanel_distinct_id to visitor_id" do
@@ -70,6 +70,14 @@ RSpec.describe TestTrack::Session do
       it "sets a mixpanel cookie" do
         subject.manage {}
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+      end
+
+      it "logs an error" do
+        allow(Rails.logger).to receive(:error).and_call_original
+        subject.manage {}
+        expect(Rails.logger).to have_received(:error).with(
+          "malformed mixpanel JSON from cookie {\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}"
+        )
       end
     end
 
