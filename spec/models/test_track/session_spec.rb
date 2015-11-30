@@ -46,7 +46,26 @@ RSpec.describe TestTrack::Session do
     end
 
     context "without mixpanel cookie" do
-      let(:cookies) { { tt_visitor_id: "fake_visitor_id" } }
+      let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
+
+      it "sets mixpanel_distinct_id to visitor_id" do
+        subject.manage do
+        end
+        expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
+      end
+
+      it "sets a mixpanel cookie" do
+        subject.manage do
+        end
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+      end
+    end
+
+    context "with malformed mixpanel cookie" do
+      let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
+      let(:malformed_mixpanel_cookie) do
+        URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://www.bad.com/search?q=\"poor_use_of_quotes\"\"}")
+      end
 
       it "sets mixpanel_distinct_id to visitor_id" do
         subject.manage do
