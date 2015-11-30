@@ -17,20 +17,17 @@ RSpec.describe TestTrack::Session do
 
   describe "#manage" do
     it "recovers mixpanel_distinct_id from an existing cookie" do
-      subject.manage do
-      end
+      subject.manage {}
       expect(subject.mixpanel_distinct_id).to eq "fake_distinct_id"
     end
 
     it "doesn't set a mixpanel cookie if already there" do
-      subject.manage do
-      end
+      subject.manage {}
       expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
     end
 
     it "sets a visitor ID cookie" do
-      subject.manage do
-      end
+      subject.manage {}
       expect(cookies['tt_visitor_id'][:value]).to eq "fake_visitor_id"
     end
 
@@ -46,18 +43,41 @@ RSpec.describe TestTrack::Session do
     end
 
     context "without mixpanel cookie" do
-      let(:cookies) { { tt_visitor_id: "fake_visitor_id" } }
+      let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
 
       it "sets mixpanel_distinct_id to visitor_id" do
-        subject.manage do
-        end
+        subject.manage {}
         expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
       end
 
       it "sets a mixpanel cookie" do
-        subject.manage do
-        end
+        subject.manage {}
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+      end
+    end
+
+    context "with malformed mixpanel cookie" do
+      let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
+      let(:malformed_mixpanel_cookie) do
+        URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
+      end
+
+      it "sets mixpanel_distinct_id to visitor_id" do
+        subject.manage {}
+        expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
+      end
+
+      it "sets a mixpanel cookie" do
+        subject.manage {}
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+      end
+
+      it "logs an error" do
+        allow(Rails.logger).to receive(:error).and_call_original
+        subject.manage {}
+        expect(Rails.logger).to have_received(:error).with(
+          "malformed mixpanel JSON from cookie {\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}"
+        )
       end
     end
 
@@ -73,8 +93,7 @@ RSpec.describe TestTrack::Session do
     end
 
     it "doesn't flush notifications if there haven't been new assignments" do
-      subject.manage do
-      end
+      subject.manage {}
       expect(TestTrack::NotificationJob).not_to have_received(:new)
     end
   end
