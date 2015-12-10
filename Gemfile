@@ -3,6 +3,7 @@ source "https://rubygems.org"
 gemspec
 
 gem 'rubocop', require: false
+gem 'simplecov', require: false
 
 #### FOR EVERYDAY USE
 gem 'ruby_spec_helpers', git: 'https://betterment-deploy:2376e006e0caa50ea525cb349142c4702536eaa0@github.com/Betterment/ruby_spec_helpers'
