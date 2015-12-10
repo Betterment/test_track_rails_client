@@ -6,8 +6,6 @@ class TestTrack::Session
 
   delegate :split_registry, to: :visitor # for memoize sharing, visitor needs it too
 
-  attr_reader :mixpanel_distinct_id
-
   def initialize(controller)
     @controller = controller
   end
@@ -23,6 +21,17 @@ class TestTrack::Session
     @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
   end
 
+  def state_hash
+    {
+      url: TestTrack.url,
+      cookieDomain: cookie_domain,
+      registry: split_registry,
+      assignments: visitor.assignment_registry
+    }
+  end
+
+  private
+
   def set_cookie(name, value)
     cookies[name] = {
       value: value,
@@ -37,18 +46,7 @@ class TestTrack::Session
     @cookie_domian ||= "." + PublicSuffix.parse(request.host).domain
   end
 
-  def state_hash
-    {
-      url: TestTrack.url,
-      cookieDomain: cookie_domain,
-      registry: split_registry,
-      assignments: visitor.assignment_registry
-    }
-  end
-
-  private
-
-  attr_reader :controller
+  attr_reader :controller, :mixpanel_distinct_id
 
   def manage_cookies!
     read_mixpanel_distinct_id || generate_mixpanel_distinct_id

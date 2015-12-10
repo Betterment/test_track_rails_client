@@ -16,11 +16,6 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#manage" do
-    it "recovers mixpanel_distinct_id from an existing cookie" do
-      subject.manage {}
-      expect(subject.mixpanel_distinct_id).to eq "fake_distinct_id"
-    end
-
     it "doesn't set a mixpanel cookie if already there" do
       subject.manage {}
       expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
@@ -45,12 +40,7 @@ RSpec.describe TestTrack::Session do
     context "without mixpanel cookie" do
       let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
 
-      it "sets mixpanel_distinct_id to visitor_id" do
-        subject.manage {}
-        expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
-      end
-
-      it "sets a mixpanel cookie" do
+      it "sets the mixpanel cookie's distinct_id to the visitor_id" do
         subject.manage {}
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
       end
@@ -62,12 +52,7 @@ RSpec.describe TestTrack::Session do
         URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
       end
 
-      it "sets mixpanel_distinct_id to visitor_id" do
-        subject.manage {}
-        expect(subject.mixpanel_distinct_id).to eq "fake_visitor_id"
-      end
-
-      it "sets a mixpanel cookie" do
+      it "sets the mixpanel cookie's distinct_id to the visitor_id" do
         subject.manage {}
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
       end
@@ -78,6 +63,38 @@ RSpec.describe TestTrack::Session do
         expect(Rails.logger).to have_received(:error).with(
           "malformed mixpanel JSON from cookie {\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}"
         )
+      end
+    end
+
+    context "cookies" do
+      it "sets secure cookies if the request is ssl" do
+        allow(request).to receive(:ssl?).and_return(true)
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:secure]).to eq true
+      end
+
+      it "sets insecure cookies if the request isn't ssl" do
+        allow(request).to receive(:ssl?).and_return(false)
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:secure]).to eq false
+      end
+
+      it "uses a wildcard domain" do
+        allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:domain]).to eq ".boom.com"
+      end
+
+      it "doesn't set httponly cookies" do
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:httponly]).to eq false
+      end
+
+      it "expires in a year" do
+        Timecop.freeze(Time.zone.parse('2011-01-01')) do
+          subject.manage {}
+        end
+        expect(cookies['tt_visitor_id'][:expires]).to eq Time.zone.parse('2012-01-01')
       end
     end
 
@@ -109,38 +126,6 @@ RSpec.describe TestTrack::Session do
       it "returns a new visitor id" do
         expect(subject.visitor.id).to match(/\A[a-z0-9\-]{36}\z/)
       end
-    end
-  end
-
-  describe "#set_cookie" do
-    it "sets secure cookies if the request is ssl" do
-      allow(request).to receive(:ssl?).and_return(true)
-      subject.set_cookie(:foo, "bar")
-      expect(cookies[:foo][:secure]).to eq true
-    end
-
-    it "sets insecure cookies if the request isn't ssl" do
-      allow(request).to receive(:ssl?).and_return(false)
-      subject.set_cookie(:foo, "bar")
-      expect(cookies[:foo][:secure]).to eq false
-    end
-
-    it "uses a wildcard domain" do
-      allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
-      subject.set_cookie(:foo, "bar")
-      expect(cookies[:foo][:domain]).to eq ".boom.com"
-    end
-
-    it "doesn't set httponly cookies" do
-      subject.set_cookie(:foo, "bar")
-      expect(cookies[:foo][:httponly]).to eq false
-    end
-
-    it "expires in a year" do
-      Timecop.freeze(Time.zone.parse('2011-01-01')) do
-        subject.set_cookie(:foo, "bar")
-      end
-      expect(cookies[:foo][:expires]).to eq Time.zone.parse('2012-01-01')
     end
   end
 
