@@ -64,7 +64,10 @@ class TestTrack::Visitor
     end
     self
   end
-  alias_method :sign_up!, :log_in!
+
+  def sign_up!(identifier_type, identifier)
+    log_in!(identifier_type, identifier)
+  end
 
   private
 
