@@ -4,8 +4,6 @@ require 'delayed_job_active_record'
 class TestTrack::Session
   COOKIE_LIFESPAN = 1.year # Used for mixpanel cookie and tt_visitor_id cookie
 
-  delegate :split_registry, to: :visitor # for memoize sharing, visitor needs it too
-
   def initialize(controller)
     @controller = controller
   end
@@ -25,12 +23,14 @@ class TestTrack::Session
     {
       url: TestTrack.url,
       cookieDomain: cookie_domain,
-      registry: split_registry,
+      registry: visitor.split_registry,
       assignments: visitor.assignment_registry
     }
   end
 
   private
+
+  attr_reader :controller, :mixpanel_distinct_id
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
@@ -49,8 +49,6 @@ class TestTrack::Session
   def cookie_domain
     @cookie_domian ||= "." + PublicSuffix.parse(request.host).domain
   end
-
-  attr_reader :controller, :mixpanel_distinct_id
 
   def manage_cookies!
     read_mixpanel_distinct_id || generate_mixpanel_distinct_id

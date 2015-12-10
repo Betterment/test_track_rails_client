@@ -16,62 +16,66 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#manage" do
-    it "doesn't set a mixpanel cookie if already there" do
-      subject.manage {}
-      expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
-    end
-
-    it "sets a visitor ID cookie" do
-      subject.manage {}
-      expect(cookies['tt_visitor_id'][:value]).to eq "fake_visitor_id"
-    end
-
-    context "with no visitor cookie" do
-      let(:cookies) { { mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
-
-      it "returns a new visitor id" do
+    context "visitor" do
+      it "sets a visitor ID cookie" do
         subject.manage {}
-        expect(cookies['tt_visitor_id'][:value]).to match(/\A[a-z0-9\-]{36}\z/)
+        expect(cookies['tt_visitor_id'][:value]).to eq "fake_visitor_id"
+      end
+
+      context "with no visitor cookie" do
+        let(:cookies) { { mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
+
+        it "returns a new visitor id" do
+          subject.manage {}
+          expect(cookies['tt_visitor_id'][:value]).to match(/\A[a-z0-9\-]{36}\z/)
+        end
+      end
+
+      it "sets correct visitor id if controller does a #log_in!" do
+        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
+        identifier = instance_double(TestTrack::Identifier, visitor: real_visitor)
+        allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
+
+        subject.manage do
+          subject.visitor_dsl.log_in!("indetifier_type", "value")
+        end
+        expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
       end
     end
 
-    it "sets correct visitor id if controller does a #log_in!" do
-      real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
-      identifier = instance_double(TestTrack::Identifier, visitor: real_visitor)
-      allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
-
-      subject.manage do
-        subject.visitor_dsl.log_in!("indetifier_type", "value")
-      end
-      expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
-    end
-
-    context "without mixpanel cookie" do
-      let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
-
-      it "sets the mixpanel cookie's distinct_id to the visitor_id" do
+    context "mixpanel" do
+      it "doesn't set a mixpanel cookie if already there" do
         subject.manage {}
-        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
-      end
-    end
-
-    context "with malformed mixpanel cookie" do
-      let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
-      let(:malformed_mixpanel_cookie) do
-        URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
+        expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
       end
 
-      it "sets the mixpanel cookie's distinct_id to the visitor_id" do
-        subject.manage {}
-        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+      context "without mixpanel cookie" do
+        let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
+
+        it "sets the mixpanel cookie's distinct_id to the visitor_id" do
+          subject.manage {}
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+        end
       end
 
-      it "logs an error" do
-        allow(Rails.logger).to receive(:error).and_call_original
-        subject.manage {}
-        expect(Rails.logger).to have_received(:error).with(
-          "malformed mixpanel JSON from cookie {\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}"
-        )
+      context "with malformed mixpanel cookie" do
+        let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
+        let(:malformed_mixpanel_cookie) do
+          URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
+        end
+
+        it "sets the mixpanel cookie's distinct_id to the visitor_id" do
+          subject.manage {}
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+        end
+
+        it "logs an error" do
+          allow(Rails.logger).to receive(:error).and_call_original
+          subject.manage {}
+          expect(Rails.logger).to have_received(:error).with(
+            "malformed mixpanel JSON from cookie {\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}"
+          )
+        end
       end
     end
 
@@ -107,21 +111,23 @@ RSpec.describe TestTrack::Session do
       end
     end
 
-    it "flushes notifications if there have been new assignments" do
-      allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
-      subject.manage do
-        subject.visitor_dsl.ab('bar', 'baz')
+    context "notifications" do
+      it "flushes notifications if there have been new assignments" do
+        allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
+        subject.manage do
+          subject.visitor_dsl.ab('bar', 'baz')
+        end
+        expect(TestTrack::NotificationJob).to have_received(:new).with(
+          mixpanel_distinct_id: 'fake_distinct_id',
+          visitor_id: 'fake_visitor_id',
+          new_assignments: { 'bar' => 'baz' })
+        expect(Delayed::Job).to have_received(:enqueue).with(notification_job)
       end
-      expect(TestTrack::NotificationJob).to have_received(:new).with(
-        mixpanel_distinct_id: 'fake_distinct_id',
-        visitor_id: 'fake_visitor_id',
-        new_assignments: { 'bar' => 'baz' })
-      expect(Delayed::Job).to have_received(:enqueue).with(notification_job)
-    end
 
-    it "doesn't flush notifications if there haven't been new assignments" do
-      subject.manage {}
-      expect(TestTrack::NotificationJob).not_to have_received(:new)
+      it "doesn't flush notifications if there haven't been new assignments" do
+        subject.manage {}
+        expect(TestTrack::NotificationJob).not_to have_received(:new)
+      end
     end
   end
 
