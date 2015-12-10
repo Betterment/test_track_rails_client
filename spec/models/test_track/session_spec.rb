@@ -26,13 +26,22 @@ RSpec.describe TestTrack::Session do
       expect(cookies['tt_visitor_id'][:value]).to eq "fake_visitor_id"
     end
 
+    context "with no visitor cookie" do
+      let(:cookies) { { mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
+
+      it "returns a new visitor id" do
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:value]).to match(/\A[a-z0-9\-]{36}\z/)
+      end
+    end
+
     it "sets correct visitor id if controller does a #log_in!" do
       real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
       identifier = instance_double(TestTrack::Identifier, visitor: real_visitor)
       allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
 
       subject.manage do
-        subject.visitor.log_in!("indetifier_type", "value")
+        subject.visitor_dsl.log_in!("indetifier_type", "value")
       end
       expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
     end
@@ -99,8 +108,9 @@ RSpec.describe TestTrack::Session do
     end
 
     it "flushes notifications if there have been new assignments" do
+      allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
       subject.manage do
-        subject.visitor.new_assignments['bar'] = 'baz'
+        subject.visitor_dsl.ab('bar', 'baz')
       end
       expect(TestTrack::NotificationJob).to have_received(:new).with(
         mixpanel_distinct_id: 'fake_distinct_id',
@@ -115,17 +125,16 @@ RSpec.describe TestTrack::Session do
     end
   end
 
-  describe "#visitor" do
-    it "has the existing cookie's ID" do
-      expect(subject.visitor.id).to eq "fake_visitor_id"
-    end
+  describe "#visitor_dsl" do
+    let(:visitor) { instance_double(TestTrack::Visitor) }
 
-    context "with no visitor cookie" do
-      let(:cookies) { { mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
+    it "is a DSL that proxies to the visitor" do
+      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+      allow(TestTrack::Visitor).to receive(:new).and_return(visitor)
 
-      it "returns a new visitor id" do
-        expect(subject.visitor.id).to match(/\A[a-z0-9\-]{36}\z/)
-      end
+      subject.visitor_dsl
+
+      expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
     end
   end
 

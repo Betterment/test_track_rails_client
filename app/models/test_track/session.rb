@@ -17,8 +17,8 @@ class TestTrack::Session
     flush_events!
   end
 
-  def visitor
-    @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
+  def visitor_dsl
+    @visitor_dsl ||= TestTrack::VisitorDSL.new(visitor)
   end
 
   def state_hash
@@ -31,6 +31,10 @@ class TestTrack::Session
   end
 
   private
+
+  def visitor
+    @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
+  end
 
   def set_cookie(name, value)
     cookies[name] = {

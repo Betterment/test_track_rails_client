@@ -195,6 +195,8 @@ GEM
       multi_json (~> 1.0)
       rubyzip (~> 1.0)
       websocket (~> 1.0)
+    shoulda-matchers (3.0.1)
+      activesupport (>= 4.0.0)
     simplecov (0.11.1)
       docile (~> 1.1.0)
       json (~> 1.8)
@@ -237,6 +239,7 @@ DEPENDENCIES
   pry-rails
   rubocop
   ruby_spec_helpers!
+  shoulda-matchers
   simplecov
   sqlite3
   test_track_rails_client!
