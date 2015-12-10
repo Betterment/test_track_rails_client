@@ -5,6 +5,7 @@ require File.expand_path('../dummy/config/environment', __FILE__)
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'spec_helper'
 require 'rspec/rails'
+require 'shoulda/matchers'
 # Add additional requires below this line. Rails is not loaded until this point!
 require 'timecop'
 require 'delayed_job'
@@ -58,6 +59,13 @@ RSpec.configure do |config|
   config.infer_spec_type_from_file_location!
 
   config.include EnvironmentSpecHelper
+end
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
 end
 
 ENV['MIXPANEL_TOKEN'] = 'fakemixpaneltoken'

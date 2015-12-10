@@ -7,7 +7,15 @@ RSpec.describe TestTrack::Controller do
     include mixin
 
     def index
-      render json: { split_registry: test_track_visitor.split_registry, assignment_registry: test_track_visitor.assignment_registry }
+      render json: {
+        split_registry: test_track_session.state_hash[:registry],
+        assignment_registry: test_track_session.state_hash[:assignments]
+      }
+    end
+
+    def show
+      test_track_visitor.ab 'time', 'beer_thirty'
+      head :no_content
     end
   end
 
@@ -18,6 +26,7 @@ RSpec.describe TestTrack::Controller do
   let(:existing_visitor_id) { SecureRandom.uuid }
   let(:split_registry) { { 'time' => { 'beer_thirty' => 100 } } }
   let(:assignment_registry) { { 'time' => 'beer_thirty' } }
+  let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: true) }
 
   before do
     allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(split_registry)
@@ -56,5 +65,13 @@ RSpec.describe TestTrack::Controller do
     request.cookies['tt_visitor_id'] = existing_visitor_id
     get :index
     expect(response.cookies['tt_visitor_id']).to eq existing_visitor_id
+  end
+
+  it "exposes the VisitorDSL to the controller" do
+    allow(TestTrack::NotificationJob).to receive(:new).and_return(instance_double(TestTrack::NotificationJob, perform: true))
+    allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
+    get :show, id: "1234"
+    expect(visitor_dsl).to have_received(:ab).with('time', 'beer_thirty')
+    expect(response).to have_http_status(:no_content)
   end
 end
