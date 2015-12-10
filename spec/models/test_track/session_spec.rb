@@ -46,7 +46,7 @@ RSpec.describe TestTrack::Session do
     context "mixpanel" do
       it "doesn't set a mixpanel cookie if already there" do
         subject.manage {}
-        expect(cookies['mp_fakefakefake_mixpanel']).to eq mixpanel_cookie
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq mixpanel_cookie
       end
 
       context "without mixpanel cookie" do

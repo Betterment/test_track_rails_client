@@ -30,7 +30,7 @@ class TestTrack::Session
 
   private
 
-  attr_reader :controller, :mixpanel_distinct_id
+  attr_reader :controller
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
@@ -51,7 +51,7 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    read_mixpanel_distinct_id || generate_mixpanel_distinct_id
+    set_cookie(mixpanel_cookie_name, URI.escape(mixpanel_cookie.to_json))
     set_cookie(:tt_visitor_id, visitor.id)
   end
 
@@ -73,19 +73,26 @@ class TestTrack::Session
     Delayed::Job.enqueue(job)
   end
 
-  def read_mixpanel_distinct_id
+  def mixpanel_distinct_id
+    mixpanel_cookie['distinct_id']
+  end
+
+  def mixpanel_cookie
+    @mixpanel_cookie ||= read_mixpanel_cookie || generate_mixpanel_cookie
+  end
+
+  def read_mixpanel_cookie
     mixpanel_cookie = cookies[mixpanel_cookie_name]
     begin
-      @mixpanel_distinct_id = JSON.parse(URI.unescape(mixpanel_cookie))['distinct_id'] if mixpanel_cookie
+      JSON.parse(URI.unescape(mixpanel_cookie)) if mixpanel_cookie
     rescue JSON::ParserError
       Rails.logger.error("malformed mixpanel JSON from cookie #{URI.unescape(mixpanel_cookie)}")
       nil
     end
   end
 
-  def generate_mixpanel_distinct_id
-    set_cookie(mixpanel_cookie_name, URI.escape({ distinct_id: visitor.id }.to_json))
-    @mixpanel_distinct_id = visitor.id
+  def generate_mixpanel_cookie
+    { 'distinct_id' => visitor.id }
   end
 
   def mixpanel_token
