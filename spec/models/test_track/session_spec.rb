@@ -6,12 +6,14 @@ RSpec.describe TestTrack::Session do
   let(:mixpanel_cookie) { URI.escape({ distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json) }
   let(:request) { double(:request, host: "www.foo.com", ssl?: true) }
   let(:notification_job) { instance_double(TestTrack::NotificationJob, perform: true) }
+  let(:alias_job) { instance_double(TestTrack::AliasJob, perform: true) }
 
   subject { described_class.new(controller) }
 
   before do
     allow(Delayed::Job).to receive(:enqueue).and_return(true)
     allow(TestTrack::NotificationJob).to receive(:new).and_return(notification_job)
+    allow(TestTrack::AliasJob).to receive(:new).and_return(alias_job)
     ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
 
@@ -127,6 +129,25 @@ RSpec.describe TestTrack::Session do
       it "doesn't flush notifications if there haven't been new assignments" do
         subject.manage {}
         expect(TestTrack::NotificationJob).not_to have_received(:new)
+      end
+    end
+
+    context "aliasing" do
+      it "enqueues an alias job if there was a signup" do
+        subject.manage do
+          subject.sign_up!('bettermentdb_user_id', 444)
+        end
+        expect(TestTrack::AliasJob).to have_received(:new).with(
+          mixpanel_distinct_id: 'fake_distinct_id',
+          visitor_id: 'fake_visitor_id'
+        )
+        expect(Delayed::Job).to have_received(:enqueue).with(alias_job)
+      end
+
+      it "doesn't enqueue an alias job if there was no signup" do
+        subject.manage {}
+        expect(TestTrack::AliasJob).not_to have_received(:new)
+        expect(Delayed::Job).not_to have_received(:enqueue).with(alias_job)
       end
     end
   end

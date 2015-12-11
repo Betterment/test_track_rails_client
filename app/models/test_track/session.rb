@@ -12,7 +12,8 @@ class TestTrack::Session
     yield
   ensure
     manage_cookies!
-    flush_events!
+    flush_events! if new_assignments?
+    create_alias! if signed_up?
   end
 
   def visitor_dsl
@@ -42,11 +43,13 @@ class TestTrack::Session
 
   def sign_up!(identifier_type, identifier)
     log_in!(identifier_type, identifier)
+    @signed_up = true
   end
 
   private
 
-  attr_reader :controller
+  attr_reader :controller, :signed_up
+  alias_method :signed_up?, :signed_up
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
@@ -80,13 +83,24 @@ class TestTrack::Session
   end
 
   def flush_events!
-    return unless visitor.new_assignments.present?
     job = TestTrack::NotificationJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       new_assignments: visitor.new_assignments
     )
     Delayed::Job.enqueue(job)
+  end
+
+  def create_alias!
+    job = TestTrack::AliasJob.new(
+      mixpanel_distinct_id: mixpanel_distinct_id,
+      visitor_id: visitor.id
+    )
+    Delayed::Job.enqueue(job)
+  end
+
+  def new_assignments?
+    visitor.new_assignments.present?
   end
 
   def mixpanel_distinct_id
