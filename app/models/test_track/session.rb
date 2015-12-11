@@ -39,6 +39,7 @@ class TestTrack::Session
       # but subsequent requests will be better off
       TestTrack::Identifier.delay.create!(identifier_opts)
     end
+    true
   end
 
   def sign_up!(identifier_type, identifier)

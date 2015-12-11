@@ -46,7 +46,7 @@ RSpec.describe TestTrack::Session do
     end
 
     context "mixpanel" do
-      it "doesn't set a mixpanel cookie if already there" do
+      it "resets the mixpanel cookie to the same value if already there" do
         subject.manage {}
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq mixpanel_cookie
       end
@@ -209,6 +209,10 @@ RSpec.describe TestTrack::Session do
       allow(TestTrack::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
     end
 
+    it "returns true" do
+      expect(subject.log_in!('bettermentdb_user_id', 444)).to eq true
+    end
+
     it "sends the appropriate params to test track" do
       allow(TestTrack::Identifier).to receive(:create!).and_call_original
       subject.log_in!('bettermentdb_user_id', 444)
@@ -294,14 +298,14 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#sign_up!" do
-    it "sends params to test track like #log_in!" do
-      allow(TestTrack::Identifier).to receive(:create!).and_call_original
+    it "calls log_in!" do
+      allow(subject).to receive(:log_in!).and_call_original
       subject.sign_up!('bettermentdb_user_id', 444)
-      expect(TestTrack::Identifier).to have_received(:create!).with(
-        identifier_type: 'bettermentdb_user_id',
-        visitor_id: "fake_visitor_id",
-        value: "444"
-      )
+      expect(subject).to have_received(:log_in!).with('bettermentdb_user_id', 444)
+    end
+
+    it "returns true" do
+      expect(subject.sign_up!('bettermentdb_user_id', 444)).to eq true
     end
   end
 end
