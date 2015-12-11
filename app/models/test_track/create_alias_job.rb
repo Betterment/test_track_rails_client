@@ -1,6 +1,6 @@
 require 'mixpanel-ruby'
 
-class TestTrack::AliasJob
+class TestTrack::CreateAliasJob
   attr_reader :mixpanel_distinct_id, :visitor_id
 
   def initialize(opts)

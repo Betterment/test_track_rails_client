@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::NotificationJob do
+RSpec.describe TestTrack::NotifyNewAssignmentsJob do
   let(:params) { { mixpanel_distinct_id: "fake_mixpanel_id", visitor_id: "fake_visitor_id", new_assignments: new_assignments } }
   let(:new_assignments) { { 'blue_button' => 'true', 'phaser' => 'stun' } }
 

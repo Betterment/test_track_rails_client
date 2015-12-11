@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::AliasJob do
+RSpec.describe TestTrack::CreateAliasJob do
   let(:params) { { mixpanel_distinct_id: "fake_mixpanel_id", visitor_id: "fake_visitor_id" } }
 
   subject { described_class.new(params) }

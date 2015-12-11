@@ -12,7 +12,7 @@ class TestTrack::Session
     yield
   ensure
     manage_cookies!
-    flush_events! if new_assignments?
+    notify_new_assignments! if new_assignments?
     create_alias! if signed_up?
   end
 
@@ -82,8 +82,8 @@ class TestTrack::Session
     controller.send(:cookies)
   end
 
-  def flush_events!
-    job = TestTrack::NotificationJob.new(
+  def notify_new_assignments!
+    job = TestTrack::NotifyNewAssignmentsJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       new_assignments: visitor.new_assignments
@@ -92,7 +92,7 @@ class TestTrack::Session
   end
 
   def create_alias!
-    job = TestTrack::AliasJob.new(
+    job = TestTrack::CreateAliasJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id
     )

@@ -5,15 +5,15 @@ RSpec.describe TestTrack::Session do
   let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
   let(:mixpanel_cookie) { URI.escape({ distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json) }
   let(:request) { double(:request, host: "www.foo.com", ssl?: true) }
-  let(:notification_job) { instance_double(TestTrack::NotificationJob, perform: true) }
-  let(:alias_job) { instance_double(TestTrack::AliasJob, perform: true) }
+  let(:notify_new_assignments_job) { instance_double(TestTrack::NotifyNewAssignmentsJob, perform: true) }
+  let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
 
   subject { described_class.new(controller) }
 
   before do
     allow(Delayed::Job).to receive(:enqueue).and_return(true)
-    allow(TestTrack::NotificationJob).to receive(:new).and_return(notification_job)
-    allow(TestTrack::AliasJob).to receive(:new).and_return(alias_job)
+    allow(TestTrack::NotifyNewAssignmentsJob).to receive(:new).and_return(notify_new_assignments_job)
+    allow(TestTrack::CreateAliasJob).to receive(:new).and_return(create_alias_job)
     ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
 
@@ -113,22 +113,22 @@ RSpec.describe TestTrack::Session do
       end
     end
 
-    context "notifications" do
-      it "flushes notifications if there have been new assignments" do
+    context "new assignments notifications" do
+      it "enqueues new assignments notification job if there have been new assignments" do
         allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
         subject.manage do
           subject.visitor_dsl.ab('bar', 'baz')
         end
-        expect(TestTrack::NotificationJob).to have_received(:new).with(
+        expect(TestTrack::NotifyNewAssignmentsJob).to have_received(:new).with(
           mixpanel_distinct_id: 'fake_distinct_id',
           visitor_id: 'fake_visitor_id',
           new_assignments: { 'bar' => 'baz' })
-        expect(Delayed::Job).to have_received(:enqueue).with(notification_job)
+        expect(Delayed::Job).to have_received(:enqueue).with(notify_new_assignments_job)
       end
 
-      it "doesn't flush notifications if there haven't been new assignments" do
+      it "doesn't enqueue new assignments notification job if there haven't been new assignments" do
         subject.manage {}
-        expect(TestTrack::NotificationJob).not_to have_received(:new)
+        expect(TestTrack::NotifyNewAssignmentsJob).not_to have_received(:new)
       end
     end
 
@@ -137,17 +137,17 @@ RSpec.describe TestTrack::Session do
         subject.manage do
           subject.sign_up!('bettermentdb_user_id', 444)
         end
-        expect(TestTrack::AliasJob).to have_received(:new).with(
+        expect(TestTrack::CreateAliasJob).to have_received(:new).with(
           mixpanel_distinct_id: 'fake_distinct_id',
           visitor_id: 'fake_visitor_id'
         )
-        expect(Delayed::Job).to have_received(:enqueue).with(alias_job)
+        expect(Delayed::Job).to have_received(:enqueue).with(create_alias_job)
       end
 
       it "doesn't enqueue an alias job if there was no signup" do
         subject.manage {}
-        expect(TestTrack::AliasJob).not_to have_received(:new)
-        expect(Delayed::Job).not_to have_received(:enqueue).with(alias_job)
+        expect(TestTrack::CreateAliasJob).not_to have_received(:new)
+        expect(Delayed::Job).not_to have_received(:enqueue).with(create_alias_job)
       end
     end
   end
