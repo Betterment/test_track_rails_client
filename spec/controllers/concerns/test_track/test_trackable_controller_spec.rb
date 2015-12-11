@@ -68,7 +68,6 @@ RSpec.describe TestTrack::Controller do
   end
 
   it "exposes the VisitorDSL to the controller" do
-    allow(TestTrack::NotificationJob).to receive(:new).and_return(instance_double(TestTrack::NotificationJob, perform: true))
     allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
     get :show, id: "1234"
     expect(visitor_dsl).to have_received(:ab).with('time', 'beer_thirty')

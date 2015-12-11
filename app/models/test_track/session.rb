@@ -12,7 +12,8 @@ class TestTrack::Session
     yield
   ensure
     manage_cookies!
-    flush_events!
+    notify_new_assignments! if new_assignments?
+    create_alias! if signed_up?
   end
 
   def visitor_dsl
@@ -28,9 +29,28 @@ class TestTrack::Session
     }
   end
 
+  def log_in!(identifier_type, identifier)
+    identifier_opts = { identifier_type: identifier_type, visitor_id: visitor.id, value: identifier.to_s }
+    begin
+      identifier = TestTrack::Identifier.create!(identifier_opts)
+      visitor.merge!(identifier.visitor)
+    rescue *TestTrack::SERVER_ERRORS
+      # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
+      # but subsequent requests will be better off
+      TestTrack::Identifier.delay.create!(identifier_opts)
+    end
+    true
+  end
+
+  def sign_up!(identifier_type, identifier)
+    log_in!(identifier_type, identifier)
+    @signed_up = true
+  end
+
   private
 
-  attr_reader :controller, :mixpanel_distinct_id
+  attr_reader :controller, :signed_up
+  alias_method :signed_up?, :signed_up
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
@@ -51,7 +71,7 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    read_mixpanel_distinct_id || generate_mixpanel_distinct_id
+    set_cookie(mixpanel_cookie_name, URI.escape(mixpanel_cookie.to_json))
     set_cookie(:tt_visitor_id, visitor.id)
   end
 
@@ -63,9 +83,8 @@ class TestTrack::Session
     controller.send(:cookies)
   end
 
-  def flush_events!
-    return unless visitor.new_assignments.present?
-    job = TestTrack::NotificationJob.new(
+  def notify_new_assignments!
+    job = TestTrack::NotifyNewAssignmentsJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       new_assignments: visitor.new_assignments
@@ -73,19 +92,38 @@ class TestTrack::Session
     Delayed::Job.enqueue(job)
   end
 
-  def read_mixpanel_distinct_id
+  def create_alias!
+    job = TestTrack::CreateAliasJob.new(
+      mixpanel_distinct_id: mixpanel_distinct_id,
+      visitor_id: visitor.id
+    )
+    Delayed::Job.enqueue(job)
+  end
+
+  def new_assignments?
+    visitor.new_assignments.present?
+  end
+
+  def mixpanel_distinct_id
+    mixpanel_cookie['distinct_id']
+  end
+
+  def mixpanel_cookie
+    @mixpanel_cookie ||= read_mixpanel_cookie || generate_mixpanel_cookie
+  end
+
+  def read_mixpanel_cookie
     mixpanel_cookie = cookies[mixpanel_cookie_name]
     begin
-      @mixpanel_distinct_id = JSON.parse(URI.unescape(mixpanel_cookie))['distinct_id'] if mixpanel_cookie
+      JSON.parse(URI.unescape(mixpanel_cookie)) if mixpanel_cookie
     rescue JSON::ParserError
       Rails.logger.error("malformed mixpanel JSON from cookie #{URI.unescape(mixpanel_cookie)}")
       nil
     end
   end
 
-  def generate_mixpanel_distinct_id
-    set_cookie(mixpanel_cookie_name, URI.escape({ distinct_id: visitor.id }.to_json))
-    @mixpanel_distinct_id = visitor.id
+  def generate_mixpanel_cookie
+    { 'distinct_id' => visitor.id }
   end
 
   def mixpanel_token

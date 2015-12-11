@@ -1,6 +1,6 @@
 require 'mixpanel-ruby'
 
-class TestTrack::NotificationJob
+class TestTrack::NotifyNewAssignmentsJob
   attr_reader :mixpanel_distinct_id, :visitor_id, :new_assignments
 
   def initialize(opts)
