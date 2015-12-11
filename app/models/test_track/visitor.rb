@@ -52,33 +52,16 @@ class TestTrack::Visitor
     @split_registry ||= TestTrack::SplitRegistry.to_hash
   end
 
-  def log_in!(identifier_type, identifier)
-    identifier_opts = { identifier_type: identifier_type, visitor_id: id, value: identifier.to_s }
-    begin
-      identifier = TestTrack::Identifier.create!(identifier_opts)
-      merge!(identifier.visitor)
-    rescue *TestTrack::SERVER_ERRORS
-      # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
-      # but subsequent requests will be better off
-      TestTrack::Identifier.delay.create!(identifier_opts)
-    end
-    self
-  end
-
-  def sign_up!(identifier_type, identifier)
-    log_in!(identifier_type, identifier)
+  def merge!(other)
+    @id = other.id
+    new_assignments.except!(*other.assignment_registry.keys)
+    assignment_registry.merge!(other.assignment_registry)
   end
 
   private
 
   def tt_offline?
     @tt_offline || false
-  end
-
-  def merge!(other)
-    @id = other.id
-    new_assignments.except!(*other.assignment_registry.keys)
-    assignment_registry.merge!(other.assignment_registry)
   end
 
   def assignment_for(split_name)

@@ -21,13 +21,11 @@ RSpec.describe TestTrack::Visitor do
       }
     }
   end
-  let(:delayed_identifier_proxy) { double(create!: "fake visitor") }
 
   before do
     allow(TestTrack::AssignmentRegistry).to receive(:for_visitor).and_call_original
     allow(TestTrack::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
     allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(split_registry)
-    allow(TestTrack::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
   end
 
   it "preserves a passed ID" do
@@ -206,98 +204,6 @@ RSpec.describe TestTrack::Visitor do
     it "memoizes the global SplitRegistry hash" do
       2.times { existing_visitor.split_registry }
       expect(TestTrack::SplitRegistry).to have_received(:to_hash).exactly(:once)
-    end
-  end
-
-  describe "#log_in!" do
-    it "sends the appropriate params to test track" do
-      allow(TestTrack::Identifier).to receive(:create!).and_call_original
-      existing_visitor.log_in!('bettermentdb_user_id', 444)
-      expect(TestTrack::Identifier).to have_received(:create!).with(
-        identifier_type: 'bettermentdb_user_id',
-        visitor_id: existing_visitor_id,
-        value: "444"
-      )
-    end
-
-    it "preserves id if unchanged" do
-      expect(existing_visitor.log_in!('bettermentdb_user_id', 444).id).to eq existing_visitor_id
-    end
-
-    it "delays the identifier creation if TestTrack times out and carries on" do
-      allow(TestTrack::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
-
-      expect(existing_visitor.log_in!('bettermentdb_user_id', 444).id).to eq existing_visitor_id
-
-      expect(delayed_identifier_proxy).to have_received(:create!).with(
-        identifier_type: 'bettermentdb_user_id',
-        visitor_id: existing_visitor_id,
-        value: "444"
-      )
-    end
-
-    it "normally doesn't delay identifier creation" do
-      expect(existing_visitor.log_in!('bettermentdb_user_id', 444).id).to eq existing_visitor_id
-
-      expect(delayed_identifier_proxy).not_to have_received(:create!)
-    end
-
-    context "with stubbed identifier creation" do
-      let(:identifier) { TestTrack::Identifier.new(visitor: { id: "server_id", assignment_registry: server_registry }) }
-      let(:server_registry) { { "foo" => "definitely", "bar" => "occasionally" } }
-
-      before do
-        allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
-      end
-
-      it "changes id if changed" do
-        expect(existing_visitor.log_in!('bettermentdb_user_id', 444).id).to eq 'server_id'
-      end
-
-      it "ingests a server-provided assignment as non-new" do
-        existing_visitor.log_in!('bettermentdb_user_id', 444)
-
-        expect(existing_visitor.assignment_registry['foo']).to eq 'definitely'
-        expect(existing_visitor.new_assignments).not_to have_key 'foo'
-      end
-
-      it "preserves a local new assignment with no conflicting server-provided assignment as new" do
-        existing_visitor.new_assignments['baz'] = existing_visitor.assignment_registry['baz'] = 'never'
-
-        existing_visitor.log_in!('bettermentdb_user_id', 444)
-
-        expect(existing_visitor.assignment_registry['baz']).to eq 'never'
-        expect(existing_visitor.new_assignments['baz']).to eq 'never'
-      end
-
-      it "removes and overrides a local new assignment with a conflicting server-provided assignment" do
-        existing_visitor.new_assignments['foo'] = existing_visitor.assignment_registry['foo'] = 'something_else'
-
-        existing_visitor.log_in!('bettermentdb_user_id', 444)
-
-        expect(existing_visitor.assignment_registry['foo']).to eq 'definitely'
-        expect(existing_visitor.new_assignments).not_to have_key 'foo'
-      end
-
-      it "overrides a local existing assignment with a conflicting server-provided assignment" do
-        existing_visitor.assignment_registry['foo'] = 'something_else'
-
-        existing_visitor.log_in!('bettermentdb_user_id', 444)
-
-        expect(existing_visitor.assignment_registry['foo']).to eq 'definitely'
-        expect(existing_visitor.new_assignments).not_to have_key 'foo'
-      end
-    end
-  end
-  describe "#sign_up!" do
-    it "sends params to test track like #log_in!" do
-      allow(TestTrack::Identifier).to receive(:create!).and_call_original
-      existing_visitor.sign_up!('bettermentdb_user_id', 444)
-      expect(TestTrack::Identifier).to have_received(:create!).with(
-        identifier_type: 'bettermentdb_user_id',
-        visitor_id: existing_visitor_id,
-        value: "444"
-      )
     end
   end
 end

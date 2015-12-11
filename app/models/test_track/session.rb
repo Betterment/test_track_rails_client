@@ -28,6 +28,22 @@ class TestTrack::Session
     }
   end
 
+  def log_in!(identifier_type, identifier)
+    identifier_opts = { identifier_type: identifier_type, visitor_id: visitor.id, value: identifier.to_s }
+    begin
+      identifier = TestTrack::Identifier.create!(identifier_opts)
+      visitor.merge!(identifier.visitor)
+    rescue *TestTrack::SERVER_ERRORS
+      # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
+      # but subsequent requests will be better off
+      TestTrack::Identifier.delay.create!(identifier_opts)
+    end
+  end
+
+  def sign_up!(identifier_type, identifier)
+    log_in!(identifier_type, identifier)
+  end
+
   private
 
   attr_reader :controller

@@ -37,7 +37,7 @@ RSpec.describe TestTrack::Session do
         allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
 
         subject.manage do
-          subject.visitor_dsl.log_in!("indetifier_type", "value")
+          subject.log_in!("indetifier_type", "value")
         end
         expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
       end
@@ -177,6 +177,110 @@ RSpec.describe TestTrack::Session do
       allow(visitor).to receive(:assignment_registry).and_return(nil)
       expect(subject.state_hash).to have_key(:assignments)
       expect(subject.state_hash[:assignments]).to eq(nil)
+    end
+  end
+
+  describe "#log_in!" do
+    let(:delayed_identifier_proxy) { double(create!: "fake visitor") }
+    let(:visitor) { subject.send(:visitor) }
+
+    before do
+      allow(TestTrack::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
+    end
+
+    it "sends the appropriate params to test track" do
+      allow(TestTrack::Identifier).to receive(:create!).and_call_original
+      subject.log_in!('bettermentdb_user_id', 444)
+      expect(TestTrack::Identifier).to have_received(:create!).with(
+        identifier_type: 'bettermentdb_user_id',
+        visitor_id: "fake_visitor_id",
+        value: "444"
+      )
+    end
+
+    it "preserves id if unchanged" do
+      subject.log_in!('bettermentdb_user_id', 444)
+      expect(visitor.id).to eq "fake_visitor_id"
+    end
+
+    it "delays the identifier creation if TestTrack times out and carries on" do
+      allow(TestTrack::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
+      subject.log_in!('bettermentdb_user_id', 444)
+
+      expect(visitor.id).to eq "fake_visitor_id"
+
+      expect(delayed_identifier_proxy).to have_received(:create!).with(
+        identifier_type: 'bettermentdb_user_id',
+        visitor_id: "fake_visitor_id",
+        value: "444"
+      )
+    end
+
+    it "normally doesn't delay identifier creation" do
+      subject.log_in!('bettermentdb_user_id', 444)
+
+      expect(visitor.id).to eq "fake_visitor_id"
+      expect(delayed_identifier_proxy).not_to have_received(:create!)
+    end
+
+    context "with stubbed identifier creation" do
+      let(:identifier) { TestTrack::Identifier.new(visitor: { id: "server_id", assignment_registry: server_registry }) }
+      let(:server_registry) { { "foo" => "definitely", "bar" => "occasionally" } }
+
+      before do
+        allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
+      end
+
+      it "changes id if changed" do
+        subject.log_in!('bettermentdb_user_id', 444)
+        expect(visitor.id).to eq 'server_id'
+      end
+
+      it "ingests a server-provided assignment as non-new" do
+        subject.log_in!('bettermentdb_user_id', 444)
+
+        expect(visitor.assignment_registry['foo']).to eq 'definitely'
+        expect(visitor.new_assignments).not_to have_key 'foo'
+      end
+
+      it "preserves a local new assignment with no conflicting server-provided assignment as new" do
+        visitor.new_assignments['baz'] = visitor.assignment_registry['baz'] = 'never'
+
+        subject.log_in!('bettermentdb_user_id', 444)
+
+        expect(visitor.assignment_registry['baz']).to eq 'never'
+        expect(visitor.new_assignments['baz']).to eq 'never'
+      end
+
+      it "removes and overrides a local new assignment with a conflicting server-provided assignment" do
+        visitor.new_assignments['foo'] = visitor.assignment_registry['foo'] = 'something_else'
+
+        subject.log_in!('bettermentdb_user_id', 444)
+
+        expect(visitor.assignment_registry['foo']).to eq 'definitely'
+        expect(visitor.new_assignments).not_to have_key 'foo'
+      end
+
+      it "overrides a local existing assignment with a conflicting server-provided assignment" do
+        visitor.assignment_registry['foo'] = 'something_else'
+
+        subject.log_in!('bettermentdb_user_id', 444)
+
+        expect(visitor.assignment_registry['foo']).to eq 'definitely'
+        expect(visitor.new_assignments).not_to have_key 'foo'
+      end
+    end
+  end
+
+  describe "#sign_up!" do
+    it "sends params to test track like #log_in!" do
+      allow(TestTrack::Identifier).to receive(:create!).and_call_original
+      subject.sign_up!('bettermentdb_user_id', 444)
+      expect(TestTrack::Identifier).to have_received(:create!).with(
+        identifier_type: 'bettermentdb_user_id',
+        visitor_id: "fake_visitor_id",
+        value: "444"
+      )
     end
   end
 end
