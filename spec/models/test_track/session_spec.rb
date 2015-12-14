@@ -100,6 +100,18 @@ RSpec.describe TestTrack::Session do
         expect(cookies['tt_visitor_id'][:domain]).to eq ".boom.com"
       end
 
+      it "doesn't munge an IPv4 hostname" do
+        allow(request).to receive(:host).and_return("127.0.0.1")
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:domain]).to eq "127.0.0.1"
+      end
+
+      it "doesn't munge an IPv6 hostname" do
+        allow(request).to receive(:host).and_return("::1")
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:domain]).to eq "::1"
+      end
+
       it "doesn't set httponly cookies" do
         subject.manage {}
         expect(cookies['tt_visitor_id'][:httponly]).to eq false

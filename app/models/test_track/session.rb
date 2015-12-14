@@ -67,7 +67,15 @@ class TestTrack::Session
   end
 
   def cookie_domain
-    @cookie_domian ||= "." + PublicSuffix.parse(request.host).domain
+    @cookie_domain ||= _cookie_domain
+  end
+
+  def _cookie_domain
+    if request.host.match(Resolv::AddressRegex)
+      request.host
+    else
+      "." + PublicSuffix.parse(request.host).domain
+    end
   end
 
   def manage_cookies!
