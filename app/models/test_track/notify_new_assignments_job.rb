@@ -16,7 +16,7 @@ class TestTrack::NotifyNewAssignmentsJob
 
   def perform
     new_assignments.each do |split_name, variant|
-      TestTrack::Assignment.create!(visitor_id: visitor_id, split_name: split_name, variant: variant)
+      TestTrack::Remote::Assignment.create!(visitor_id: visitor_id, split_name: split_name, variant: variant)
       mixpanel.track(
         mixpanel_distinct_id,
         "SplitAssigned",

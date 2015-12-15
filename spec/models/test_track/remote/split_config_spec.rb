@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::SplitConfig do
+RSpec.describe TestTrack::Remote::SplitConfig do
   let(:params) { { name: "my_split", weighting_registry: { foo: 25, bar: 75 } } }
   let(:url) { "http://dummy:fakepassword@testtrack.dev/api/split_config" }
 

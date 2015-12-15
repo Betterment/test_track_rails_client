@@ -1,5 +1,5 @@
-class TestTrack::SplitRegistry
-  include TestTrack::TestTrackModel
+class TestTrack::Remote::SplitRegistry
+  include TestTrack::RemoteModel
 
   CACHE_KEY = 'test_track_split_registry'
 

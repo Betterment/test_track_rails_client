@@ -23,9 +23,9 @@ RSpec.describe TestTrack::Visitor do
   end
 
   before do
-    allow(TestTrack::AssignmentRegistry).to receive(:for_visitor).and_call_original
-    allow(TestTrack::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
-    allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(split_registry)
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor).and_call_original
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
   end
 
   it "preserves a passed ID" do
@@ -40,7 +40,7 @@ RSpec.describe TestTrack::Visitor do
   describe "#assignment_registry" do
     it "doesn't request the registry for a newly-generated visitor" do
       expect(new_visitor.assignment_registry).to eq({})
-      expect(TestTrack::AssignmentRegistry).not_to have_received(:for_visitor)
+      expect(TestTrack::Remote::AssignmentRegistry).not_to have_received(:for_visitor)
     end
 
     it "returns the server-provided assignments for an existing visitor" do
@@ -48,11 +48,11 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "returns nil if fetching the registry times out" do
-      allow(TestTrack::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "Womp womp") }
+      allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "Womp womp") }
 
       expect(existing_visitor.assignment_registry).to eq nil
 
-      expect(TestTrack::AssignmentRegistry).to have_received(:for_visitor)
+      expect(TestTrack::Remote::AssignmentRegistry).to have_received(:for_visitor)
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe TestTrack::Visitor do
 
       context "when TestTrack server is unavailable" do
         before do
-          allow(TestTrack::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "woopsie") }
+          allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "woopsie") }
         end
 
         it "doesn't assign anything" do
@@ -203,7 +203,7 @@ RSpec.describe TestTrack::Visitor do
   describe "#split_registry" do
     it "memoizes the global SplitRegistry hash" do
       2.times { existing_visitor.split_registry }
-      expect(TestTrack::SplitRegistry).to have_received(:to_hash).exactly(:once)
+      expect(TestTrack::Remote::SplitRegistry).to have_received(:to_hash).exactly(:once)
     end
   end
 end

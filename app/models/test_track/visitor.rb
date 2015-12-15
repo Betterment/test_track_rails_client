@@ -38,7 +38,7 @@ class TestTrack::Visitor
   end
 
   def assignment_registry
-    @assignment_registry ||= TestTrack::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
+    @assignment_registry ||= TestTrack::Remote::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
   rescue *TestTrack::SERVER_ERRORS
     @tt_offline = true
     nil
@@ -49,7 +49,7 @@ class TestTrack::Visitor
   end
 
   def split_registry
-    @split_registry ||= TestTrack::SplitRegistry.to_hash
+    @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
 
   def merge!(other)

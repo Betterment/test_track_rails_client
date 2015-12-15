@@ -11,23 +11,23 @@ RSpec.describe TestTrack::ConfigUpdater do
   end
 
   describe "#split" do
-    let(:split_config) { instance_double(TestTrack::SplitConfig, save: true) }
-    let(:invalid_split_config) { instance_double(TestTrack::SplitConfig, save: false, errors: errors) }
+    let(:split_config) { instance_double(TestTrack::Remote::SplitConfig, save: true) }
+    let(:invalid_split_config) { instance_double(TestTrack::Remote::SplitConfig, save: false, errors: errors) }
 
     it "updates split_config" do
-      allow(TestTrack::SplitConfig).to receive(:new).and_call_original
+      allow(TestTrack::Remote::SplitConfig).to receive(:new).and_call_original
       expect(subject.split(:name, foo: 20, bar: 80)).to be_truthy
-      expect(TestTrack::SplitConfig).to have_received(:new).with(name: :name, weighting_registry: { foo: 20, bar: 80 })
+      expect(TestTrack::Remote::SplitConfig).to have_received(:new).with(name: :name, weighting_registry: { foo: 20, bar: 80 })
     end
 
     it "calls save on the split" do
-      allow(TestTrack::SplitConfig).to receive(:new).and_return(split_config)
+      allow(TestTrack::Remote::SplitConfig).to receive(:new).and_return(split_config)
       expect(subject.split(:name, foo: 20, bar: 80)).to be_truthy
       expect(split_config).to have_received(:save)
     end
 
     it "blows up if the split doesn't save" do
-      allow(TestTrack::SplitConfig).to receive(:new).and_return(invalid_split_config)
+      allow(TestTrack::Remote::SplitConfig).to receive(:new).and_return(invalid_split_config)
       expect { subject.split(:name, foo: 20, bar: 80) }.to raise_error(/this is wrong/)
     end
 
@@ -85,15 +85,15 @@ splits:
     'true': 50
         YML
 
-        allow(TestTrack::SplitRegistry).to receive(:reset).and_call_original
-        allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(
+        allow(TestTrack::Remote::SplitRegistry).to receive(:reset).and_call_original
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(
           "blue_button" => { "true" => 50, "false" => 50 },
           "split_for_another_app" => { "true" => 50, "false" => 50 }
         )
 
         subject.split(:name, foo: 20, bar: 80)
 
-        expect(TestTrack::SplitRegistry).to have_received(:reset)
+        expect(TestTrack::Remote::SplitRegistry).to have_received(:reset)
         expect_schema <<-YML
 ---
 identifier_types:
@@ -148,23 +148,23 @@ splits:
   end
 
   describe "#identifier_type" do
-    let(:identifier_type) { instance_double(TestTrack::IdentifierType, save: true) }
-    let(:invalid_identifier_type) { instance_double(TestTrack::IdentifierType, save: false, errors: errors) }
+    let(:identifier_type) { instance_double(TestTrack::Remote::IdentifierType, save: true) }
+    let(:invalid_identifier_type) { instance_double(TestTrack::Remote::IdentifierType, save: false, errors: errors) }
 
     it "updates identifier_type" do
-      allow(TestTrack::IdentifierType).to receive(:new).and_call_original
+      allow(TestTrack::Remote::IdentifierType).to receive(:new).and_call_original
       expect(subject.identifier_type(:my_id)).to be_truthy
-      expect(TestTrack::IdentifierType).to have_received(:new).with(name: :my_id)
+      expect(TestTrack::Remote::IdentifierType).to have_received(:new).with(name: :my_id)
     end
 
     it "calls save on the identifier_type" do
-      allow(TestTrack::IdentifierType).to receive(:new).and_return(identifier_type)
+      allow(TestTrack::Remote::IdentifierType).to receive(:new).and_return(identifier_type)
       expect(subject.identifier_type(:my_id)).to be_truthy
       expect(identifier_type).to have_received(:save)
     end
 
     it "blows up if the identifier_type doesn't save" do
-      allow(TestTrack::IdentifierType).to receive(:new).and_return(invalid_identifier_type)
+      allow(TestTrack::Remote::IdentifierType).to receive(:new).and_return(invalid_identifier_type)
       expect { subject.identifier_type(:my_id) }.to raise_error(/this is wrong/)
     end
 
@@ -226,8 +226,8 @@ splits:
 
   describe "#load_schema" do
     it "updates the split_config and identifier_types" do
-      allow(TestTrack::SplitConfig).to receive(:new).and_call_original
-      allow(TestTrack::IdentifierType).to receive(:new).and_call_original
+      allow(TestTrack::Remote::SplitConfig).to receive(:new).and_call_original
+      allow(TestTrack::Remote::IdentifierType).to receive(:new).and_call_original
 
       given_schema <<-YML
 ---
@@ -247,17 +247,17 @@ splits:
 
       subject.load_schema
 
-      expect(TestTrack::SplitConfig).to have_received(:new).with(
+      expect(TestTrack::Remote::SplitConfig).to have_received(:new).with(
         name: "balance_unit",
         weighting_registry: { "dollar" => 50, "pound" => 25, "doge" => 25 }
       )
-      expect(TestTrack::SplitConfig).to have_received(:new).with(
+      expect(TestTrack::Remote::SplitConfig).to have_received(:new).with(
         name: "blue_button",
         weighting_registry: { "true" => 50, "false" => 50 }
       )
-      expect(TestTrack::IdentifierType).to have_received(:new).with(name: "a")
-      expect(TestTrack::IdentifierType).to have_received(:new).with(name: "b")
-      expect(TestTrack::IdentifierType).to have_received(:new).with(name: "c")
+      expect(TestTrack::Remote::IdentifierType).to have_received(:new).with(name: "a")
+      expect(TestTrack::Remote::IdentifierType).to have_received(:new).with(name: "b")
+      expect(TestTrack::Remote::IdentifierType).to have_received(:new).with(name: "c")
 
       expect_schema <<-YML
 ---
@@ -281,7 +281,7 @@ splits:
     File.open(schema_file_path, "w") do |f|
       f.write yaml
     end
-    allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(YAML.load(yaml)["splits"])
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(YAML.load(yaml)["splits"])
   end
 
   def expect_schema(yaml)

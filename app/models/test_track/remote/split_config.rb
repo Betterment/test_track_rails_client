@@ -1,5 +1,5 @@
-class TestTrack::SplitConfig
-  include TestTrack::TestTrackModel
+class TestTrack::Remote::SplitConfig
+  include TestTrack::RemoteModel
 
   collection_path '/api/split_config'
 

@@ -1,4 +1,4 @@
-module TestTrack::TestTrackModel
+module TestTrack::RemoteModel
   extend ActiveSupport::Concern
   include FakeableHer::Model
 

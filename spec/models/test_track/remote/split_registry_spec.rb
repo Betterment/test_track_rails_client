@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::SplitRegistry do
+RSpec.describe TestTrack::Remote::SplitRegistry do
   let(:split_registry) { { 'time' => { 'back_in_time' => 100, 'power_of_love' => 0 } } }
 
   before do
