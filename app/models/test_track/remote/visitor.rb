@@ -1,5 +1,5 @@
 class TestTrack::Remote::Visitor
-  include TestTrack::TestTrackModel
+  include TestTrack::RemoteModel
 
   def self.fake_instance_attributes(_)
     {

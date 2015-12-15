@@ -1,5 +1,5 @@
 class TestTrack::Remote::Assignment
-  include TestTrack::TestTrackModel
+  include TestTrack::RemoteModel
 
   collection_path '/api/assignment'
 

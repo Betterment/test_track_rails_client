@@ -1,5 +1,5 @@
 class TestTrack::Remote::AssignmentRegistry
-  include TestTrack::TestTrackModel
+  include TestTrack::RemoteModel
 
   def self.fake_instance_attributes(_)
     { time: 'hammertime' }
