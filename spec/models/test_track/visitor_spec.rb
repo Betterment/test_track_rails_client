@@ -23,9 +23,9 @@ RSpec.describe TestTrack::Visitor do
   end
 
   before do
-    allow(TestTrack::AssignmentRegistry).to receive(:for_visitor).and_call_original
-    allow(TestTrack::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
-    allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(split_registry)
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor).and_call_original
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
   end
 
   it "preserves a passed ID" do
@@ -40,7 +40,7 @@ RSpec.describe TestTrack::Visitor do
   describe "#assignment_registry" do
     it "doesn't request the registry for a newly-generated visitor" do
       expect(new_visitor.assignment_registry).to eq({})
-      expect(TestTrack::AssignmentRegistry).not_to have_received(:for_visitor)
+      expect(TestTrack::Remote::AssignmentRegistry).not_to have_received(:for_visitor)
     end
 
     it "returns the server-provided assignments for an existing visitor" do
@@ -48,11 +48,11 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "returns nil if fetching the registry times out" do
-      allow(TestTrack::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "Womp womp") }
+      allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "Womp womp") }
 
       expect(existing_visitor.assignment_registry).to eq nil
 
-      expect(TestTrack::AssignmentRegistry).to have_received(:for_visitor)
+      expect(TestTrack::Remote::AssignmentRegistry).to have_received(:for_visitor)
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe TestTrack::Visitor do
 
       context "when TestTrack server is unavailable" do
         before do
-          allow(TestTrack::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "woopsie") }
+          allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "woopsie") }
         end
 
         it "doesn't assign anything" do
@@ -203,41 +203,7 @@ RSpec.describe TestTrack::Visitor do
   describe "#split_registry" do
     it "memoizes the global SplitRegistry hash" do
       2.times { existing_visitor.split_registry }
-      expect(TestTrack::SplitRegistry).to have_received(:to_hash).exactly(:once)
-    end
-  end
-
-  describe ".for_identifier" do
-    subject { described_class.for_identifier("clown_id", "1234") }
-    let(:url) { "http://dummy:fakepassword@testtrack.dev/api/identifier_types/clown_id/identifiers/1234/visitor" }
-
-    before do
-      stub_request(:get, url).to_return(status: 200, body: {
-        id: "fake_visitor_id_from_server",
-        assignment_registry: { time: "clownin_around" }
-      }.to_json)
-    end
-
-    it "raises when given a blank identifier_type_name" do
-      expect { TestTrack::Visitor.for_identifier("", "1234") }
-        .to raise_error("must provide an identifier_type_name")
-    end
-
-    it "raises when given a blank identifier_value" do
-      expect { TestTrack::Visitor.for_identifier("clown_id", "") }
-        .to raise_error("must provide an identifier_value")
-    end
-
-    it "instantiates a Visitor with fake instance attributes" do
-      expect(subject.id).to eq("fake_visitor_id")
-      expect(subject.assignment_registry).to eq(time: 'hammertime')
-    end
-
-    it "it fetches attributes from the test track server when enabled" do
-      with_env(TEST_TRACK_ENABLED: 1) do
-        expect(subject.id).to eq("fake_visitor_id_from_server")
-        expect(subject.assignment_registry).to eq(time: "clownin_around")
-      end
+      expect(TestTrack::Remote::SplitRegistry).to have_received(:to_hash).exactly(:once)
     end
   end
 end

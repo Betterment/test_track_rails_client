@@ -1,4 +1,4 @@
-class TestTrack::IdentifierType
+class TestTrack::Remote::IdentifierType
   include TestTrack::TestTrackModel
 
   collection_path '/api/identifier_type'

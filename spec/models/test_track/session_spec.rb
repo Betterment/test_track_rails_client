@@ -35,8 +35,8 @@ RSpec.describe TestTrack::Session do
 
       it "sets correct visitor id if controller does a #log_in!" do
         real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
-        identifier = instance_double(TestTrack::Identifier, visitor: real_visitor)
-        allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
+        identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
+        allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
 
         subject.manage do
           subject.log_in!("indetifier_type", "value")
@@ -115,7 +115,7 @@ RSpec.describe TestTrack::Session do
 
     context "new assignments notifications" do
       it "enqueues new assignments notification job if there have been new assignments" do
-        allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
         subject.manage do
           subject.visitor_dsl.ab('bar', 'baz')
         end
@@ -206,7 +206,7 @@ RSpec.describe TestTrack::Session do
     let(:visitor) { subject.send(:visitor) }
 
     before do
-      allow(TestTrack::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
+      allow(TestTrack::Remote::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
     end
 
     it "returns true" do
@@ -214,9 +214,9 @@ RSpec.describe TestTrack::Session do
     end
 
     it "sends the appropriate params to test track" do
-      allow(TestTrack::Identifier).to receive(:create!).and_call_original
+      allow(TestTrack::Remote::Identifier).to receive(:create!).and_call_original
       subject.log_in!('bettermentdb_user_id', 444)
-      expect(TestTrack::Identifier).to have_received(:create!).with(
+      expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
         identifier_type: 'bettermentdb_user_id',
         visitor_id: "fake_visitor_id",
         value: "444"
@@ -229,7 +229,7 @@ RSpec.describe TestTrack::Session do
     end
 
     it "delays the identifier creation if TestTrack times out and carries on" do
-      allow(TestTrack::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
+      allow(TestTrack::Remote::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
       subject.log_in!('bettermentdb_user_id', 444)
 
       expect(visitor.id).to eq "fake_visitor_id"
@@ -249,11 +249,11 @@ RSpec.describe TestTrack::Session do
     end
 
     context "with stubbed identifier creation" do
-      let(:identifier) { TestTrack::Identifier.new(visitor: { id: "server_id", assignment_registry: server_registry }) }
+      let(:identifier) { TestTrack::Remote::Identifier.new(visitor: { id: "server_id", assignment_registry: server_registry }) }
       let(:server_registry) { { "foo" => "definitely", "bar" => "occasionally" } }
 
       before do
-        allow(TestTrack::Identifier).to receive(:create!).and_return(identifier)
+        allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
       end
 
       it "changes id if changed" do

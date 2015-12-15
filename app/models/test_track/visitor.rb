@@ -1,10 +1,7 @@
 class TestTrack::Visitor
-  include TestTrack::TestTrackModel
-
   attr_reader :id
 
   def initialize(opts = {})
-    super opts
     @id = opts.delete(:id)
     @assignment_registry = opts.delete(:assignment_registry)
     unless id
@@ -12,27 +9,6 @@ class TestTrack::Visitor
       @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the registry
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
-  end
-
-  def self.fake_instance_attributes(_)
-    {
-      id: "fake_visitor_id",
-      assignment_registry: {
-        time: 'hammertime'
-      }
-    }
-  end
-
-  def self.for_identifier(identifier_type_name, identifier_value)
-    raise "must provide an identifier_type_name" unless identifier_type_name.present?
-    raise "must provide an identifier_value" unless identifier_value.present?
-
-    # TODO: FakeableHer needs to make this faking a feature of `get`
-    if ENV['TEST_TRACK_ENABLED']
-      get("/api/identifier_types/#{identifier_type_name}/identifiers/#{identifier_value}/visitor")
-    else
-      new(fake_instance_attributes(nil))
-    end
   end
 
   def vary(split_name)
@@ -62,7 +38,7 @@ class TestTrack::Visitor
   end
 
   def assignment_registry
-    @assignment_registry ||= TestTrack::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
+    @assignment_registry ||= TestTrack::Remote::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
   rescue *TestTrack::SERVER_ERRORS
     @tt_offline = true
     nil
@@ -73,7 +49,7 @@ class TestTrack::Visitor
   end
 
   def split_registry
-    @split_registry ||= TestTrack::SplitRegistry.to_hash
+    @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
 
   def merge!(other)

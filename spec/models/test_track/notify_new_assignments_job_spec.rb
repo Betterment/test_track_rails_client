@@ -30,7 +30,7 @@ RSpec.describe TestTrack::NotifyNewAssignmentsJob do
     let(:mixpanel) { instance_double(Mixpanel::Tracker, track: true) }
     before do
       allow(Mixpanel::Tracker).to receive(:new).and_return(mixpanel)
-      allow(TestTrack::Assignment).to receive(:create!).and_call_original
+      allow(TestTrack::Remote::Assignment).to receive(:create!).and_call_original
       ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
     end
 
@@ -62,12 +62,12 @@ RSpec.describe TestTrack::NotifyNewAssignmentsJob do
     it "sends test_track assignments" do
       subject.perform
 
-      expect(TestTrack::Assignment).to have_received(:create!).with(
+      expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
         split_name: 'blue_button',
         variant: 'true'
       )
-      expect(TestTrack::Assignment).to have_received(:create!).with(
+      expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
         split_name: 'phaser',
         variant: 'stun'

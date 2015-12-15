@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::IdentifierType do
+RSpec.describe TestTrack::Remote::IdentifierType do
   let(:params) { { name: "bettermentdb_user_id" } }
   let(:url) { "http://dummy:fakepassword@testtrack.dev/api/identifier_type" }
 

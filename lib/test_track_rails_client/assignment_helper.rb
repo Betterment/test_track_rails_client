@@ -5,14 +5,14 @@ module TestTrackRailsClient::AssignmentHelper
       s[split_name] = { variant => 100 }
     end
 
-    allow(TestTrack::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
-    allow(TestTrack::SplitRegistry).to receive(:fake_instance_attributes).and_return(split_registry)
-    TestTrack::SplitRegistry.reset
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::SplitRegistry).to receive(:fake_instance_attributes).and_return(split_registry)
+    TestTrack::Remote::SplitRegistry.reset
 
     yield
   ensure
-    allow(TestTrack::AssignmentRegistry).to receive(:fake_instance_attributes).and_call_original
-    allow(TestTrack::SplitRegistry).to receive(:fake_instance_attributes).and_call_original
-    TestTrack::SplitRegistry.reset
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_call_original
+    allow(TestTrack::Remote::SplitRegistry).to receive(:fake_instance_attributes).and_call_original
+    TestTrack::Remote::SplitRegistry.reset
   end
 end

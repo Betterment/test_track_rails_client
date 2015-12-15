@@ -1,4 +1,4 @@
-class TestTrack::AssignmentRegistry
+class TestTrack::Remote::AssignmentRegistry
   include TestTrack::TestTrackModel
 
   def self.fake_instance_attributes(_)

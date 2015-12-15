@@ -29,8 +29,8 @@ RSpec.describe TestTrack::Controller do
   let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: true) }
 
   before do
-    allow(TestTrack::SplitRegistry).to receive(:to_hash).and_return(split_registry)
-    allow(TestTrack::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
+    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
   end
 
   it "responds with the action's usual http status" do
@@ -46,7 +46,7 @@ RSpec.describe TestTrack::Controller do
   it "returns an empty assignment registry for a generated visitor" do
     get :index
     expect(response_json['assignment_registry']).to eq({})
-    expect(TestTrack::AssignmentRegistry).not_to have_received(:fake_instance_attributes)
+    expect(TestTrack::Remote::AssignmentRegistry).not_to have_received(:fake_instance_attributes)
   end
 
   it "returns a server-provided assignment registry for an existing visitor" do
