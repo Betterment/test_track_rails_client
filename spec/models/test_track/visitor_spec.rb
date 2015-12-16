@@ -206,4 +206,31 @@ RSpec.describe TestTrack::Visitor do
       expect(TestTrack::Remote::SplitRegistry).to have_received(:to_hash).exactly(:once)
     end
   end
+
+  describe ".backfill_identity" do
+    let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_mixpanel_id: "ABCDEFG" } }
+    let(:remote_visitor) { instance_double(TestTrack::Remote::Visitor, id: "remote_visitor_id") }
+    let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
+
+    before do
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
+      allow(TestTrack::CreateAliasJob).to receive(:new).and_return(create_alias_job)
+      allow(Delayed::Job).to receive(:enqueue).and_return(true)
+    end
+
+    it "returns the visitor from the test track server" do
+      visitor = described_class.backfill_identity(params)
+      expect(visitor).to eq remote_visitor
+      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("clown_id", "1234")
+    end
+
+    it "enqueues a CreateAliasJob" do
+      described_class.backfill_identity(params)
+      expect(TestTrack::CreateAliasJob).to have_received(:new).with(
+        existing_mixpanel_id: 'ABCDEFG',
+        alias_id: 'remote_visitor_id'
+      )
+      expect(Delayed::Job).to have_received(:enqueue).with(create_alias_job)
+    end
+  end
 end

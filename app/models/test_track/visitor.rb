@@ -58,6 +58,13 @@ class TestTrack::Visitor
     assignment_registry.merge!(other.assignment_registry)
   end
 
+  def self.backfill_identity(opts)
+    TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value]).tap do |visitor|
+      job = TestTrack::CreateAliasJob.new(existing_mixpanel_id: opts[:existing_mixpanel_id], alias_id: visitor.id)
+      Delayed::Job.enqueue(job)
+    end
+  end
+
   private
 
   def tt_offline?
