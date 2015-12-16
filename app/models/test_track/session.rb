@@ -84,20 +84,20 @@ class TestTrack::Session
   end
 
   def notify_new_assignments!
-    job = TestTrack::NotifyNewAssignmentsJob.new(
+    notify_new_assignments_job = TestTrack::NotifyNewAssignmentsJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       new_assignments: visitor.new_assignments
     )
-    Delayed::Job.enqueue(job)
+    Delayed::Job.enqueue(notify_new_assignments_job)
   end
 
   def create_alias!
-    job = TestTrack::CreateAliasJob.new(
+    create_alias_job = TestTrack::CreateAliasJob.new(
       existing_mixpanel_id: mixpanel_distinct_id,
       alias_id: visitor.id
     )
-    Delayed::Job.enqueue(job)
+    Delayed::Job.enqueue(create_alias_job)
   end
 
   def new_assignments?

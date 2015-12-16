@@ -10,7 +10,7 @@ RSpec.describe TestTrack::CreateAliasJob do
       .to raise_error(/existing_mixpanel_id/)
   end
 
-  it "blows up with empty visitor id" do
+  it "blows up with empty alias_id" do
     expect { described_class.new(params.merge(alias_id: nil)) }
       .to raise_error(/alias_id/)
   end

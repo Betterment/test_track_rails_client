@@ -65,9 +65,13 @@ class TestTrack::Visitor
   end
 
   def self.backfill_identity(opts)
-    TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value]).tap do |visitor|
-      job = TestTrack::CreateAliasJob.new(existing_mixpanel_id: opts[:existing_mixpanel_id], alias_id: visitor.id)
-      Delayed::Job.enqueue(job)
+    remote_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+
+    new(id: remote_visitor.id, assignment_registry: remote_visitor.assignment_registry).tap do |visitor|
+      TestTrack::CreateAliasJob.new(
+        existing_mixpanel_id: opts[:existing_mixpanel_id],
+        alias_id: visitor.id
+      ).perform
     end
   end
 
