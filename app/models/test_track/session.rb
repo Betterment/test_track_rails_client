@@ -29,21 +29,13 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(identifier_type, identifier)
-    identifier_opts = { identifier_type: identifier_type, visitor_id: visitor.id, value: identifier.to_s }
-    begin
-      identifier = TestTrack::Remote::Identifier.create!(identifier_opts)
-      visitor.merge!(identifier.visitor)
-    rescue *TestTrack::SERVER_ERRORS
-      # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
-      # but subsequent requests will be better off
-      TestTrack::Remote::Identifier.delay.create!(identifier_opts)
-    end
+  def log_in!(identifier_type, identifier_value)
+    visitor.link_identifier!(identifier_type, identifier_value)
     true
   end
 
-  def sign_up!(identifier_type, identifier)
-    log_in!(identifier_type, identifier)
+  def sign_up!(identifier_type, identifier_value)
+    visitor.link_identifier!(identifier_type, identifier_value)
     @signed_up = true
   end
 
