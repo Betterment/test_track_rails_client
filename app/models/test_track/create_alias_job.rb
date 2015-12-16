@@ -1,20 +1,20 @@
 require 'mixpanel-ruby'
 
 class TestTrack::CreateAliasJob
-  attr_reader :mixpanel_distinct_id, :visitor_id
+  attr_reader :existing_mixpanel_id, :alias_id
 
   def initialize(opts)
-    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id)
-    @visitor_id = opts.delete(:visitor_id)
+    @existing_mixpanel_id = opts.delete(:existing_mixpanel_id)
+    @alias_id = opts.delete(:alias_id)
 
-    %w(mixpanel_distinct_id visitor_id).each do |param_name|
+    %w(existing_mixpanel_id alias_id).each do |param_name|
       raise "#{param_name} must be present" unless send(param_name).present?
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 
   def perform
-    mixpanel.alias(visitor_id, mixpanel_distinct_id)
+    mixpanel.alias(alias_id, existing_mixpanel_id)
   end
 
   private

@@ -29,21 +29,13 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(identifier_type, identifier)
-    identifier_opts = { identifier_type: identifier_type, visitor_id: visitor.id, value: identifier.to_s }
-    begin
-      identifier = TestTrack::Remote::Identifier.create!(identifier_opts)
-      visitor.merge!(identifier.visitor)
-    rescue *TestTrack::SERVER_ERRORS
-      # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
-      # but subsequent requests will be better off
-      TestTrack::Remote::Identifier.delay.create!(identifier_opts)
-    end
+  def log_in!(identifier_type, identifier_value)
+    visitor.link_identifier!(identifier_type, identifier_value)
     true
   end
 
-  def sign_up!(identifier_type, identifier)
-    log_in!(identifier_type, identifier)
+  def sign_up!(identifier_type, identifier_value)
+    visitor.link_identifier!(identifier_type, identifier_value)
     @signed_up = true
   end
 
@@ -92,20 +84,20 @@ class TestTrack::Session
   end
 
   def notify_new_assignments!
-    job = TestTrack::NotifyNewAssignmentsJob.new(
+    notify_new_assignments_job = TestTrack::NotifyNewAssignmentsJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       new_assignments: visitor.new_assignments
     )
-    Delayed::Job.enqueue(job)
+    Delayed::Job.enqueue(notify_new_assignments_job)
   end
 
   def create_alias!
-    job = TestTrack::CreateAliasJob.new(
-      mixpanel_distinct_id: mixpanel_distinct_id,
-      visitor_id: visitor.id
+    create_alias_job = TestTrack::CreateAliasJob.new(
+      existing_mixpanel_id: mixpanel_distinct_id,
+      alias_id: visitor.id
     )
-    Delayed::Job.enqueue(job)
+    Delayed::Job.enqueue(create_alias_job)
   end
 
   def new_assignments?

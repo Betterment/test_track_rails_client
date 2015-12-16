@@ -1,18 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::CreateAliasJob do
-  let(:params) { { mixpanel_distinct_id: "fake_mixpanel_id", visitor_id: "fake_visitor_id" } }
+  let(:params) { { existing_mixpanel_id: "fake_mixpanel_id", alias_id: "fake_visitor_id" } }
 
   subject { described_class.new(params) }
 
-  it "blows up with empty mixpanel_distinct_id" do
-    expect { described_class.new(params.merge(mixpanel_distinct_id: '')) }
-      .to raise_error(/mixpanel_distinct_id/)
+  it "blows up with empty existing_mixpanel_id" do
+    expect { described_class.new(params.merge(existing_mixpanel_id: '')) }
+      .to raise_error(/existing_mixpanel_id/)
   end
 
-  it "blows up with empty visitor id" do
-    expect { described_class.new(params.merge(visitor_id: nil)) }
-      .to raise_error(/visitor_id/)
+  it "blows up with empty alias_id" do
+    expect { described_class.new(params.merge(alias_id: nil)) }
+      .to raise_error(/alias_id/)
   end
 
   it "blows up with unknown opts" do

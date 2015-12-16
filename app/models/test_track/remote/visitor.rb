@@ -10,13 +10,13 @@ class TestTrack::Remote::Visitor
     }
   end
 
-  def self.from_identifier(identifier_type_name, identifier_value)
-    raise "must provide an identifier_type_name" unless identifier_type_name.present?
+  def self.from_identifier(identifier_type, identifier_value)
+    raise "must provide an identifier_type" unless identifier_type.present?
     raise "must provide an identifier_value" unless identifier_value.present?
 
     # TODO: FakeableHer needs to make this faking a feature of `get`
     if ENV['TEST_TRACK_ENABLED']
-      get("/api/identifier_types/#{identifier_type_name}/identifiers/#{identifier_value}/visitor")
+      get("/api/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor")
     else
       new(fake_instance_attributes(nil))
     end

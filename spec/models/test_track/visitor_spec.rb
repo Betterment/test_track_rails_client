@@ -206,4 +206,123 @@ RSpec.describe TestTrack::Visitor do
       expect(TestTrack::Remote::SplitRegistry).to have_received(:to_hash).exactly(:once)
     end
   end
+
+  describe "#link_identifier!" do
+    subject { described_class.new(id: "fake_visitor_id") }
+    let(:delayed_identifier_proxy) { double(create!: "fake visitor") }
+
+    before do
+      allow(TestTrack::Remote::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
+    end
+
+    it "sends the appropriate params to test track" do
+      allow(TestTrack::Remote::Identifier).to receive(:create!).and_call_original
+      subject.link_identifier!('bettermentdb_user_id', 444)
+      expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
+        identifier_type: 'bettermentdb_user_id',
+        visitor_id: "fake_visitor_id",
+        value: "444"
+      )
+    end
+
+    it "preserves id if unchanged" do
+      subject.link_identifier!('bettermentdb_user_id', 444)
+      expect(subject.id).to eq "fake_visitor_id"
+    end
+
+    it "delays the identifier creation if TestTrack times out and carries on" do
+      allow(TestTrack::Remote::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
+      subject.link_identifier!('bettermentdb_user_id', 444)
+
+      expect(subject.id).to eq "fake_visitor_id"
+
+      expect(delayed_identifier_proxy).to have_received(:create!).with(
+        identifier_type: 'bettermentdb_user_id',
+        visitor_id: "fake_visitor_id",
+        value: "444"
+      )
+    end
+
+    it "normally doesn't delay identifier creation" do
+      subject.link_identifier!('bettermentdb_user_id', 444)
+
+      expect(subject.id).to eq "fake_visitor_id"
+      expect(delayed_identifier_proxy).not_to have_received(:create!)
+    end
+
+    context "with stubbed identifier creation" do
+      let(:identifier) { TestTrack::Remote::Identifier.new(visitor: { id: "server_id", assignment_registry: server_registry }) }
+      let(:server_registry) { { "foo" => "definitely", "bar" => "occasionally" } }
+
+      before do
+        allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
+      end
+
+      it "changes id if changed" do
+        subject.link_identifier!('bettermentdb_user_id', 444)
+        expect(subject.id).to eq 'server_id'
+      end
+
+      it "ingests a server-provided assignment as non-new" do
+        subject.link_identifier!('bettermentdb_user_id', 444)
+
+        expect(subject.assignment_registry['foo']).to eq 'definitely'
+        expect(subject.new_assignments).not_to have_key 'foo'
+      end
+
+      it "preserves a local new assignment with no conflicting server-provided assignment as new" do
+        subject.new_assignments['baz'] = subject.assignment_registry['baz'] = 'never'
+
+        subject.link_identifier!('bettermentdb_user_id', 444)
+
+        expect(subject.assignment_registry['baz']).to eq 'never'
+        expect(subject.new_assignments['baz']).to eq 'never'
+      end
+
+      it "removes and overrides a local new assignment with a conflicting server-provided assignment" do
+        subject.new_assignments['foo'] = subject.assignment_registry['foo'] = 'something_else'
+
+        subject.link_identifier!('bettermentdb_user_id', 444)
+
+        expect(subject.assignment_registry['foo']).to eq 'definitely'
+        expect(subject.new_assignments).not_to have_key 'foo'
+      end
+
+      it "overrides a local existing assignment with a conflicting server-provided assignment" do
+        subject.assignment_registry['foo'] = 'something_else'
+
+        subject.link_identifier!('bettermentdb_user_id', 444)
+
+        expect(subject.assignment_registry['foo']).to eq 'definitely'
+        expect(subject.new_assignments).not_to have_key 'foo'
+      end
+    end
+  end
+
+  describe ".backfill_identity" do
+    let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_mixpanel_id: "ABCDEFG" } }
+    let(:remote_visitor) { instance_double(TestTrack::Remote::Visitor, id: "remote_visitor_id", assignment_registry: { "foo" => "bar" }) }
+    let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
+
+    before do
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
+      allow(TestTrack::CreateAliasJob).to receive(:new).and_return(create_alias_job)
+    end
+
+    it "returns a new visitor populated with data from the test track server" do
+      visitor = described_class.backfill_identity(params)
+      expect(visitor.id).to eq "remote_visitor_id"
+      expect(visitor.assignment_registry).to eq("foo" => "bar")
+      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("clown_id", "1234")
+    end
+
+    it "performs a CreateAliasJob" do
+      described_class.backfill_identity(params)
+      expect(TestTrack::CreateAliasJob).to have_received(:new).with(
+        existing_mixpanel_id: 'ABCDEFG',
+        alias_id: 'remote_visitor_id'
+      )
+      expect(create_alias_job).to have_received(:perform)
+    end
+  end
 end

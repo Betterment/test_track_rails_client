@@ -12,9 +12,9 @@ RSpec.describe TestTrack::Remote::Visitor do
       }.to_json)
     end
 
-    it "raises when given a blank identifier_type_name" do
+    it "raises when given a blank identifier_type" do
       expect { TestTrack::Remote::Visitor.from_identifier("", "1234") }
-        .to raise_error("must provide an identifier_type_name")
+        .to raise_error("must provide an identifier_type")
     end
 
     it "raises when given a blank identifier_value" do

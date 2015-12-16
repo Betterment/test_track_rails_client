@@ -52,13 +52,36 @@ class TestTrack::Visitor
     @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
 
+  def link_identifier!(identifier_type, identifier_value)
+    identifier_opts = { identifier_type: identifier_type, visitor_id: id, value: identifier_value.to_s }
+    begin
+      identifier = TestTrack::Remote::Identifier.create!(identifier_opts)
+      merge!(identifier.visitor)
+    rescue *TestTrack::SERVER_ERRORS
+      # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
+      # but subsequent requests will be better off
+      TestTrack::Remote::Identifier.delay.create!(identifier_opts)
+    end
+  end
+
+  def self.backfill_identity(opts)
+    remote_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+
+    new(id: remote_visitor.id, assignment_registry: remote_visitor.assignment_registry).tap do |visitor|
+      TestTrack::CreateAliasJob.new(
+        existing_mixpanel_id: opts[:existing_mixpanel_id],
+        alias_id: visitor.id
+      ).perform
+    end
+  end
+
+  private
+
   def merge!(other)
     @id = other.id
     new_assignments.except!(*other.assignment_registry.keys)
     assignment_registry.merge!(other.assignment_registry)
   end
-
-  private
 
   def tt_offline?
     @tt_offline || false
