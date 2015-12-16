@@ -150,8 +150,8 @@ RSpec.describe TestTrack::Session do
           subject.sign_up!('bettermentdb_user_id', 444)
         end
         expect(TestTrack::CreateAliasJob).to have_received(:new).with(
-          mixpanel_distinct_id: 'fake_distinct_id',
-          visitor_id: 'fake_visitor_id'
+          existing_mixpanel_id: 'fake_distinct_id',
+          alias_id: 'fake_visitor_id'
         )
         expect(Delayed::Job).to have_received(:enqueue).with(create_alias_job)
       end

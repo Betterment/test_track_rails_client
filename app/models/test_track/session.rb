@@ -102,8 +102,8 @@ class TestTrack::Session
 
   def create_alias!
     job = TestTrack::CreateAliasJob.new(
-      mixpanel_distinct_id: mixpanel_distinct_id,
-      visitor_id: visitor.id
+      existing_mixpanel_id: mixpanel_distinct_id,
+      alias_id: visitor.id
     )
     Delayed::Job.enqueue(job)
   end
