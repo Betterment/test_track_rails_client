@@ -9,5 +9,7 @@ namespace :test_track do
   end
 end
 
-task 'db:schema:load' => ['test_track:schema:load']
-task 'db:structure:load' => ['test_track:schema:load']
+unless Rails.env.test?
+  task 'db:schema:load' => ['test_track:schema:load']
+  task 'db:structure:load' => ['test_track:schema:load']
+end
