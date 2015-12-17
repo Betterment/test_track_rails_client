@@ -31,6 +31,7 @@ class TestTrack::Session
 
   def log_in!(identifier_type, identifier_value)
     visitor.link_identifier!(identifier_type, identifier_value)
+    self.mixpanel_distinct_id = visitor.id
     true
   end
 
@@ -105,6 +106,10 @@ class TestTrack::Session
 
   def mixpanel_distinct_id
     mixpanel_cookie['distinct_id']
+  end
+
+  def mixpanel_distinct_id=(value)
+    mixpanel_cookie['distinct_id'] = value
   end
 
   def mixpanel_cookie
