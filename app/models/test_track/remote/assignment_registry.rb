@@ -6,7 +6,7 @@ class TestTrack::Remote::AssignmentRegistry
   end
 
   def self.for_visitor(visitor_id)
-    raise "must provide a visitor_id" unless visitor_id
+    raise "must provide a visitor_id" unless visitor_id.present?
     # TODO: FakeableHer needs to make this faking a feature of `get`
     if ENV['TEST_TRACK_ENABLED']
       get("/api/visitors/#{URI.escape(visitor_id)}/assignment_registry")
