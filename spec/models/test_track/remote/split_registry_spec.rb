@@ -35,4 +35,27 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
       expect(described_class).to have_received(:instance)
     end
   end
+
+  describe ".instance" do
+    subject { described_class.instance }
+    let(:url) { "http://dummy:fakepassword@testtrack.dev/api/split_registry" }
+
+    before do
+      stub_request(:get, url).to_return(status: 200, body: {
+        remote_split: { variant1: 50, variant2: 50 }
+      }.to_json)
+    end
+
+    it "instantiates a SplitRegistry with fake instance attributes" do
+      expect(subject.attributes).to eq(
+        'time' => { 'back_in_time' => 100, 'power_of_love' => 0 }
+      )
+    end
+
+    it "it fetches attributes from the test track server when enabled" do
+      with_env(TEST_TRACK_ENABLED: 1) do
+        expect(subject.attributes).to eq("remote_split" => { "variant1" => 50, "variant2" => 50 })
+      end
+    end
+  end
 end
