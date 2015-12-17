@@ -301,7 +301,7 @@ RSpec.describe TestTrack::Visitor do
 
   describe ".backfill_identity" do
     let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_mixpanel_id: "ABCDEFG" } }
-    let(:remote_visitor) { instance_double(TestTrack::Remote::Visitor, id: "remote_visitor_id", assignment_registry: { "foo" => "bar" }) }
+    let(:remote_visitor) { TestTrack::Remote::Visitor.new(id: "remote_visitor_id", assignment_registry: { "foo" => "bar" }) }
     let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
 
     before do
