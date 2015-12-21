@@ -8,7 +8,7 @@ class TestTrack::Remote::Identifier
   validates :identifier_type, :visitor_id, :value, presence: true
 
   def fake_save_response_attributes
-    { visitor: { id: visitor_id, assignment_registry: {} } }
+    { visitor: { id: visitor_id, assignment_registry: {}, unsynced_splits: [] } }
   end
 
   def visitor

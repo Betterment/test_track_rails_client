@@ -1,9 +1,10 @@
 class TestTrack::Visitor
-  attr_reader :id
+  attr_reader :id, :unsynced_splits
 
   def initialize(opts = {})
     @id = opts.delete(:id)
     @assignment_registry = opts.delete(:assignment_registry)
+    @unsynced_splits = opts.delete(:unsynced_splits) || []
     unless id
       @id = SecureRandom.uuid
       @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the registry
@@ -81,6 +82,9 @@ class TestTrack::Visitor
     @id = other.id
     new_assignments.except!(*other.assignment_registry.keys)
     assignment_registry.merge!(other.assignment_registry)
+    other.unsynced_splits.each do |unsynced_split|
+      new_assignments[unsynced_split] = assignment_registry[unsynced_split]
+    end
   end
 
   def tt_offline?

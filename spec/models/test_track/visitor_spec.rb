@@ -37,6 +37,17 @@ RSpec.describe TestTrack::Visitor do
     expect(new_visitor.id).to eq "fake uuid"
   end
 
+  describe "#unsynced_splits" do
+    it "preserves a passed unsynced_splits array" do
+      visitor = TestTrack::Visitor.new(unsynced_splits: %w(foo bar))
+      expect(visitor.unsynced_splits).to eq(%w(foo bar))
+    end
+
+    it "defaults to an empty array" do
+      expect(existing_visitor.unsynced_splits).to eq([])
+    end
+  end
+
   describe "#assignment_registry" do
     it "doesn't request the registry for a newly-generated visitor" do
       expect(new_visitor.assignment_registry).to eq({})
@@ -251,8 +262,16 @@ RSpec.describe TestTrack::Visitor do
     end
 
     context "with stubbed identifier creation" do
-      let(:identifier) { TestTrack::Remote::Identifier.new(visitor: { id: "server_id", assignment_registry: server_registry }) }
+      let(:identifier) do
+        TestTrack::Remote::Identifier.new(visitor:
+        {
+          id: "server_id",
+          assignment_registry: server_registry,
+          unsynced_splits: unsynced_splits
+        })
+      end
       let(:server_registry) { { "foo" => "definitely", "bar" => "occasionally" } }
+      let(:unsynced_splits) { ['bar'] }
 
       before do
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
@@ -295,6 +314,15 @@ RSpec.describe TestTrack::Visitor do
 
         expect(subject.assignment_registry['foo']).to eq 'definitely'
         expect(subject.new_assignments).not_to have_key 'foo'
+      end
+
+      it "adds unsynced_splits to new_assignments" do
+        subject.assignment_registry['bar'] = 'something_else'
+        expect(subject.new_assignments).to eq({})
+
+        subject.link_identifier!('bettermentdb_user_id', 444)
+
+        expect(subject.new_assignments).to eq('bar' => 'occasionally')
       end
     end
   end

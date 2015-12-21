@@ -6,7 +6,8 @@ class TestTrack::Remote::Visitor
       id: "fake_visitor_id",
       assignment_registry: {
         time: 'hammertime'
-      }
+      },
+      unsynced_splits: []
     }
   end
 

@@ -34,7 +34,7 @@ RSpec.describe TestTrack::Session do
       end
 
       it "sets correct visitor id if controller does a #log_in!" do
-        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
+        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {}, unsynced_splits: [])
         identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
 
