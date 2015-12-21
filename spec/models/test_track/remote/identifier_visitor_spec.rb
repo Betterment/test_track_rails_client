@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::Remote::Visitor do
+RSpec.describe TestTrack::Remote::IdentifierVisitor do
   describe ".from_identifier" do
     subject { described_class.from_identifier("clown_id", "1234") }
     let(:url) { "http://dummy:fakepassword@testtrack.dev/api/identifier_types/clown_id/identifiers/1234/visitor" }
@@ -13,12 +13,12 @@ RSpec.describe TestTrack::Remote::Visitor do
     end
 
     it "raises when given a blank identifier_type" do
-      expect { TestTrack::Remote::Visitor.from_identifier("", "1234") }
+      expect { TestTrack::Remote::IdentifierVisitor.from_identifier("", "1234") }
         .to raise_error("must provide an identifier_type")
     end
 
     it "raises when given a blank identifier_value" do
-      expect { TestTrack::Remote::Visitor.from_identifier("clown_id", "") }
+      expect { TestTrack::Remote::IdentifierVisitor.from_identifier("clown_id", "") }
         .to raise_error("must provide an identifier_value")
     end
 

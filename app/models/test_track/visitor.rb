@@ -66,7 +66,7 @@ class TestTrack::Visitor
   end
 
   def self.backfill_identity(opts)
-    remote_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+    remote_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
 
     new(id: remote_visitor.id, assignment_registry: remote_visitor.assignment_registry).tap do |visitor|
       TestTrack::CreateAliasJob.new(

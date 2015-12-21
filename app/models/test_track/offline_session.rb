@@ -6,7 +6,7 @@ class TestTrack::OfflineSession
   def self.with_visitor_for(identifier_type, identifier_value)
     raise ArgumentError, "must provide block to `with_visitor_for`" unless block_given?
 
-    remote_visitor = TestTrack::Remote::Visitor.from_identifier(identifier_type, identifier_value)
+    remote_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(identifier_type, identifier_value)
     visitor = TestTrack::Visitor.new(id: remote_visitor.id, assignment_registry: remote_visitor.assignment_registry)
     session = new(visitor)
     session.send :manage do |visitor_dsl|

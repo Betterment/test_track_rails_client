@@ -1,4 +1,4 @@
-class TestTrack::Remote::Visitor
+class TestTrack::Remote::IdentifierVisitor
   include TestTrack::RemoteModel
 
   def self.fake_instance_attributes(_)
