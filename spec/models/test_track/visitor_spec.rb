@@ -64,6 +64,12 @@ RSpec.describe TestTrack::Visitor do
   end
 
   describe "#assignment_registry" do
+    it "preserves a passed assignment registry array" do
+      visitor = TestTrack::Visitor.new(assignment_registry: { foo: :bar })
+      expect(visitor.assignment_registry).to eq(foo: :bar)
+      expect(TestTrack::Remote::Visitor).not_to have_received(:find)
+    end
+
     it "doesn't get the assignment registry from the server for a newly-generated visitor" do
       expect(new_visitor.assignment_registry).to eq({})
       expect(TestTrack::Remote::Visitor).not_to have_received(:find)
@@ -331,13 +337,12 @@ RSpec.describe TestTrack::Visitor do
         expect(subject.new_assignments).not_to have_key 'foo'
       end
 
-      it "adds unsynced_splits to new_assignments" do
-        subject.assignment_registry['bar'] = 'something_else'
-        expect(subject.new_assignments).to eq({})
+      it "merges server-provided unsynced_splits into local unsynced_splits" do
+        expect(subject.unsynced_splits).to eq(%w(blue_button))
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.new_assignments).to eq('bar' => 'occasionally')
+        expect(subject.unsynced_splits).to eq(%w(blue_button bar))
       end
     end
   end

@@ -92,9 +92,7 @@ class TestTrack::Visitor
     @id = other.id
     new_assignments.except!(*other.assignment_registry.keys)
     assignment_registry.merge!(other.assignment_registry)
-    other.unsynced_splits.each do |unsynced_split|
-      new_assignments[unsynced_split] = assignment_registry[unsynced_split]
-    end
+    @unsynced_splits = unsynced_splits | other.unsynced_splits # merge other's unsynced splits into ours
   end
 
   def tt_offline?
