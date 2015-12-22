@@ -8,7 +8,8 @@ RSpec.describe TestTrack::Remote::IdentifierVisitor do
     before do
       stub_request(:get, url).to_return(status: 200, body: {
         id: "fake_visitor_id_from_server",
-        assignment_registry: { time: "clownin_around" }
+        assignment_registry: { time: "clownin_around" },
+        unsynced_splits: []
       }.to_json)
     end
 
@@ -31,6 +32,7 @@ RSpec.describe TestTrack::Remote::IdentifierVisitor do
       with_env(TEST_TRACK_ENABLED: 1) do
         expect(subject.id).to eq("fake_visitor_id_from_server")
         expect(subject.assignment_registry).to eq("time" => "clownin_around")
+        expect(subject.unsynced_splits).to eq([])
       end
     end
   end
