@@ -26,11 +26,12 @@ RSpec.describe TestTrack::Controller do
   let(:existing_visitor_id) { SecureRandom.uuid }
   let(:split_registry) { { 'time' => { 'beer_thirty' => 100 } } }
   let(:assignment_registry) { { 'time' => 'beer_thirty' } }
+  let(:remote_visitor) { { id: existing_visitor_id, assignment_registry: assignment_registry, unsynced_splits: [] } }
   let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: true) }
 
   before do
     allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
-    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
   end
 
   it "responds with the action's usual http status" do
@@ -46,7 +47,7 @@ RSpec.describe TestTrack::Controller do
   it "returns an empty assignment registry for a generated visitor" do
     get :index
     expect(response_json['assignment_registry']).to eq({})
-    expect(TestTrack::Remote::AssignmentRegistry).not_to have_received(:fake_instance_attributes)
+    expect(TestTrack::Remote::Visitor).not_to have_received(:fake_instance_attributes)
   end
 
   it "returns a server-provided assignment registry for an existing visitor" do

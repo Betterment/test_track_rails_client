@@ -5,7 +5,7 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
   describe "#with_test_track_assignments" do
     it "overrides assignment registry to match" do
       with_test_track_assignments(foo: :bar) do
-        expect(TestTrack::Remote::AssignmentRegistry.for_visitor(201).attributes).to eq('foo' => 'bar')
+        expect(TestTrack::Remote::Visitor.find(201).assignment_registry).to eq('foo' => 'bar')
       end
     end
 
@@ -18,7 +18,7 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
     it "resets assignment registry when done" do
       with_test_track_assignments(foo: :bar) do
       end
-      expect(TestTrack::Remote::AssignmentRegistry.for_visitor(201).attributes).not_to eq('foo' => 'bar')
+      expect(TestTrack::Remote::Visitor.find(201).assignment_registry).not_to eq('foo' => 'bar')
     end
 
     it "resets split registry when done" do
