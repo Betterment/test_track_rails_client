@@ -2,7 +2,13 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::OfflineSession do
   describe ".with_visitor_for" do
-    let(:remote_visitor) { TestTrack::Remote::IdentifierVisitor.new(id: "remote_visitor_id", assignment_registry: { "foo" => "bar" }) }
+    let(:remote_visitor) do
+      TestTrack::Remote::IdentifierVisitor.new(
+        id: "remote_visitor_id",
+        assignment_registry: { "foo" => "bar" },
+        unsynced_splits: []
+      )
+    end
     let(:visitor) { instance_double(TestTrack::Visitor, id: "remote_visitor_id", new_assignments: {}) }
     let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
     let(:notify_new_assignments_job) { instance_double(TestTrack::NotifyNewAssignmentsJob, perform: true) }
@@ -30,12 +36,16 @@ RSpec.describe TestTrack::OfflineSession do
 
     it "creates a visitor with the properties of the remote visitor" do
       subject
-      expect(TestTrack::Visitor).to have_received(:new).with(id: "remote_visitor_id", assignment_registry: { "foo" => "bar" })
+      expect(TestTrack::Visitor).to have_received(:new).with(
+        id: "remote_visitor_id",
+        assignment_registry: { "foo" => "bar" },
+        unsynced_splits: []
+      )
     end
 
-    it "instantiates a session with the visitor" do
+    it "instantiates a session with the identifier_type and identifier_value" do
       subject
-      expect(described_class).to have_received(:new).with(visitor)
+      expect(described_class).to have_received(:new).with("clown_id", 1234)
     end
 
     it "yields a VisitorDSL" do

@@ -1,22 +1,32 @@
 class TestTrack::OfflineSession
-  def initialize(visitor)
-    @visitor = visitor
+  def initialize(identifier_type, identifier_value)
+    @identifier_type = identifier_type
+    @identifier_value = identifier_value
   end
 
   def self.with_visitor_for(identifier_type, identifier_value)
     raise ArgumentError, "must provide block to `with_visitor_for`" unless block_given?
 
-    remote_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(identifier_type, identifier_value)
-    visitor = TestTrack::Visitor.new(id: remote_visitor.id, assignment_registry: remote_visitor.assignment_registry)
-    session = new(visitor)
-    session.send :manage do |visitor_dsl|
+    new(identifier_type, identifier_value).send :manage do |visitor_dsl|
       yield visitor_dsl
     end
   end
 
   private
 
-  attr_reader :visitor
+  attr_reader :identifier_type, :identifier_value
+
+  def visitor
+    @visitor ||= TestTrack::Visitor.new(
+      id: remote_visitor.id,
+      assignment_registry: remote_visitor.assignment_registry,
+      unsynced_splits: remote_visitor.unsynced_splits
+    )
+  end
+
+  def remote_visitor
+    @remote_visitor ||= TestTrack::Remote::IdentifierVisitor.from_identifier(identifier_type, identifier_value)
+  end
 
   def manage
     yield TestTrack::VisitorDSL.new(visitor)

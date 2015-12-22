@@ -329,8 +329,14 @@ RSpec.describe TestTrack::Visitor do
 
   describe ".backfill_identity" do
     let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_mixpanel_id: "ABCDEFG" } }
-    let(:remote_visitor) { TestTrack::Remote::IdentifierVisitor.new(id: "remote_visitor_id", assignment_registry: { "foo" => "bar" }) }
     let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
+    let(:remote_visitor) do
+      TestTrack::Remote::IdentifierVisitor.new(
+        id: "remote_visitor_id",
+        assignment_registry: { "foo" => "bar" },
+        unsynced_splits: []
+      )
+    end
 
     before do
       allow(TestTrack::Remote::IdentifierVisitor).to receive(:from_identifier).and_return(remote_visitor)
@@ -341,6 +347,7 @@ RSpec.describe TestTrack::Visitor do
       visitor = described_class.backfill_identity(params)
       expect(visitor.id).to eq "remote_visitor_id"
       expect(visitor.assignment_registry).to eq("foo" => "bar")
+      expect(visitor.unsynced_splits).to eq([])
       expect(TestTrack::Remote::IdentifierVisitor).to have_received(:from_identifier).with("clown_id", "1234")
     end
 
