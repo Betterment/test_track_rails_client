@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::NotifyNewAssignmentsJob do
-  let(:params) { { mixpanel_distinct_id: "fake_mixpanel_id", visitor_id: "fake_visitor_id", new_assignments: new_assignments } }
-  let(:new_assignments) { { 'blue_button' => 'true', 'phaser' => 'stun' } }
+RSpec.describe TestTrack::NotifyAssignmentsJob do
+  let(:params) { { mixpanel_distinct_id: "fake_mixpanel_id", visitor_id: "fake_visitor_id", assignments: assignments } }
+  let(:assignments) { { 'blue_button' => 'true', 'phaser' => 'stun' } }
 
   subject { described_class.new(params) }
 
@@ -17,8 +17,8 @@ RSpec.describe TestTrack::NotifyNewAssignmentsJob do
   end
 
   it "blows up with empty assignments" do
-    expect { described_class.new(params.merge(new_assignments: {})) }
-      .to raise_error(/new_assignments/)
+    expect { described_class.new(params.merge(assignments: {})) }
+      .to raise_error(/assignments/)
   end
 
   it "blows up with unknown opts" do

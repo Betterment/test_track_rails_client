@@ -1,21 +1,21 @@
 require 'mixpanel-ruby'
 
-class TestTrack::NotifyNewAssignmentsJob
-  attr_reader :mixpanel_distinct_id, :visitor_id, :new_assignments
+class TestTrack::NotifyAssignmentsJob
+  attr_reader :mixpanel_distinct_id, :visitor_id, :assignments
 
   def initialize(opts)
     @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id)
     @visitor_id = opts.delete(:visitor_id)
-    @new_assignments = opts.delete(:new_assignments)
+    @assignments = opts.delete(:assignments)
 
-    %w(mixpanel_distinct_id visitor_id new_assignments).each do |param_name|
+    %w(mixpanel_distinct_id visitor_id assignments).each do |param_name|
       raise "#{param_name} must be present" unless send(param_name).present?
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 
   def perform
-    new_assignments.each do |split_name, variant|
+    assignments.each do |split_name, variant|
       TestTrack::Remote::Assignment.create!(visitor_id: visitor_id, split_name: split_name, variant: variant)
       mixpanel.track(
         mixpanel_distinct_id,
