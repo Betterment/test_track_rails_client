@@ -1,13 +1,14 @@
 class TestTrack::Visitor
-  attr_reader :id, :unsynced_splits
+  attr_reader :id
 
   def initialize(opts = {})
     @id = opts.delete(:id)
     @assignment_registry = opts.delete(:assignment_registry)
-    @unsynced_splits = opts.delete(:unsynced_splits) || []
+    @unsynced_splits = opts.delete(:unsynced_splits)
     unless id
       @id = SecureRandom.uuid
-      @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the registry
+      @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the assignment_registry
+      @unsynced_splits ||= [] # If we're generating a visitor, we don't need to fetch the unsynced_splits
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
@@ -39,10 +40,11 @@ class TestTrack::Visitor
   end
 
   def assignment_registry
-    @assignment_registry ||= TestTrack::Remote::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
-  rescue *TestTrack::SERVER_ERRORS
-    @tt_offline = true
-    nil
+    @assignment_registry ||= remote_visitor && remote_visitor.assignment_registry
+  end
+
+  def unsynced_splits
+    @unsynced_splits ||= remote_visitor && remote_visitor.unsynced_splits
   end
 
   def new_assignments
@@ -66,11 +68,11 @@ class TestTrack::Visitor
   end
 
   def self.backfill_identity(opts)
-    remote_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+    remote_identifier_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
     visitor = new(
-      id: remote_visitor.id,
-      assignment_registry: remote_visitor.assignment_registry,
-      unsynced_splits: remote_visitor.unsynced_splits
+      id: remote_identifier_visitor.id,
+      assignment_registry: remote_identifier_visitor.assignment_registry,
+      unsynced_splits: remote_identifier_visitor.unsynced_splits
     )
 
     TestTrack::CreateAliasJob.new(existing_mixpanel_id: opts[:existing_mixpanel_id], alias_id: visitor.id).perform
@@ -78,6 +80,13 @@ class TestTrack::Visitor
   end
 
   private
+
+  def remote_visitor
+    @remote_visitor ||= TestTrack::Remote::Visitor.find(id) unless tt_offline?
+  rescue *TestTrack::SERVER_ERRORS
+    @tt_offline = true
+    nil
+  end
 
   def merge!(other)
     @id = other.id

@@ -5,6 +5,7 @@ RSpec.describe TestTrack::Visitor do
   let(:existing_visitor) { described_class.new(id: existing_visitor_id) }
   let(:existing_visitor_id) { "00000000-0000-0000-0000-000000000000" }
   let(:assignment_registry) { { 'blue_button' => 'true', 'time' => 'waits_for_no_man' } }
+  let(:remote_visitor) { { id: existing_visitor_id, assignment_registry: assignment_registry, unsynced_splits: ['blue_button'] } }
   let(:split_registry) do
     {
       'blue_button' => {
@@ -23,8 +24,8 @@ RSpec.describe TestTrack::Visitor do
   end
 
   before do
-    allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor).and_call_original
-    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::Visitor).to receive(:find).and_call_original
+    allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
     allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
   end
 
@@ -41,29 +42,43 @@ RSpec.describe TestTrack::Visitor do
     it "preserves a passed unsynced_splits array" do
       visitor = TestTrack::Visitor.new(unsynced_splits: %w(foo bar))
       expect(visitor.unsynced_splits).to eq(%w(foo bar))
+      expect(TestTrack::Remote::Visitor).not_to have_received(:find)
     end
 
-    it "defaults to an empty array" do
-      expect(existing_visitor.unsynced_splits).to eq([])
+    it "returns the server-provided assignments for an existing visitor" do
+      expect(existing_visitor.unsynced_splits).to eq %w(blue_button)
+    end
+
+    it "doesn't get the assignment registry from the server for a newly-generated visitor" do
+      expect(new_visitor.unsynced_splits).to eq([])
+      expect(TestTrack::Remote::Visitor).not_to have_received(:find)
+    end
+
+    it "returns nil if fetching the visitor times out" do
+      allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
+
+      expect(existing_visitor.unsynced_splits).to eq nil
+
+      expect(TestTrack::Remote::Visitor).to have_received(:find).with(existing_visitor_id)
     end
   end
 
   describe "#assignment_registry" do
-    it "doesn't request the registry for a newly-generated visitor" do
+    it "doesn't get the assignment registry from the server for a newly-generated visitor" do
       expect(new_visitor.assignment_registry).to eq({})
-      expect(TestTrack::Remote::AssignmentRegistry).not_to have_received(:for_visitor)
+      expect(TestTrack::Remote::Visitor).not_to have_received(:find)
     end
 
     it "returns the server-provided assignments for an existing visitor" do
       expect(existing_visitor.assignment_registry).to eq assignment_registry
     end
 
-    it "returns nil if fetching the registry times out" do
-      allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "Womp womp") }
+    it "returns nil if fetching the visitor times out" do
+      allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
 
       expect(existing_visitor.assignment_registry).to eq nil
 
-      expect(TestTrack::Remote::AssignmentRegistry).to have_received(:for_visitor)
+      expect(TestTrack::Remote::Visitor).to have_received(:find).with(existing_visitor_id)
     end
   end
 
@@ -135,7 +150,7 @@ RSpec.describe TestTrack::Visitor do
 
       context "when TestTrack server is unavailable" do
         before do
-          allow(TestTrack::Remote::AssignmentRegistry).to receive(:for_visitor) { raise(Faraday::TimeoutError, "woopsie") }
+          allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "woopsie") }
         end
 
         it "doesn't assign anything" do
