@@ -31,18 +31,18 @@ class TestTrack::OfflineSession
   def manage
     yield TestTrack::VisitorDSL.new(visitor)
   ensure
-    notify_unnotified_assignments! if unnotified_assignments?
+    notify_unsynced_assignments! if unsynced_assignments?
   end
 
-  def unnotified_assignments?
-    visitor.unnotified_assignments.present?
+  def unsynced_assignments?
+    visitor.unsynced_assignments.present?
   end
 
-  def notify_unnotified_assignments!
+  def notify_unsynced_assignments!
     notify_assignments_job = TestTrack::NotifyAssignmentsJob.new(
       mixpanel_distinct_id: visitor.id,
       visitor_id: visitor.id,
-      assignments: visitor.unnotified_assignments
+      assignments: visitor.unsynced_assignments
     )
     Delayed::Job.enqueue(notify_assignments_job)
   end

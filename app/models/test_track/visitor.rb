@@ -47,16 +47,16 @@ class TestTrack::Visitor
     @unsynced_splits ||= remote_visitor && remote_visitor.unsynced_splits
   end
 
-  def unnotified_assignments
-    unless @unnotified_assignments
+  def unsynced_assignments
+    unless @unsynced_assignments
       if assignment_registry
         unsynced_assignments = assignment_registry.slice(*unsynced_splits)
-        @unnotified_assignments = new_assignments.merge(unsynced_assignments)
+        @unsynced_assignments = new_assignments.merge(unsynced_assignments)
       else
-        @unnotified_assignments = {}
+        @unsynced_assignments = {}
       end
     end
-    @unnotified_assignments
+    @unsynced_assignments
   end
 
   def new_assignments

@@ -88,16 +88,16 @@ RSpec.describe TestTrack::Visitor do
     end
   end
 
-  describe "#unnotified_assignments" do
+  describe "#unsynced_assignments" do
     subject { existing_visitor }
 
     it "includes any new_assignments" do
       subject.new_assignments['quagmire'] = 'manageable'
-      expect(subject.unnotified_assignments).to include('quagmire' => 'manageable')
+      expect(subject.unsynced_assignments).to include('quagmire' => 'manageable')
     end
 
     it "includes any unsynced_splits" do
-      expect(subject.unnotified_assignments).to include('blue_button' => 'true')
+      expect(subject.unsynced_assignments).to include('blue_button' => 'true')
     end
 
     context "tt_offline" do
@@ -106,7 +106,7 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "is an empty hash" do
-        expect(subject.unnotified_assignments).to eq({})
+        expect(subject.unsynced_assignments).to eq({})
       end
     end
   end

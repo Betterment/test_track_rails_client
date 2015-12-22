@@ -12,7 +12,7 @@ class TestTrack::Session
     yield
   ensure
     manage_cookies!
-    notify_unnotified_assignments! if unnotified_assignments?
+    notify_unsynced_assignments! if unsynced_assignments?
     create_alias! if signed_up?
   end
 
@@ -83,11 +83,11 @@ class TestTrack::Session
     controller.send(:cookies)
   end
 
-  def notify_unnotified_assignments!
+  def notify_unsynced_assignments!
     notify_assignments_job = TestTrack::NotifyAssignmentsJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
-      assignments: visitor.unnotified_assignments
+      assignments: visitor.unsynced_assignments
     )
     Delayed::Job.enqueue(notify_assignments_job)
   end
@@ -100,8 +100,8 @@ class TestTrack::Session
     Delayed::Job.enqueue(create_alias_job)
   end
 
-  def unnotified_assignments?
-    visitor.unnotified_assignments.present?
+  def unsynced_assignments?
+    visitor.unsynced_assignments.present?
   end
 
   def mixpanel_distinct_id
