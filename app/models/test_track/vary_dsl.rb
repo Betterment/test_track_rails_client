@@ -18,13 +18,13 @@ class TestTrack::VaryDSL
   def when(*variants)
     raise ArgumentError, "must provide at least one variant" unless variants.present?
     variants.each do |variant|
-      assign_proc_to_variant(variant, proc)
+      assign_proc_to_variant(variant, Proc.new)
     end
   end
 
   def default(variant)
     raise ArgumentError, "cannot provide more than one `default`" unless default_variant.nil?
-    @default_variant = assign_proc_to_variant(variant, proc)
+    @default_variant = assign_proc_to_variant(variant, Proc.new)
   end
 
   private
