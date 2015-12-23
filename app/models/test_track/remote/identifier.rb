@@ -19,6 +19,6 @@ class TestTrack::Remote::Identifier
 
   def visitor_opts!
     raise("Visitor data unavailable until you save this identifier.") unless attributes[:visitor]
-    attributes[:visitor].slice(:id, :assignment_registry)
+    attributes[:visitor].slice(:id, :assignment_registry, :unsynced_splits)
   end
 end
