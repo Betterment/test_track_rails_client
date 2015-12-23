@@ -40,13 +40,13 @@ class TestTrack::VaryDSL
     @variant_behaviors ||= {}
   end
 
-  def assign_behavior_to_variant(variant, behavior)
+  def assign_behavior_to_variant(variant, behavior_proc)
     variant = variant.to_s
 
-    raise ArgumentError, "must provide block for #{variant}" unless behavior
+    raise ArgumentError, "must provide block for #{variant}" unless behavior_proc
     airbrake_because_vary "configures unknown variant \"#{variant}\"" unless variant_acceptable?(variant)
 
-    variant_behaviors[variant] = behavior
+    variant_behaviors[variant] = behavior_proc
     variant
   end
 
