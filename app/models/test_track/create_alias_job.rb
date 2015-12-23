@@ -15,6 +15,8 @@ class TestTrack::CreateAliasJob
 
   def perform
     mixpanel.alias(alias_id, existing_mixpanel_id)
+  rescue Mixpanel::ConnectionError
+    raise "mixpanel alias failed for existing_mixpanel_id: #{existing_mixpanel_id}, alias_id: #{alias_id}"
   end
 
   private
