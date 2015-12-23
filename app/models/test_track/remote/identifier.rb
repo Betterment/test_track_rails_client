@@ -12,10 +12,14 @@ class TestTrack::Remote::Identifier
   end
 
   def visitor
-    @visitor ||= TestTrack::Visitor.new(visitor_opts!)
+    @visitor ||= TestTrack::Visitor.new(id: visitor_opts[:id], assignment_registry: visitor_opts[:assignment_registry])
   end
 
   private
+
+  def visitor_opts
+    @visitor_opts ||= visitor_opts!
+  end
 
   def visitor_opts!
     attributes[:visitor] || raise("Visitor data unavailable until you save this identifier.")
