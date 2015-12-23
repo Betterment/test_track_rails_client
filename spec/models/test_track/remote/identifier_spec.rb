@@ -42,4 +42,11 @@ RSpec.describe TestTrack::Remote::Identifier do
     expect(subject.visitor.id).to eq "fake_visitor_id"
     expect(subject.visitor.assignment_registry).to eq({})
   end
+
+  describe "#visitor" do
+    it "raises if the model hasn't been saved yet" do
+      expect { subject.visitor }
+        .to raise_error("Visitor data unavailable until you save this identifier.")
+    end
+  end
 end
