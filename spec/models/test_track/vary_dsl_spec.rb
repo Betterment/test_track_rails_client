@@ -108,8 +108,8 @@ RSpec.describe TestTrack::VaryDSL do
     it "supports multiple variants" do
       subject.when :one, :two, :three, &noop
 
-      expect(subject.send(:variant_procs).size).to eq 3
-      expect(subject.send(:variant_procs).keys).to eq %w(one two three)
+      expect(subject.send(:variant_behaviors).size).to eq 3
+      expect(subject.send(:variant_behaviors).keys).to eq %w(one two three)
     end
 
     it "tells airbrake if variant not in registry" do
@@ -144,9 +144,9 @@ RSpec.describe TestTrack::VaryDSL do
         puts "hello"
       end
 
-      expect(subject.send(:variant_procs).size).to eq 1
-      expect(subject.send(:variant_procs)['one']).to be_a Proc
-      expect(subject.send(:variant_procs)[:one]).to be_nil
+      expect(subject.send(:variant_behaviors).size).to eq 1
+      expect(subject.send(:variant_behaviors)['one']).to be_a Proc
+      expect(subject.send(:variant_behaviors)[:one]).to be_nil
     end
 
     it "tells airbrake if variant not in registry" do
