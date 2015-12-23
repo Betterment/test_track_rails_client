@@ -14,10 +14,14 @@ class TestTrack::CreateAliasJob
   end
 
   def perform
-    mixpanel.alias(alias_id, existing_mixpanel_id)
+    raise "mixpanel alias failed for existing_mixpanel_id: #{existing_mixpanel_id}, alias_id: #{alias_id}" unless mixpanel_alias
   end
 
   private
+
+  def mixpanel_alias
+    mixpanel.alias(alias_id, existing_mixpanel_id)
+  end
 
   def mixpanel
     raise "ENV['MIXPANEL_TOKEN'] must be set" unless ENV['MIXPANEL_TOKEN']

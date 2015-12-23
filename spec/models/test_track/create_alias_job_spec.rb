@@ -36,5 +36,11 @@ RSpec.describe TestTrack::CreateAliasJob do
       subject.perform
       expect(mixpanel).to have_received(:alias).with("fake_visitor_id", "fake_mixpanel_id")
     end
+
+    it "blows up if the mixpanel alias fails" do
+      allow(mixpanel).to receive(:alias).and_return(false)
+      expect { subject.perform }
+        .to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
+    end
   end
 end
