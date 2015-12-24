@@ -9,14 +9,9 @@ RSpec.describe TestTrack::OfflineSession do
         unsynced_splits: []
       )
     end
-    let(:visitor) { instance_double(TestTrack::Visitor, id: "remote_visitor_id", unsynced_assignments: {}) }
-    let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
 
     before do
       allow(TestTrack::Remote::IdentifierVisitor).to receive(:from_identifier).and_return(remote_visitor)
-      allow(TestTrack::Visitor).to receive(:new).and_return(visitor)
-      allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
-      allow(Delayed::Job).to receive(:enqueue).and_return(true)
     end
 
     it "blows up when a block is not provided" do
@@ -30,12 +25,14 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     it "creates a visitor with the properties of the remote visitor" do
-      described_class.with_visitor_for("clown_id", 1234) {}
-      expect(TestTrack::Visitor).to have_received(:new).with(
+      allow(TestTrack::Visitor).to receive(:new).and_call_original
+      expect(TestTrack::Visitor).to receive(:new).with(
         id: "remote_visitor_id",
         assignment_registry: { "foo" => "bar" },
         unsynced_splits: []
       )
+
+      described_class.with_visitor_for("clown_id", 1234) {}
     end
 
     it "instantiates a session with the identifier_type and identifier_value" do
@@ -47,39 +44,40 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     it "yields a VisitorDSL" do
-      described_class.with_visitor_for("clown_id", 1234) do |v|
-        expect(v).to eq(visitor_dsl)
-      end
+      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+      expect(TestTrack::VisitorDSL).to receive(:new).with(an_instance_of(TestTrack::Visitor))
 
-      expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
+      described_class.with_visitor_for("clown_id", 1234) do |v|
+        expect(v).to be_an_instance_of(TestTrack::VisitorDSL)
+      end
     end
 
-    context "notify assignments" do
+    context "notify unsynced assignments" do
+      let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
+
       before do
-        allow(TestTrack::NotifyAssignmentsJob).to receive(:new).and_call_original
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return("has_button" => { "false" => 0, "true" => 100 })
+        allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
       end
 
-      it "enqueues an assignment notification job if there are unsynced assignments" do
-        allow(visitor).to receive(:unsynced_assignments).and_return('has_button' => 'false')
+      it "notifies unsynced assignments" do
+        described_class.with_visitor_for("clown_id", 1234) do |visitor|
+          visitor.ab :has_button
+        end
 
-        expect(TestTrack::NotifyAssignmentsJob).to receive(:new).with(
+        expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
           mixpanel_distinct_id: "remote_visitor_id",
           visitor_id: "remote_visitor_id",
-          assignments: { 'has_button' => 'false' }
+          assignments: { 'has_button' => 'true' }
         )
 
-        described_class.with_visitor_for("clown_id", 1234) {}
-
-        expect(Delayed::Job).to have_received(:enqueue).with(an_instance_of(TestTrack::NotifyAssignmentsJob))
+        expect(unsynced_assignments_notifier).to have_received(:notify)
       end
 
-      it "does not enqueue a new assignment notification job if there are no unsynced assignments" do
-        allow(visitor).to receive(:unsynced_assignments).and_return({})
-
+      it "does not notify unsynced assignments if there are no unsynced assignments" do
         described_class.with_visitor_for("clown_id", 1234) {}
 
-        expect(TestTrack::NotifyAssignmentsJob).not_to have_received(:new)
-        expect(Delayed::Job).not_to have_received(:enqueue)
+        expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
       end
     end
   end

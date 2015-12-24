@@ -39,11 +39,10 @@ class TestTrack::OfflineSession
   end
 
   def notify_unsynced_assignments!
-    notify_assignments_job = TestTrack::NotifyAssignmentsJob.new(
+    TestTrack::UnsyncedAssignmentsNotifier.new(
       mixpanel_distinct_id: visitor.id,
       visitor_id: visitor.id,
       assignments: visitor.unsynced_assignments
-    )
-    Delayed::Job.enqueue(notify_assignments_job)
+    ).notify
   end
 end
