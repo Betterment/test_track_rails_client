@@ -14,7 +14,7 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   def notify
     assignments.each do |split_name, variant|
-      create_notify_assignment_job(split_name, variant).tap do |job|
+      build_notify_assignment_job(split_name, variant).tap do |job|
         begin
           job.perform
         rescue *TestTrack::SERVER_ERRORS
@@ -26,7 +26,7 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   private
 
-  def create_notify_assignment_job(split_name, variant)
+  def build_notify_assignment_job(split_name, variant)
     TestTrack::NotifyAssignmentJob.new(
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor_id,
