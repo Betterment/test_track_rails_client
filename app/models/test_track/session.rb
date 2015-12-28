@@ -115,7 +115,7 @@ class TestTrack::Session
   def read_mixpanel_cookie
     mixpanel_cookie = cookies[mixpanel_cookie_name]
     begin
-      JSON.parse(URI.unescape(mixpanel_cookie)) if mixpanel_cookie
+      JSON.parse(mixpanel_cookie) if mixpanel_cookie
     rescue JSON::ParserError
       Rails.logger.error("malformed mixpanel JSON from cookie #{URI.unescape(mixpanel_cookie)}")
       nil
