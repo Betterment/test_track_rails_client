@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe TestTrack::Session do
   let(:controller) { instance_double(ApplicationController, cookies: cookies, request: request) }
   let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
-  let(:mixpanel_cookie) { URI.escape({ distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json) }
+  let(:mixpanel_cookie) { { distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json }
   let(:request) { double(:request, host: "www.foo.com", ssl?: true) }
   let(:notify_new_assignments_job) { instance_double(TestTrack::NotifyNewAssignmentsJob, perform: true) }
   let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
@@ -56,7 +56,7 @@ RSpec.describe TestTrack::Session do
 
         it "sets the mixpanel cookie's distinct_id to the visitor_id" do
           subject.manage {}
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: 'fake_visitor_id' }.to_json)
         end
       end
 
@@ -68,7 +68,7 @@ RSpec.describe TestTrack::Session do
 
         it "sets the mixpanel cookie's distinct_id to the visitor_id" do
           subject.manage {}
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: 'fake_visitor_id' }.to_json)
         end
 
         it "logs an error" do
