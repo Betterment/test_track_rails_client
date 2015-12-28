@@ -4,9 +4,11 @@ class TestTrack::Visitor
   def initialize(opts = {})
     @id = opts.delete(:id)
     @assignment_registry = opts.delete(:assignment_registry)
+    @unsynced_splits = opts.delete(:unsynced_splits)
     unless id
       @id = SecureRandom.uuid
-      @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the registry
+      @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the assignment_registry
+      @unsynced_splits ||= [] # If we're generating a visitor, we don't need to fetch the unsynced_splits
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
@@ -38,10 +40,23 @@ class TestTrack::Visitor
   end
 
   def assignment_registry
-    @assignment_registry ||= TestTrack::Remote::AssignmentRegistry.for_visitor(id).attributes unless tt_offline?
-  rescue *TestTrack::SERVER_ERRORS
-    @tt_offline = true
-    nil
+    @assignment_registry ||= remote_visitor && remote_visitor.assignment_registry
+  end
+
+  def unsynced_splits
+    @unsynced_splits ||= remote_visitor && remote_visitor.unsynced_splits
+  end
+
+  def unsynced_assignments
+    unless @unsynced_assignments
+      if assignment_registry
+        unsynced_assignments = assignment_registry.slice(*unsynced_splits)
+        @unsynced_assignments = new_assignments.merge(unsynced_assignments)
+      else
+        @unsynced_assignments = {}
+      end
+    end
+    @unsynced_assignments
   end
 
   def new_assignments
@@ -65,22 +80,31 @@ class TestTrack::Visitor
   end
 
   def self.backfill_identity(opts)
-    remote_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+    remote_identifier_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+    visitor = new(
+      id: remote_identifier_visitor.id,
+      assignment_registry: remote_identifier_visitor.assignment_registry,
+      unsynced_splits: remote_identifier_visitor.unsynced_splits
+    )
 
-    new(id: remote_visitor.id, assignment_registry: remote_visitor.assignment_registry).tap do |visitor|
-      TestTrack::CreateAliasJob.new(
-        existing_mixpanel_id: opts[:existing_mixpanel_id],
-        alias_id: visitor.id
-      ).perform
-    end
+    TestTrack::CreateAliasJob.new(existing_mixpanel_id: opts[:existing_mixpanel_id], alias_id: visitor.id).perform
+    visitor
   end
 
   private
+
+  def remote_visitor
+    @remote_visitor ||= TestTrack::Remote::Visitor.find(id) unless tt_offline?
+  rescue *TestTrack::SERVER_ERRORS
+    @tt_offline = true
+    nil
+  end
 
   def merge!(other)
     @id = other.id
     new_assignments.except!(*other.assignment_registry.keys)
     assignment_registry.merge!(other.assignment_registry)
+    @unsynced_splits = unsynced_splits | other.unsynced_splits # merge other's unsynced splits into ours
   end
 
   def tt_offline?

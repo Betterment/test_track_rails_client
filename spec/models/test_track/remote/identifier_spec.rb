@@ -10,7 +10,8 @@ RSpec.describe TestTrack::Remote::Identifier do
     stub_request(:post, url).to_return(status: 200, body: {
       visitor: {
         id: "fake_visitor_id_from_server",
-        assignment_registry: { time: "clownin_around" }
+        assignment_registry: { time: "clownin_around" },
+        unsynced_splits: %w(car_size)
       }
     }.to_json)
   end
@@ -30,17 +31,19 @@ RSpec.describe TestTrack::Remote::Identifier do
       subject.save
       expect(subject.visitor.id).to eq "fake_visitor_id_from_server"
       expect(subject.visitor.assignment_registry).to eq("time" => "clownin_around")
+      expect(subject.visitor.unsynced_splits).to eq(%w(car_size))
     end
   end
 
   it "ignores extra data in the response body" do
     allow(subject).to receive(:fake_save_response_attributes).and_return(
-      visitor: { id: "fake_visitor_id", assignment_registry: {}, other_data: %w(a b c d) }
+      visitor: { id: "fake_visitor_id", assignment_registry: {}, unsynced_splits: %w(some_split), other_data: %w(a b c d) }
     )
 
     subject.save
     expect(subject.visitor.id).to eq "fake_visitor_id"
     expect(subject.visitor.assignment_registry).to eq({})
+    expect(subject.visitor.unsynced_splits).to eq(%w(some_split))
   end
 
   describe "#visitor" do

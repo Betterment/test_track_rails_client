@@ -5,15 +5,13 @@ RSpec.describe TestTrack::Session do
   let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
   let(:mixpanel_cookie) { { distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json }
   let(:request) { double(:request, host: "www.foo.com", ssl?: true) }
-  let(:notify_new_assignments_job) { instance_double(TestTrack::NotifyNewAssignmentsJob, perform: true) }
-  let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
+  let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
   subject { described_class.new(controller) }
 
   before do
-    allow(Delayed::Job).to receive(:enqueue).and_return(true)
-    allow(TestTrack::NotifyNewAssignmentsJob).to receive(:new).and_return(notify_new_assignments_job)
-    allow(TestTrack::CreateAliasJob).to receive(:new).and_return(create_alias_job)
+    allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
+    allow(TestTrack::CreateAliasJob).to receive(:new).and_call_original
     ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
 
@@ -34,7 +32,7 @@ RSpec.describe TestTrack::Session do
       end
 
       it "sets correct visitor id if controller does a #log_in!" do
-        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
+        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {}, unsynced_splits: [])
         identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
 
@@ -125,41 +123,89 @@ RSpec.describe TestTrack::Session do
       end
     end
 
-    context "new assignments notifications" do
-      it "enqueues new assignments notification job if there have been new assignments" do
-        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
-        subject.manage do
-          subject.visitor_dsl.ab('bar', 'baz')
+    context "assignments notifications" do
+      context "new assignments" do
+        before do
+          allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
         end
-        expect(TestTrack::NotifyNewAssignmentsJob).to have_received(:new).with(
-          mixpanel_distinct_id: 'fake_distinct_id',
-          visitor_id: 'fake_visitor_id',
-          new_assignments: { 'bar' => 'baz' })
-        expect(Delayed::Job).to have_received(:enqueue).with(notify_new_assignments_job)
+
+        it "notifies unsynced assignments" do
+          subject.manage do
+            subject.visitor_dsl.ab('bar', 'baz')
+          end
+
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
+            mixpanel_distinct_id: 'fake_distinct_id',
+            visitor_id: 'fake_visitor_id',
+            assignments: { 'bar' => 'baz' }
+          )
+
+          expect(unsynced_assignments_notifier).to have_received(:notify)
+        end
+
+        it "does not notify unsynced assignments if there are no new assignments" do
+          subject.manage {}
+          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+        end
       end
 
-      it "doesn't enqueue new assignments notification job if there haven't been new assignments" do
-        subject.manage {}
-        expect(TestTrack::NotifyNewAssignmentsJob).not_to have_received(:new)
+      context "unsynced_splits" do
+        let(:remote_visitor_attributes) do
+          {
+            id: "fake_visitor_id",
+            assignment_registry: { 'switched_split' => 'not_what_i_thought' },
+            unsynced_splits: %w(switched_split)
+          }
+        end
+
+        it "notifies unsynced assignments" do
+          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
+
+          subject.manage {}
+
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
+            mixpanel_distinct_id: "fake_distinct_id",
+            visitor_id: "fake_visitor_id",
+            assignments: { 'switched_split' => 'not_what_i_thought' }
+          )
+
+          expect(unsynced_assignments_notifier).to have_received(:notify)
+        end
+
+        it "does not notify unsynced assignments if there are no unsynced_splits" do
+          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(
+            remote_visitor_attributes.merge(unsynced_splits: [])
+          )
+
+          subject.manage {}
+
+          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+        end
       end
     end
 
     context "aliasing" do
+      before do
+        allow(Delayed::Job).to receive(:enqueue).and_return(true)
+      end
+
       it "enqueues an alias job if there was a signup" do
-        subject.manage do
-          subject.sign_up!('bettermentdb_user_id', 444)
-        end
-        expect(TestTrack::CreateAliasJob).to have_received(:new).with(
+        expect(TestTrack::CreateAliasJob).to receive(:new).with(
           existing_mixpanel_id: 'fake_distinct_id',
           alias_id: 'fake_visitor_id'
         )
-        expect(Delayed::Job).to have_received(:enqueue).with(create_alias_job)
+
+        subject.manage do
+          subject.sign_up!('bettermentdb_user_id', 444)
+        end
+
+        expect(Delayed::Job).to have_received(:enqueue).with(an_instance_of(TestTrack::CreateAliasJob))
       end
 
       it "doesn't enqueue an alias job if there was no signup" do
         subject.manage {}
         expect(TestTrack::CreateAliasJob).not_to have_received(:new)
-        expect(Delayed::Job).not_to have_received(:enqueue).with(create_alias_job)
+        expect(Delayed::Job).not_to have_received(:enqueue).with(an_instance_of(TestTrack::CreateAliasJob))
       end
     end
   end

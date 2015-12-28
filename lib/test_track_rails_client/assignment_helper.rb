@@ -4,14 +4,15 @@ module TestTrackRailsClient::AssignmentHelper
       assignment_registry[split_name] = variant.to_s
       s[split_name] = { variant => 100 }
     end
+    visitor_attributes = { id: "fake_visitor_id", assignment_registry: assignment_registry, unsynced_splits: [] }
 
-    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_return(assignment_registry)
+    allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(visitor_attributes)
     allow(TestTrack::Remote::SplitRegistry).to receive(:fake_instance_attributes).and_return(split_registry)
     TestTrack::Remote::SplitRegistry.reset
 
     yield
   ensure
-    allow(TestTrack::Remote::AssignmentRegistry).to receive(:fake_instance_attributes).and_call_original
+    allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_call_original
     allow(TestTrack::Remote::SplitRegistry).to receive(:fake_instance_attributes).and_call_original
     TestTrack::Remote::SplitRegistry.reset
   end
