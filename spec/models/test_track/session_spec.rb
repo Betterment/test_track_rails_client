@@ -48,7 +48,7 @@ RSpec.describe TestTrack::Session do
     context "mixpanel" do
       it "resets the mixpanel cookie to the same value if already there" do
         subject.manage {}
-        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq mixpanel_cookie
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.unescape(mixpanel_cookie)
       end
 
       context "without mixpanel cookie" do
@@ -56,7 +56,7 @@ RSpec.describe TestTrack::Session do
 
         it "sets the mixpanel cookie's distinct_id to the visitor_id" do
           subject.manage {}
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: 'fake_visitor_id' }.to_json)
         end
       end
 
@@ -68,7 +68,7 @@ RSpec.describe TestTrack::Session do
 
         it "sets the mixpanel cookie's distinct_id to the visitor_id" do
           subject.manage {}
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq URI.escape({ distinct_id: 'fake_visitor_id' }.to_json)
+          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: 'fake_visitor_id' }.to_json)
         end
 
         it "logs an error" do

@@ -71,7 +71,7 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    set_cookie(mixpanel_cookie_name, URI.escape(mixpanel_cookie.to_json))
+    set_cookie(mixpanel_cookie_name, mixpanel_cookie.to_json)
     set_cookie(:tt_visitor_id, visitor.id)
   end
 
