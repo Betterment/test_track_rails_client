@@ -5,12 +5,12 @@ RSpec.describe TestTrack::Session do
   let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
   let(:mixpanel_cookie) { URI.escape({ distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json) }
   let(:request) { double(:request, host: "www.foo.com", ssl?: true) }
+  let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
   subject { described_class.new(controller) }
 
   before do
-    allow(Delayed::Job).to receive(:enqueue).and_return(true)
-    allow(TestTrack::NotifyAssignmentsJob).to receive(:new).and_call_original
+    allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
     allow(TestTrack::CreateAliasJob).to receive(:new).and_call_original
     ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
@@ -125,25 +125,27 @@ RSpec.describe TestTrack::Session do
 
     context "assignments notifications" do
       context "new assignments" do
-        it "enqueues assignments notification job if there are new assignments" do
+        before do
           allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
+        end
 
-          expect(TestTrack::NotifyAssignmentsJob).to receive(:new).with(
+        it "notifies unsynced assignments" do
+          subject.manage do
+            subject.visitor_dsl.ab('bar', 'baz')
+          end
+
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
             mixpanel_distinct_id: 'fake_distinct_id',
             visitor_id: 'fake_visitor_id',
             assignments: { 'bar' => 'baz' }
           )
 
-          subject.manage do
-            subject.visitor_dsl.ab('bar', 'baz')
-          end
-
-          expect(Delayed::Job).to have_received(:enqueue).with(an_instance_of(TestTrack::NotifyAssignmentsJob))
+          expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
-        it "doesn't enqueue assignments notification job if there aren't new assignments" do
+        it "does not notify unsynced assignments if there are no new assignments" do
           subject.manage {}
-          expect(TestTrack::NotifyAssignmentsJob).not_to have_received(:new)
+          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
         end
       end
 
@@ -156,31 +158,37 @@ RSpec.describe TestTrack::Session do
           }
         end
 
-        it "enqueues assignments notification job if there are unsynced splits" do
+        it "notifies unsynced assignments" do
           allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
 
-          expect(TestTrack::NotifyAssignmentsJob).to receive(:new).with(
+          subject.manage {}
+
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
             mixpanel_distinct_id: "fake_distinct_id",
             visitor_id: "fake_visitor_id",
             assignments: { 'switched_split' => 'not_what_i_thought' }
           )
 
-          subject.manage {}
+          expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
-        it "doesn't enqueue assignments notification job if there aren't unsynced_splits" do
+        it "does not notify unsynced assignments if there are no unsynced_splits" do
           allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(
             remote_visitor_attributes.merge(unsynced_splits: [])
           )
 
           subject.manage {}
 
-          expect(TestTrack::NotifyAssignmentsJob).not_to have_received(:new)
+          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
         end
       end
     end
 
     context "aliasing" do
+      before do
+        allow(Delayed::Job).to receive(:enqueue).and_return(true)
+      end
+
       it "enqueues an alias job if there was a signup" do
         expect(TestTrack::CreateAliasJob).to receive(:new).with(
           existing_mixpanel_id: 'fake_distinct_id',

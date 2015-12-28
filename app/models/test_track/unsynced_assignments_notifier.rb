@@ -1,6 +1,4 @@
-require 'mixpanel-ruby'
-
-class TestTrack::NotifyAssignmentsJob
+class TestTrack::UnsyncedAssignmentsNotifier
   attr_reader :mixpanel_distinct_id, :visitor_id, :assignments
 
   def initialize(opts)
@@ -14,23 +12,26 @@ class TestTrack::NotifyAssignmentsJob
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 
-  def perform
+  def notify
     assignments.each do |split_name, variant|
-      TestTrack::Remote::Assignment.create!(visitor_id: visitor_id, split_name: split_name, variant: variant)
-      mixpanel.track(
-        mixpanel_distinct_id,
-        "SplitAssigned",
-        "SplitName" => split_name,
-        "SplitVariant" => variant,
-        "TTVisitorID" => visitor_id
-      )
+      build_notify_assignment_job(split_name, variant).tap do |job|
+        begin
+          job.perform
+        rescue *TestTrack::SERVER_ERRORS
+          Delayed::Job.enqueue(job)
+        end
+      end
     end
   end
 
   private
 
-  def mixpanel
-    raise "ENV['MIXPANEL_TOKEN'] must be set" unless ENV['MIXPANEL_TOKEN']
-    @mixpanel ||= Mixpanel::Tracker.new(ENV['MIXPANEL_TOKEN'])
+  def build_notify_assignment_job(split_name, variant)
+    TestTrack::NotifyAssignmentJob.new(
+      mixpanel_distinct_id: mixpanel_distinct_id,
+      visitor_id: visitor_id,
+      split_name: split_name,
+      variant: variant
+    )
   end
 end
