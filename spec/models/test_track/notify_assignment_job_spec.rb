@@ -67,7 +67,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
 
       expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
-        split_name: 'phaser',
+        split: 'phaser',
         variant: 'stun',
         mixpanel_result: 'success'
       )
@@ -86,7 +86,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
 
         expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
           visitor_id: 'fake_visitor_id',
-          split_name: 'phaser',
+          split: 'phaser',
           variant: 'stun',
           mixpanel_result: 'failure'
         )

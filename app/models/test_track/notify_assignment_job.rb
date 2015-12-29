@@ -18,7 +18,7 @@ class TestTrack::NotifyAssignmentJob
   def perform
     TestTrack::Remote::Assignment.create!(
       visitor_id: visitor_id,
-      split_name: split_name,
+      split: split_name,
       variant: variant,
       mixpanel_result: mixpanel_track
     )
