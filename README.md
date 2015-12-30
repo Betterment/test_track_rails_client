@@ -81,11 +81,14 @@ If the user is assigned to a variant that is not represented in your vary config
 test_track_visitor.vary :name_of_split do |v|
   v.when :variant_1, :variant_2 do
     # Do something
+  end
   v.when :variant_3 do
     # Do another thing
+  end
   v.default :variant_4 do
     # Do something else
   end
+end
 ```
 
 The `test_track_visitor`'s `ab` method provides a convenient way to do two-way splits. The optional second argument is used to tell `ab` which variant is the "true" variant. If no second argument is provided, the "true" variant is assumed to be `true`, which is convient for splits that have variants of `true` and `false`. `ab` can be easily used in an if statement.
