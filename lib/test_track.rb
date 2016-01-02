@@ -1,5 +1,8 @@
 require 'public_suffix'
 require 'mixpanel-ruby'
+require 'resolv'
+require 'faraday_middleware'
+require 'her'
 
 module TestTrack
   module_function

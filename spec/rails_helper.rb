@@ -61,12 +61,5 @@ RSpec.configure do |config|
   config.include EnvironmentSpecHelper
 end
 
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :rspec
-    with.library :rails
-  end
-end
-
 ENV['MIXPANEL_TOKEN'] = 'fakemixpaneltoken'
 Delayed::Worker.delay_jobs = false
