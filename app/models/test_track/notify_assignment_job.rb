@@ -1,5 +1,3 @@
-require 'mixpanel-ruby'
-
 class TestTrack::NotifyAssignmentJob
   attr_reader :mixpanel_distinct_id, :visitor_id, :split_name, :variant
 
@@ -35,7 +33,7 @@ class TestTrack::NotifyAssignmentJob
       "TTVisitorID" => visitor_id
     )
     "success"
-  rescue Mixpanel::ConnectionError
+  rescue *TestTrack::MIXPANEL_ERRORS
     "failure"
   end
 

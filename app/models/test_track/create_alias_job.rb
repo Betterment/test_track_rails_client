@@ -1,5 +1,3 @@
-require 'mixpanel-ruby'
-
 class TestTrack::CreateAliasJob
   attr_reader :existing_mixpanel_id, :alias_id
 
@@ -15,7 +13,7 @@ class TestTrack::CreateAliasJob
 
   def perform
     mixpanel.alias(alias_id, existing_mixpanel_id)
-  rescue Mixpanel::ConnectionError
+  rescue *TestTrack::MIXPANEL_ERRORS
     raise "mixpanel alias failed for existing_mixpanel_id: #{existing_mixpanel_id}, alias_id: #{alias_id}"
   end
 
