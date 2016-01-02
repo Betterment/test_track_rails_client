@@ -1,9 +1,11 @@
 require 'public_suffix'
+require 'mixpanel-ruby'
 
 module TestTrack
   module_function
 
   SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError]
+  MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error]
 
   def update_config
     yield(ConfigUpdater.new)
