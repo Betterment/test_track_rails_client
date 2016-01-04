@@ -71,7 +71,7 @@ end
 
 ### Finishing splits
 
-In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be finished. This will remove the split from the Test Track clients' perspective and should therefore only be done once there are no longer any code paths referencing that split.
+In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be finished. This will remove the split from the Test Track clients' perspective. Therefore it should only be done once there are no longer any code paths referencing that split, otherwise those code paths will start erroring.
 
 ```ruby
 class FinishMySplit < ActiveRecord::Migration
