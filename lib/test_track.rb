@@ -24,7 +24,7 @@ module TestTrack
   end
 
   def enabled?
-    @enabled
+    !Rails.env.test? || @enabled
   end
 
   def enabled=(val)

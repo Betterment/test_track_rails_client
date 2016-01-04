@@ -1,8 +1,8 @@
 module EnabledSpecHelper
   def with_test_track_enabled
-    TestTrack.enabled = true
+    allow(TestTrack).to receive(:enabled?).and_return(true)
     yield
   ensure
-    TestTrack.enabled = false
+    allow(TestTrack).to receive(:enabled?).and_call_original
   end
 end
