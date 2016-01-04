@@ -69,6 +69,20 @@ class ConfigureMySplit < ActiveRecord::Migration
 end
 ```
 
+### Finishing splits
+
+In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be finished. This will remove the split from the Test Track clients' perspective and should therefore only be done once there are no longer any code paths referencing that split.
+
+```ruby
+class FinishMySplit < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.finish_split :signup_button_color
+    end
+  end
+end
+```
+
 ## Varying app behavior based on assigned variant
 
 The `test_track_visitor`, which is accessible from all controllers and views that mix in `TestTrack::Controller` provides a `vary` DSL.
