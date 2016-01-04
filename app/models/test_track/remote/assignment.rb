@@ -5,7 +5,7 @@ class TestTrack::Remote::Assignment
 
   attributes :visitor_id, :split, :variant
 
-  validates :visitor_id, :split, :variant, presence: true
+  validates :visitor_id, :split, :variant, :mixpanel_result, presence: true
 
   def fake_save_response_attributes
     nil # :no_content is the expected response type
