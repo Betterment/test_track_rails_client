@@ -85,6 +85,8 @@ end
 
 ## Varying app behavior based on assigned variant
 
+### Varying app behavior in a web context
+
 The `test_track_visitor`, which is accessible from all controllers and views that mix in `TestTrack::Controller` provides a `vary` DSL.
 
 You must provide at least one call to `when` and only one call to `default`. `when` can take multiple variant names if you'd like to map multiple variants to one user experience.
@@ -122,6 +124,28 @@ if test_track_visitor.ab :dark_deployed_feature
   # Show the dark deployed feature
 end
 ```
+
+### Varying app behavior in an offline context
+
+The `OfflineSession` class can be used to load a test track visitor when there is no access to browser cookies. It is perfect for use in a process being run from either a job queue or a scheduler. The visitor object that is yielded to the block is the same as the visitor in a controller context; it has both the `vary` and `ab` methods.
+
+```ruby
+OfflineSession.with_visitor_for(:myapp_user_id, 1234) do |test_tack_visitor|
+  test_track_visitor.vary :name_of_split do |v|
+    v.when :variant_1, :variant_2 do
+      # Do something
+    end
+    v.when :variant_3 do
+      # Do another thing
+    end
+    v.default :variant_4 do
+      # Do something else
+    end
+  end
+end
+```
+
+
 
 ## Tracking visitor logins
 
