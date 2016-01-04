@@ -1,0 +1,7 @@
+language: ruby
+rvm:
+- 1.9.3
+- 2.0.0
+before_script:
+- RAILS_ENV=test bundle exec rake db:setup
+- mkdir -p spec/dummy/tmp/cache
