@@ -25,16 +25,19 @@ class TestTrack::NotifyAssignmentJob
   private
 
   def mixpanel_track
-    mixpanel.track(
-      mixpanel_distinct_id,
-      "SplitAssigned",
-      "SplitName" => split_name,
-      "SplitVariant" => variant,
-      "TTVisitorID" => visitor_id
-    )
+    return "failure" unless TestTrack.enabled?
+    mixpanel.track(mixpanel_distinct_id, "SplitAssigned", mixpanel_track_properties)
     "success"
   rescue *TestTrack::MIXPANEL_ERRORS
     "failure"
+  end
+
+  def mixpanel_track_properties
+    {
+      "SplitName" => split_name,
+      "SplitVariant" => variant,
+      "TTVisitorID" => visitor_id
+    }
   end
 
   def mixpanel

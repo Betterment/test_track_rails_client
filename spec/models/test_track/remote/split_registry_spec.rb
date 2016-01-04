@@ -53,7 +53,7 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
     end
 
     it "it fetches attributes from the test track server when enabled" do
-      with_env(TEST_TRACK_ENABLED: 1) do
+      with_test_track_enabled do
         expect(subject.attributes).to eq("remote_split" => { "variant1" => 50, "variant2" => 50 })
       end
     end

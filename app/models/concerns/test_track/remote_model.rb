@@ -10,5 +10,9 @@ module TestTrack::RemoteModel
     def service_name
       :test_track
     end
+
+    def faked?
+      !TestTrack.enabled?
+    end
   end
 end

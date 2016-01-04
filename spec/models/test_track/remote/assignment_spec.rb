@@ -16,7 +16,7 @@ RSpec.describe TestTrack::Remote::Assignment do
   end
 
   it "hits the server when enabled" do
-    with_env(TEST_TRACK_ENABLED: true) { subject.save }
+    with_test_track_enabled { subject.save }
     expect(WebMock).to have_requested(:post, url).with(body: params.to_json)
   end
 

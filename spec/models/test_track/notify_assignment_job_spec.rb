@@ -39,19 +39,32 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
 
   describe "#perform" do
     let(:mixpanel) { instance_double(Mixpanel::Tracker, track: true) }
+    let(:remote_assignment) { instance_double(TestTrack::Remote::Assignment) }
     before do
       allow(Mixpanel::Tracker).to receive(:new).and_return(mixpanel)
-      allow(TestTrack::Remote::Assignment).to receive(:create!).and_call_original
+      allow(TestTrack::Remote::Assignment).to receive(:create!).and_return(remote_assignment)
       ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
     end
 
-    it "configures mixpanel with the token" do
+    it "does not talk to mixpanel when test track is not enabled" do
       subject.perform
+
+      expect(Mixpanel::Tracker).not_to have_received(:new)
+      expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
+        visitor_id: 'fake_visitor_id',
+        split: 'phaser',
+        variant: 'stun',
+        mixpanel_result: 'failure'
+      )
+    end
+
+    it "configures mixpanel with the token" do
+      with_test_track_enabled { subject.perform }
       expect(Mixpanel::Tracker).to have_received(:new).with("fakefakefake")
     end
 
     it "sends mixpanel event" do
-      subject.perform
+      with_test_track_enabled { subject.perform }
 
       expect(mixpanel).to have_received(:track).with(
         "fake_mixpanel_id",
@@ -63,7 +76,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     end
 
     it "sends test_track assignment" do
-      subject.perform
+      with_test_track_enabled { subject.perform }
 
       expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
@@ -80,7 +93,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
         allow(Mixpanel::Tracker).to receive(:new).and_call_original
         stub_request(:post, 'https://api.mixpanel.com/track').to_return(status: 500, body: "")
 
-        subject.perform
+        with_test_track_enabled { subject.perform }
 
         expect(WebMock).to have_requested(:post, 'https://api.mixpanel.com/track')
 
@@ -97,7 +110,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       it "sends test_track assignment with mixpanel_result set to failure" do
         allow(mixpanel).to receive(:track) { raise Timeout::Error.new, "Womp womp" }
 
-        subject.perform
+        with_test_track_enabled { subject.perform }
 
         expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
           visitor_id: 'fake_visitor_id',
@@ -112,7 +125,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       it "sends test_track assignment with mixpanel_result set to failure" do
         allow(mixpanel).to receive(:track) { raise Mixpanel::ConnectionError.new, "Womp womp" }
 
-        subject.perform
+        with_test_track_enabled { subject.perform }
 
         expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
           visitor_id: 'fake_visitor_id',
