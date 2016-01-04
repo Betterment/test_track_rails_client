@@ -1,7 +1,7 @@
 class TestTrack::Remote::SplitConfig
   include TestTrack::RemoteModel
 
-  collection_path '/api/split_config'
+  collection_path '/api/split_configs'
 
   attributes :name, :weighting_registry
 
