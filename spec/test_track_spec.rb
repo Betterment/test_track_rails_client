@@ -19,20 +19,30 @@ RSpec.describe TestTrack do
       TestTrack.enabled = original_enabled
     end
 
-    it "is always enabled in a non-test environment" do
-      with_rails_env "development" do
-        TestTrack.enabled = false
+    context "test environment" do
+      it "is not enabled by default" do
+        expect(TestTrack).not_to be_enabled
+      end
+
+      it "can be enabled" do
+        TestTrack.enabled = true
         expect(TestTrack).to be_enabled
       end
     end
 
-    it "is not enabled by default in a test environment" do
-      expect(TestTrack).not_to be_enabled
-    end
+    context "non-test environment" do
+      around do |example|
+        with_rails_env("development") { example.run }
+      end
 
-    it "can be enabled in a test environment" do
-      TestTrack.enabled = true
-      expect(TestTrack).to be_enabled
+      it "is enabled by default" do
+        expect(TestTrack).to be_enabled
+      end
+
+      it "can be disabled" do
+        TestTrack.enabled = false
+        expect(TestTrack).not_to be_enabled
+      end
     end
   end
 end
