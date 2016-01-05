@@ -12,6 +12,7 @@ class TestTrack::CreateAliasJob
   end
 
   def perform
+    return unless TestTrack.enabled?
     mixpanel.alias(alias_id, existing_mixpanel_id)
   rescue *TestTrack::MIXPANEL_ERRORS
     raise "mixpanel alias failed for existing_mixpanel_id: #{existing_mixpanel_id}, alias_id: #{alias_id}"

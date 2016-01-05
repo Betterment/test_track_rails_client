@@ -29,7 +29,7 @@ RSpec.describe TestTrack::Remote::IdentifierVisitor do
     end
 
     it "it fetches attributes from the test track server when enabled" do
-      with_env(TEST_TRACK_ENABLED: 1) do
+      with_test_track_enabled do
         expect(subject.id).to eq("fake_visitor_id_from_server")
         expect(subject.assignment_registry).to eq("time" => "clownin_around")
         expect(subject.unsynced_splits).to eq([])

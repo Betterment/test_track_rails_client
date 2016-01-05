@@ -25,4 +25,12 @@ module TestTrack
   def private_url
     ENV['TEST_TRACK_API_URL']
   end
+
+  def enabled?
+    @enabled.nil? ? !Rails.env.test? : @enabled
+  end
+
+  def enabled=(val)
+    @enabled = val
+  end
 end

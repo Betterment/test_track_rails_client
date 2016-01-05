@@ -14,10 +14,10 @@ class TestTrack::Remote::SplitRegistry
 
   def self.instance
     # TODO: FakeableHer needs to make this faking a feature of `get`
-    if ENV['TEST_TRACK_ENABLED']
-      get('/api/split_registry')
-    else
+    if faked?
       new(fake_instance_attributes(nil))
+    else
+      get('/api/split_registry')
     end
   end
 

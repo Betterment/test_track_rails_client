@@ -27,13 +27,18 @@ RSpec.describe TestTrack::CreateAliasJob do
       ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
     end
 
-    it "configures mixpanel with the token" do
+    it "does not talk to mixpanel when test track is not enabled" do
       subject.perform
+      expect(Mixpanel::Tracker).not_to have_received(:new)
+    end
+
+    it "configures mixpanel with the token" do
+      with_test_track_enabled { subject.perform }
       expect(Mixpanel::Tracker).to have_received(:new).with("fakefakefake")
     end
 
     it "sends mixpanel events" do
-      subject.perform
+      with_test_track_enabled { subject.perform }
       expect(mixpanel).to have_received(:alias).with("fake_visitor_id", "fake_mixpanel_id")
     end
 
@@ -43,22 +48,25 @@ RSpec.describe TestTrack::CreateAliasJob do
       allow(Mixpanel::Tracker).to receive(:new).and_call_original
       stub_request(:post, 'https://api.mixpanel.com/track').to_return(status: 500, body: "")
 
-      expect { subject.perform }
-        .to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
+      expect do
+        with_test_track_enabled { subject.perform }
+      end.to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
 
       expect(WebMock).to have_requested(:post, 'https://api.mixpanel.com/track')
     end
 
     it "blows up if mixpanel alias raises Timeout::Error" do
       allow(mixpanel).to receive(:alias) { raise Timeout::Error.new, "Womp womp" }
-      expect { subject.perform }
-        .to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
+      expect do
+        with_test_track_enabled { subject.perform }
+      end.to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
     end
 
     it "blows up if mixpanel alias raises Mixpanel::ConnectionError" do
       allow(mixpanel).to receive(:alias) { raise Mixpanel::ConnectionError.new, "Womp womp" }
-      expect { subject.perform }
-        .to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
+      expect do
+        with_test_track_enabled { subject.perform }
+      end.to raise_error("mixpanel alias failed for existing_mixpanel_id: fake_mixpanel_id, alias_id: fake_visitor_id")
     end
   end
 end

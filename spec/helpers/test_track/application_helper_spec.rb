@@ -14,7 +14,7 @@ RSpec.describe TestTrack::ApplicationHelper do
     end
 
     it "returns a script tag with a base64-encoded variable encoded in it" do
-      result = with_env(TEST_TRACK_ENABLED: 1) { helper.test_track_setup_tag }
+      result = with_test_track_enabled { helper.test_track_setup_tag }
 
       expect(result).to include('<div class="_tt" style="visibility:hidden;width:0;height:0;">')
       expect(result).to include("<script>")

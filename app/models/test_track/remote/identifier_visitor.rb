@@ -16,10 +16,10 @@ class TestTrack::Remote::IdentifierVisitor
     raise "must provide an identifier_value" unless identifier_value.present?
 
     # TODO: FakeableHer needs to make this faking a feature of `get`
-    if ENV['TEST_TRACK_ENABLED']
-      get("/api/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor")
-    else
+    if faked?
       new(fake_instance_attributes(nil))
+    else
+      get("/api/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor")
     end
   end
 end

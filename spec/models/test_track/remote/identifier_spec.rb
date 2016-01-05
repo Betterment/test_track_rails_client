@@ -22,12 +22,12 @@ RSpec.describe TestTrack::Remote::Identifier do
   end
 
   it "hits the server when enabled" do
-    with_env(TEST_TRACK_ENABLED: true) { subject.save }
+    with_test_track_enabled { subject.save }
     expect(WebMock).to have_requested(:post, url).with(body: params.to_json)
   end
 
   it "constructs a Visitor object correctly" do
-    with_env(TEST_TRACK_ENABLED: true) do
+    with_test_track_enabled do
       subject.save
       expect(subject.visitor.id).to eq "fake_visitor_id_from_server"
       expect(subject.visitor.assignment_registry).to eq("time" => "clownin_around")
