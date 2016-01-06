@@ -50,9 +50,7 @@ RSpec.describe TestTrack::Session do
         subject.manage do
           subject.log_in!("identifier_type", "value")
         end
-        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq(
-          URI.escape({ distinct_id: "real_visitor_id", OtherProperty: "bar" }.to_json)
-        )
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: "real_visitor_id", OtherProperty: "bar" }.to_json)
       end
     end
 
