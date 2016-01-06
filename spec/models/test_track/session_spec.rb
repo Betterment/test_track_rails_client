@@ -30,16 +30,27 @@ RSpec.describe TestTrack::Session do
           expect(cookies['tt_visitor_id'][:value]).to match(/\A[a-z0-9\-]{36}\z/)
         end
       end
+    end
 
-      it "sets correct visitor id if controller does a #log_in!" do
+    context "log_in!" do
+      before do
         real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {}, unsynced_splits: [])
         identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
+      end
 
+      it "sets correct tt_visitor_id" do
         subject.manage do
           subject.log_in!("indetifier_type", "value")
         end
         expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
+      end
+
+      it "changes the distinct_id in the mixpanel cookie" do
+        subject.manage do
+          subject.log_in!("identifier_type", "value")
+        end
+        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: "real_visitor_id", OtherProperty: "bar" }.to_json)
       end
     end
 
