@@ -74,4 +74,13 @@ RSpec.describe TestTrack::Controller do
     expect(visitor_dsl).to have_received(:ab).with('time', 'beer_thirty')
     expect(response).to have_http_status(:no_content)
   end
+
+  it "stores the visitor in RequestStore" do
+    allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
+    allow(RequestStore).to receive(:[]=).and_call_original
+
+    get :show, id: "1234"
+
+    expect(RequestStore).to have_received(:[]=).with(:test_track_visitor, visitor_dsl)
+  end
 end
