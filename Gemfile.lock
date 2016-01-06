@@ -44,6 +44,7 @@ PATH
       mixpanel-ruby (~> 1.4)
       public_suffix (~> 1.4.6)
       rails (~> 4.1.11)
+      request_store (~> 1.2.1)
 
 GEM
   remote: https://rubygems.org/
@@ -158,6 +159,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rainbow (2.0.0)
     rake (10.4.2)
+    request_store (1.2.1)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
