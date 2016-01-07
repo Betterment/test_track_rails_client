@@ -32,6 +32,8 @@ RSpec.describe TestTrack::Controller do
   before do
     allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
     allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
+    allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
+    allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
   end
 
   it "responds with the action's usual http status" do
@@ -76,11 +78,7 @@ RSpec.describe TestTrack::Controller do
   end
 
   it "stores the visitor in RequestStore" do
-    allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
-    allow(RequestStore).to receive(:[]=).and_call_original
-
     get :show, id: "1234"
-
     expect(RequestStore).to have_received(:[]=).with(:test_track_visitor, visitor_dsl)
   end
 end
