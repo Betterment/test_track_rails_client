@@ -155,7 +155,7 @@ Because these methods may need to stand up an `OfflineSession` the consuming mod
 class User
   include TestTrack::Model
 
-  link_test_track :myapp_user_id, :id # :id is a method name on User instances which returns the id of the user.
+  link_test_track :myapp_user_id, :id # `id` is a method on User instances which is what we're using as the identifier value in this example.
 end
 ```
 

@@ -14,7 +14,7 @@ module TestTrack::Controller
   end
 
   def test_track_visitor
-    @test_track_visitor ||= test_track_session.visitor_dsl
+    test_track_session.visitor_dsl
   end
 
   def manage_test_track_session
