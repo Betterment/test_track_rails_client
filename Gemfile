@@ -23,3 +23,6 @@ gem 'fakeable_her', git: 'https://betterment-deploy:2376e006e0caa50ea525cb349142
 #### FOR LOCAL GEM DEVELOPMENT
 # gem 'fakeable_her', path: '../fakeable_her'
 ####
+
+gem 'sqlite3', platforms: :ruby
+gem 'activerecord-jdbcsqlite3-adapter', platforms: :jruby

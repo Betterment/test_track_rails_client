@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'delayed-plugins-airbrake'
   s.add_dependency 'request_store', '~> 1.2.1'
 
-  s.add_development_dependency "sqlite3"
   s.add_development_dependency "pry-rails"
   s.add_development_dependency "timecop"
 
