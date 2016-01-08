@@ -48,24 +48,11 @@ RSpec.describe TestTrack::Identity do
           expect(subject.test_track_ab(:blue_button)).to be false
         end
 
-        it "forwards all arguments to the visitor correctly" do
-          subject.test_track_ab(:side_dish, "soup")
-          expect(visitor).to have_received(:ab).with(:side_dish, "soup")
-        end
-
-        it "does not create an offline session" do
-          subject.test_track_ab(:blue_button)
-          expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
-        end
-
-        it "does not send notifications inline" do
-          subject.test_track_ab(:blue_button)
-          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
-        end
-
-        it "appends the assignment to the visitor's unsynced assignments" do
-          subject.test_track_ab(:blue_button)
-          expect(visitor.unsynced_assignments).to eq("blue_button" => "false")
+        context "controller does not have a #current_* method" do
+          it "uses an offline session" do
+            subject.test_track_ab(:blue_button)
+            expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+          end
         end
 
         context "controller has a #current_* method" do
@@ -76,18 +63,41 @@ RSpec.describe TestTrack::Identity do
             end
           end
 
-          it "uses an online session when the #current_* equals the subject" do
-            allow(test_track_controller).to receive(:current_clown).and_return(subject)
+          context "current_* equals the subject" do
+            before do
+              allow(test_track_controller).to receive(:current_clown).and_return(subject)
+            end
 
-            subject.test_track_ab(:blue_button)
-            expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
+            it "does not create an offline session" do
+              subject.test_track_ab(:blue_button)
+              expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
+            end
+
+            it "forwards all arguments to the visitor correctly" do
+              subject.test_track_ab(:side_dish, "soup")
+              expect(visitor).to have_received(:ab).with(:side_dish, "soup")
+            end
+
+            it "does not send notifications inline" do
+              subject.test_track_ab(:blue_button)
+              expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+            end
+
+            it "appends the assignment to the visitor's unsynced assignments" do
+              subject.test_track_ab(:blue_button)
+              expect(visitor.unsynced_assignments).to eq("blue_button" => "false")
+            end
           end
 
-          it "uses an offline session when the #current_* does not equal the subject" do
-            allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+          context "current_* does not equal the subject" do
+            before do
+              allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+            end
 
-            subject.test_track_ab(:blue_button)
-            expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+            it "uses an offline session" do
+              subject.test_track_ab(:blue_button)
+              expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+            end
           end
         end
       end
@@ -147,19 +157,11 @@ RSpec.describe TestTrack::Identity do
           expect(vary_side_dish).to eq "salad please"
         end
 
-        it "does not create an offline session" do
-          vary_side_dish
-          expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
-        end
-
-        it "does not send notifications inline" do
-          vary_side_dish
-          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
-        end
-
-        it "appends the assignment to the visitor's unsynced assignments" do
-          vary_side_dish
-          expect(visitor.unsynced_assignments).to eq("side_dish" => "salad")
+        context "controller does not have a #current_* method" do
+          it "uses an offline session" do
+            vary_side_dish
+            expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+          end
         end
 
         context "controller has a #current_* method" do
@@ -170,18 +172,36 @@ RSpec.describe TestTrack::Identity do
             end
           end
 
-          it "uses an online session when the #current_* equals the subject" do
-            allow(test_track_controller).to receive(:current_clown).and_return(subject)
+          context "current_* equals the subject" do
+            before do
+              allow(test_track_controller).to receive(:current_clown).and_return(subject)
+            end
 
-            vary_side_dish
-            expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
+            it "does not create an offline session" do
+              vary_side_dish
+              expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
+            end
+
+            it "does not send notifications inline" do
+              vary_side_dish
+              expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+            end
+
+            it "appends the assignment to the visitor's unsynced assignments" do
+              vary_side_dish
+              expect(visitor.unsynced_assignments).to eq("side_dish" => "salad")
+            end
           end
 
-          it "uses an offline session when the #current_* does not equal the subject" do
-            allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+          context "current_* does not equal the subject" do
+            before do
+              allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+            end
 
-            vary_side_dish
-            expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+            it "uses an offline session" do
+              vary_side_dish
+              expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+            end
           end
         end
       end

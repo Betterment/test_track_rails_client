@@ -10,21 +10,17 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def participate_in_online_session?
-    web_context? && (unauthenticated_controller? || authenticated_resource_matches_identity?)
+    web_context? && controller_has_authenticated_resource? && authenticated_resource_matches_identity?
   end
 
   private
 
   def authenticated_resource_matches_identity?
-    authenticated_controller? && controller.send(authenticated_resource_method_name) == identity
+    controller.send(authenticated_resource_method_name) == identity
   end
 
-  def unauthenticated_controller?
-    web_context? && !controller.respond_to?(authenticated_resource_method_name)
-  end
-
-  def authenticated_controller?
-    web_context? && controller.respond_to?(authenticated_resource_method_name)
+  def controller_has_authenticated_resource?
+    controller.respond_to?(authenticated_resource_method_name)
   end
 
   def web_context?
