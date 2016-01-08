@@ -7,10 +7,6 @@ module TestTrack::RemoteModel
   end
 
   module ClassMethods
-    def service_name
-      :test_track
-    end
-
     def faked?
       !TestTrack.enabled?
     end

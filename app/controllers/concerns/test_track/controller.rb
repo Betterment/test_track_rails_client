@@ -18,6 +18,7 @@ module TestTrack::Controller
   end
 
   def manage_test_track_session
+    RequestStore[:test_track_controller] = self
     test_track_session.manage do
       yield
     end

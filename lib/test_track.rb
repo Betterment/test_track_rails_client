@@ -3,6 +3,7 @@ require 'mixpanel-ruby'
 require 'resolv'
 require 'faraday_middleware'
 require 'her'
+require 'request_store'
 
 module TestTrack
   module_function

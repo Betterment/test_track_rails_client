@@ -147,7 +147,21 @@ OfflineSession.with_visitor_for(:myapp_user_id, 1234) do |test_track_visitor|
 end
 ```
 
+### Varying app behavior from within a model
 
+The `TestTrack::Identity` concern can be included in a model and it will add two methods to the model: `test_track_vary` and `test_track_ab`. Behind the scenes, these methods check to see if they are being used within a web context of a controller that includes `TestTrack::Controller` or not. If called in a web context they will use the `test_track_visitor` that the controller has and participate in the existing session, if not, they will standup an `OfflineSession`.
+
+Because these methods may need to stand up an `OfflineSession` the consuming model needs to provide both the identifier type and which column should be used as the identifier value via the `test_track_identifier` method so that the `OfflineSession` can grab the correct visitor.
+
+```ruby
+class User
+  include TestTrack::Identity
+
+  test_track_identifier :myapp_user_id, :id # `id` is a column on User model which is what we're using as the identifier value in this example.
+end
+```
+
+N.B. If you call `test_track_vary` and `test_track_ab` on a model in a web context, but that model is not the currently authenticated model, an `OfflineSession` will be created instead of participating in the existing session.
 
 ## Tracking visitor logins
 
