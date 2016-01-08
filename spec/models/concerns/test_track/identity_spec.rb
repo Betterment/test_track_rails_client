@@ -1,19 +1,23 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Identity do
-  let(:test_track_identity_class) do
-    Class.new do
-      include TestTrack::Identity
+  Clown = Class.new do
+    include TestTrack::Identity
 
-      test_track_identifier "clown_id", :id
+    test_track_identifier "clown_id", :id
 
-      def id
-        1234
-      end
+    def id
+      1234
     end
   end
 
-  subject { test_track_identity_class.new }
+  let(:test_track_controller_class) do
+    Class.new(ApplicationController) { include TestTrack::Controller }
+  end
+
+  let(:test_track_controller) { test_track_controller_class.new }
+
+  subject { Clown.new }
 
   describe ".test_track_identifier" do
     let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
@@ -35,7 +39,8 @@ RSpec.describe TestTrack::Identity do
 
         before do
           allow(RequestStore).to receive(:exist?).and_return(true)
-          allow(RequestStore).to receive(:[]).with(:test_track_visitor).and_return(visitor_dsl)
+          allow(RequestStore).to receive(:[]).with(:test_track_controller).and_return(test_track_controller)
+          allow(test_track_controller).to receive(:test_track_visitor).and_return(visitor_dsl)
           allow(visitor).to receive(:ab).and_call_original
         end
 
@@ -61,6 +66,29 @@ RSpec.describe TestTrack::Identity do
         it "appends the assignment to the visitor's unsynced assignments" do
           subject.test_track_ab(:blue_button)
           expect(visitor.unsynced_assignments).to eq("blue_button" => "false")
+        end
+
+        context "controller has a #current_* method" do
+          before do
+            test_track_controller.class_eval do
+              def current_clown
+              end
+            end
+          end
+
+          it "uses an online session when the #current_* equals the subject" do
+            allow(test_track_controller).to receive(:current_clown).and_return(subject)
+
+            subject.test_track_ab(:blue_button)
+            expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
+          end
+
+          it "uses an offline session when the #current_* does not equal the subject" do
+            allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+
+            subject.test_track_ab(:blue_button)
+            expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+          end
         end
       end
 
@@ -111,7 +139,8 @@ RSpec.describe TestTrack::Identity do
 
         before do
           allow(RequestStore).to receive(:exist?).and_return(true)
-          allow(RequestStore).to receive(:[]).with(:test_track_visitor).and_return(visitor_dsl)
+          allow(RequestStore).to receive(:[]).with(:test_track_controller).and_return(test_track_controller)
+          allow(test_track_controller).to receive(:test_track_visitor).and_return(visitor_dsl)
         end
 
         it "returns the correct value" do
@@ -131,6 +160,29 @@ RSpec.describe TestTrack::Identity do
         it "appends the assignment to the visitor's unsynced assignments" do
           vary_side_dish
           expect(visitor.unsynced_assignments).to eq("side_dish" => "salad")
+        end
+
+        context "controller has a #current_* method" do
+          before do
+            test_track_controller.class_eval do
+              def current_clown
+              end
+            end
+          end
+
+          it "uses an online session when the #current_* equals the subject" do
+            allow(test_track_controller).to receive(:current_clown).and_return(subject)
+
+            vary_side_dish
+            expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
+          end
+
+          it "uses an offline session when the #current_* does not equal the subject" do
+            allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+
+            vary_side_dish
+            expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
+          end
         end
       end
 

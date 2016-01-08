@@ -159,6 +159,7 @@ class User
 end
 ```
 
+N.B. If you call `test_track_vary` and `test_track_ab` on a model in a web context, but that model is not the currently authenticated model, an `OfflineSession` will be created instead of participating in the existing session.
 
 ## Tracking visitor logins
 

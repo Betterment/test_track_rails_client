@@ -79,6 +79,6 @@ RSpec.describe TestTrack::Controller do
 
   it "stores the visitor in RequestStore" do
     get :show, id: "1234"
-    expect(RequestStore).to have_received(:[]=).with(:test_track_visitor, visitor_dsl)
+    expect(RequestStore).to have_received(:[]=).with(:test_track_controller, controller)
   end
 end
