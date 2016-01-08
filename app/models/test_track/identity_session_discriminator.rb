@@ -28,6 +28,6 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def authenticated_resource_method_name
-    @authenticated_resource_method_name ||= "current_#{identity.class.model_name.element.underscore}"
+    @authenticated_resource_method_name ||= "current_#{identity.class.model_name.element}"
   end
 end
