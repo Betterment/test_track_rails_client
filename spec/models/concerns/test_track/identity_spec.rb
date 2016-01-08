@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Identity do
-  Clown = Class.new do
+  TestTrack::ClownModel = Class.new do
+    include ActiveModel::Model
     include TestTrack::Identity
 
     test_track_identifier "clown_id", :id
@@ -17,7 +18,7 @@ RSpec.describe TestTrack::Identity do
 
   let(:test_track_controller) { test_track_controller_class.new }
 
-  subject { Clown.new }
+  subject { TestTrack::ClownModel.new }
 
   describe ".test_track_identifier" do
     let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
@@ -58,14 +59,14 @@ RSpec.describe TestTrack::Identity do
         context "controller has a #current_* method" do
           before do
             test_track_controller.class_eval do
-              def current_clown
+              def current_clown_model
               end
             end
           end
 
           context "current_* equals the subject" do
             before do
-              allow(test_track_controller).to receive(:current_clown).and_return(subject)
+              allow(test_track_controller).to receive(:current_clown_model).and_return(subject)
             end
 
             it "does not create an offline session" do
@@ -91,7 +92,7 @@ RSpec.describe TestTrack::Identity do
 
           context "current_* does not equal the subject" do
             before do
-              allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+              allow(test_track_controller).to receive(:current_clown_model).and_return(TestTrack::ClownModel.new)
             end
 
             it "uses an offline session" do
@@ -167,14 +168,14 @@ RSpec.describe TestTrack::Identity do
         context "controller has a #current_* method" do
           before do
             test_track_controller.class_eval do
-              def current_clown
+              def current_clown_model
               end
             end
           end
 
           context "current_* equals the subject" do
             before do
-              allow(test_track_controller).to receive(:current_clown).and_return(subject)
+              allow(test_track_controller).to receive(:current_clown_model).and_return(subject)
             end
 
             it "does not create an offline session" do
@@ -195,7 +196,7 @@ RSpec.describe TestTrack::Identity do
 
           context "current_* does not equal the subject" do
             before do
-              allow(test_track_controller).to receive(:current_clown).and_return(Clown.new)
+              allow(test_track_controller).to receive(:current_clown_model).and_return(TestTrack::ClownModel.new)
             end
 
             it "uses an offline session" do
