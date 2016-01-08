@@ -1,6 +1,8 @@
 # test_track_rails_client
 Rails client for the test_track service
 
+[![Build Status](https://travis-ci.com/Betterment/test_track_rails_client.svg?token=6b6DErRMUHX47kEoBZ3t&branch=master)](https://travis-ci.com/Betterment/test_track_rails_client)
+
 ## Installation
 
 Install the gem:
