@@ -19,7 +19,7 @@ module TestTrack::Identity
   end
 
   module ClassMethods
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def test_track_identifier(identifier_type, identifier_value_method)
       instance_methods = Module.new
       include instance_methods
@@ -52,6 +52,6 @@ module TestTrack::Identity
         end
       end
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize, Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
 end
