@@ -147,15 +147,15 @@ end
 
 ### Varying app behavior from within a model
 
-The `TestTrack::Model` concern can be included in a model and it will add two methods to the model: `test_track_vary` and `test_track_ab`. Behind the scenes, these methods check to see if they are being used within a web context of a controller that includes `TestTrack::Controller` or not. If called in a web context they will use the `test_track_visitor` that the controller has and participate in the existing session, if not, they will standup an `OfflineSession`.
+The `TestTrack::Identity` concern can be included in a model and it will add two methods to the model: `test_track_vary` and `test_track_ab`. Behind the scenes, these methods check to see if they are being used within a web context of a controller that includes `TestTrack::Controller` or not. If called in a web context they will use the `test_track_visitor` that the controller has and participate in the existing session, if not, they will standup an `OfflineSession`.
 
-Because these methods may need to stand up an `OfflineSession` the consuming model needs to provide both the identifier type and a method for the identifier value via the `link_test_track` method so that the `OfflineSession` can grab the correct visitor.
+Because these methods may need to stand up an `OfflineSession` the consuming model needs to provide both the identifier type and a method for the identifier value via the `test_track_identifier` method so that the `OfflineSession` can grab the correct visitor.
 
 ```ruby
 class User
-  include TestTrack::Model
+  include TestTrack::Identity
 
-  link_test_track :myapp_user_id, :id # `id` is a method on User instances which is what we're using as the identifier value in this example.
+  test_track_identifier :myapp_user_id, :id # `id` is a column on User model which is what we're using as the identifier value in this example.
 end
 ```
 

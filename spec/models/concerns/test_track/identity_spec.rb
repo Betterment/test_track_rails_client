@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::Model do
-  let(:test_track_model_class) do
+RSpec.describe TestTrack::Identity do
+  let(:test_track_identity_class) do
     Class.new do
-      include TestTrack::Model
+      include TestTrack::Identity
 
-      link_test_track "clown_id", :id
+      test_track_identifier "clown_id", :id
 
       def id
         1234
@@ -13,9 +13,9 @@ RSpec.describe TestTrack::Model do
     end
   end
 
-  subject { test_track_model_class.new }
+  subject { test_track_identity_class.new }
 
-  describe ".link_test_track" do
+  describe ".test_track_identifier" do
     let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
     before do
