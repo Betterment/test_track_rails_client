@@ -10,13 +10,28 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
   end
 
   describe "#to_hash" do
-    it "only hits the API once" do
-      2.times { expect(described_class.to_hash).to eq(split_registry) }
-      expect(described_class).to have_received(:instance).exactly(:once)
-    end
+    context 'with api enabled' do
+      let(:url) { "http://dummy:fakepassword@testtrack.dev/api/split_registry" }
+      around do |example|
+        with_test_track_enabled do
+          stub_request(:get, url).to_return(status: 200, body: {
+            time: {
+              back_in_time: 100,
+              power_of_love: 0
+            }
+          }.to_json)
+          example.run
+        end
+      end
 
-    it "freezes the returned hash even when retrieving from cache" do
-      2.times { expect { described_class.to_hash[:foo] = "bar" }.to raise_error(/frozen/) }
+      it "only hits the API once" do
+        2.times { expect(described_class.to_hash).to eq(split_registry) }
+        expect(described_class).to have_received(:instance).exactly(:once)
+      end
+
+      it "freezes the returned hash even when retrieving from cache" do
+        2.times { expect { described_class.to_hash[:foo] = "bar" }.to raise_error(/frozen/) }
+      end
     end
 
     it "returns nil if the server times out" do

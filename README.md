@@ -188,12 +188,11 @@ Add this line to your `rails_helper.rb`:
 require 'test_track_rails_client/rspec_helpers'
 ```
 
-Force TestTrack to return a specific set of splits during a block:
+Force TestTrack to return a specific set of splits during a spec:
 
 ```ruby
 it "shows the right info" do
-  with_test_track_assignments(button_color: :red) do
-    # All `vary` calls for `button_color` will  run the `red` codepath until the end of this block
-  end
+  stub_test_track_assignments(button_color: :red)
+  # All `vary` calls for `button_color` will  run the `red` codepath until the mocks are reset (after each `it` block)
 end
 ```
