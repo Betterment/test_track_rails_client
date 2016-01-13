@@ -11,6 +11,8 @@ module TestTrack
   SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError]
   MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error]
 
+  mattr_accessor :enabled_override
+
   def update_config
     yield(ConfigUpdater.new)
   end
@@ -28,10 +30,6 @@ module TestTrack
   end
 
   def enabled?
-    @enabled.nil? ? !Rails.env.test? : @enabled
-  end
-
-  def enabled=(val)
-    @enabled = val
+    enabled_override.nil? ? !Rails.env.test? : enabled_override
   end
 end

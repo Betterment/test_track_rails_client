@@ -26,9 +26,13 @@ class TestTrack::Remote::SplitRegistry
   end
 
   def self.to_hash
-    Rails.cache.fetch(CACHE_KEY, expires_in: 5.seconds) do
-      instance.attributes
-    end.freeze
+    if faked?
+      instance.attributes.freeze
+    else
+      Rails.cache.fetch(CACHE_KEY, expires_in: 5.seconds) do
+        instance.attributes
+      end.freeze
+    end
   rescue *TestTrack::SERVER_ERRORS
     nil # if we can't get a split registry
   end

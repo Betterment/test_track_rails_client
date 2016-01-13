@@ -16,7 +16,7 @@ RSpec.describe TestTrack do
     around do |example|
       original_enabled = TestTrack.instance_variable_get("@enabled")
       example.run
-      TestTrack.enabled = original_enabled
+      TestTrack.enabled_override = original_enabled
     end
 
     context "test environment" do
@@ -25,7 +25,7 @@ RSpec.describe TestTrack do
       end
 
       it "can be enabled" do
-        TestTrack.enabled = true
+        TestTrack.enabled_override = true
         expect(TestTrack).to be_enabled
       end
     end
@@ -40,7 +40,7 @@ RSpec.describe TestTrack do
       end
 
       it "can be disabled" do
-        TestTrack.enabled = false
+        TestTrack.enabled_override = false
         expect(TestTrack).not_to be_enabled
       end
     end
