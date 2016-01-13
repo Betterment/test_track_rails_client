@@ -11,7 +11,7 @@ class TestTrack::ABConfiguration
     @true_variant = true_variant.to_s if true_variant
     @split_registry = split_registry
 
-    raise ArgumentError, "unknown split: #{split_name}" if split_registry && !split_registry[@split_name]
+    raise ArgumentError, "unknown split: #{split_name}" if split_registry && !split
   end
 
   def variants
@@ -34,6 +34,10 @@ class TestTrack::ABConfiguration
   end
 
   attr_reader :split_name, :split_registry
+
+  def split
+    split_registry && split_registry[split_name]
+  end
 
   def split_variants
     @split_variants ||= split_registry[split_name].keys if split_registry

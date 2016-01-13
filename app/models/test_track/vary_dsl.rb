@@ -14,7 +14,7 @@ class TestTrack::VaryDSL
     @assigned_variant = assigned_variant.to_s if assigned_variant
     @split_registry = split_registry
 
-    raise ArgumentError, "unknown split: #{split_name}" if split_registry && !split_registry[@split_name]
+    raise ArgumentError, "unknown split: #{split_name}" if split_registry && !split
   end
 
   def when(*variants, &block)
@@ -32,6 +32,10 @@ class TestTrack::VaryDSL
   private
 
   attr_reader :split_name, :split_registry, :assigned_variant
+
+  def split
+    split_registry && split_registry[split_name]
+  end
 
   def split_variants
     @split_variants ||= split_registry[split_name].keys if split_registry
