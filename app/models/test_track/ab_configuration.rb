@@ -9,6 +9,8 @@ class TestTrack::ABConfiguration
 
     @split_name = split_name.to_s
     @true_variant = true_variant.to_s if true_variant
+
+    ensure_split_exists!(@split_name, split_registry)
     @split_variants = split_registry[@split_name].keys if split_registry
   end
 
@@ -41,5 +43,9 @@ class TestTrack::ABConfiguration
     msg = "A/B for \"#{split_name}\" #{msg}"
     Rails.logger.error(msg)
     Airbrake.notify_or_ignore(msg)
+  end
+
+  def ensure_split_exists!(split_name, split_registry)
+    raise ArgumentError, "unknown split: #{split_name}" if split_registry && !split_registry[split_name]
   end
 end

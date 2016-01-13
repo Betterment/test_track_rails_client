@@ -1,3 +1,5 @@
+require 'rails_helper'
+
 RSpec.describe TestTrack::ABConfiguration do
   subject do
     described_class.new initialize_options
@@ -59,6 +61,12 @@ RSpec.describe TestTrack::ABConfiguration do
       expect do
         described_class.new initialize_options.merge(split_registry: nil)
       end.not_to raise_error
+    end
+
+    it "raises a descriptive error when the split is not in the split_registry" do
+      expect do
+        described_class.new initialize_options.merge(split_name: :not_a_real_split)
+      end.to raise_error("unknown split: not_a_real_split")
     end
   end
 

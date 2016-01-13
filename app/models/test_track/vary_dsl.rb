@@ -12,7 +12,9 @@ class TestTrack::VaryDSL
 
     @split_name = split_name.to_s
     @assigned_variant = assigned_variant.to_s if assigned_variant
-    @split_variants = split_registry[split_name.to_s].keys if split_registry
+
+    ensure_split_exists!(@split_name, split_registry)
+    @split_variants = split_registry[@split_name].keys if split_registry
   end
 
   def when(*variants, &block)
@@ -76,5 +78,9 @@ class TestTrack::VaryDSL
     return true unless split_variants
     missing_variants = split_variants - variant_behaviors.keys
     airbrake_because_vary("does not configure variants #{missing_variants.to_sentence}") && false unless missing_variants.empty?
+  end
+
+  def ensure_split_exists!(split_name, split_registry)
+    raise ArgumentError, "unknown split: #{split_name}" if split_registry && !split_registry[split_name]
   end
 end
