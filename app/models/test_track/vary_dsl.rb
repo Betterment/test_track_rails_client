@@ -5,14 +5,14 @@ class TestTrack::VaryDSL
   alias_method :defaulted?, :defaulted
 
   def initialize(opts)
-    split_name = require_option!(opts, :split_name)
+    @split_name = require_option!(opts, :split_name).to_s
     assigned_variant = require_option!(opts, :assigned_variant, allow_nil: true)
-    split_registry = require_option!(opts, :split_registry, allow_nil: true)
+    @split_registry = require_option!(opts, :split_registry, allow_nil: true)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
-    @split_name = split_name.to_s
     @assigned_variant = assigned_variant.to_s if assigned_variant
-    @split_variants = split_registry[split_name.to_s].keys if split_registry
+
+    raise ArgumentError, "unknown split: #{split_name}" if @split_registry && !split
   end
 
   def when(*variants, &block)
@@ -29,7 +29,15 @@ class TestTrack::VaryDSL
 
   private
 
-  attr_reader :split_name, :split_variants, :assigned_variant
+  attr_reader :split_name, :split_registry, :assigned_variant
+
+  def split
+    split_registry && split_registry[split_name]
+  end
+
+  def split_variants
+    @split_variants ||= split.keys if split_registry
+  end
 
   def airbrake_because_vary(msg)
     Rails.logger.error(msg)

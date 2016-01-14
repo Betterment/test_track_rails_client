@@ -52,6 +52,16 @@ RSpec.describe TestTrack::VaryDSL do
         )
       end.to raise_error("Must provide split_name")
     end
+
+    it "raises a descriptive error when the split is not in the split_registry" do
+      expect do
+        described_class.new(
+          split_name: :not_a_real_split,
+          assigned_variant: :one,
+          split_registry: split_registry
+        )
+      end.to raise_error("unknown split: not_a_real_split")
+    end
   end
 
   context "#run" do
