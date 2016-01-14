@@ -18,7 +18,7 @@ class TestTrack::UnsyncedAssignmentsNotifier
         begin
           job.perform
         rescue *TestTrack::SERVER_ERRORS
-          Delayed::Job.enqueue(job)
+          Delayed::Job.enqueue(build_notify_assignment_job(split_name, variant))
         end
       end
     end

@@ -70,5 +70,24 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
       expect(Delayed::Job).to have_received(:enqueue).with(phaser_job)
       expect(Delayed::Job).not_to have_received(:enqueue).with(alert_job)
     end
+
+    it "enqueues a NotifyAssignmentJob without the Mixpanel::Tracker instance serialized" do
+      allow(TestTrack::NotifyAssignmentJob).to receive(:new).and_call_original
+
+      mixpanel = Mixpanel::Tracker.new(ENV['MIXPANEL_TOKEN'])
+      allow(mixpanel).to receive(:track).and_return(true)
+      allow(Mixpanel::Tracker).to receive(:new).and_return(mixpanel)
+
+      allow(TestTrack::Remote::Assignment).to receive(:create!) { raise(Faraday::TimeoutError, "Womp womp") }
+      allow(Delayed::Job).to receive(:enqueue).and_call_original
+
+      with_test_track_enabled do
+        with_jobs_delayed(work_off: false) do
+          described_class.new(params.merge(assignments: { "phaser" => "stun" })).notify
+        end
+      end
+
+      expect { YAML.load(Delayed::Job.first.handler) }.not_to raise_error
+    end
   end
 end
