@@ -69,7 +69,7 @@ RSpec.describe TestTrack::VaryDSL do
       subject.when(:one) { "hello!" }
       subject.default :two, &noop
 
-      expect(subject.send :run).to eq "hello!"
+      expect(subject.send(:run)).to eq "hello!"
       expect(Airbrake).to have_received(:notify_or_ignore).with("vary for \"button_size\" does not configure variants three and four")
     end
 
@@ -82,7 +82,7 @@ RSpec.describe TestTrack::VaryDSL do
       end
 
       it "still runs the correct proc" do
-        expect(subject.send :run).to eq "hello!"
+        expect(subject.send(:run)).to eq "hello!"
       end
 
       it "doesn't alert airbrake about misconfiguration" do

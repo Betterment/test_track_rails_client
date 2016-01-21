@@ -29,6 +29,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "pry-rails"
   s.add_development_dependency "timecop"
+  s.add_development_dependency "rubocop", "~> 0.36"
 
   s.required_ruby_version = '>= 1.9.3'
 end

@@ -1,7 +1,7 @@
 class TestTrack::Remote::SplitRegistry
   include TestTrack::RemoteModel
 
-  CACHE_KEY = 'test_track_split_registry'
+  CACHE_KEY = 'test_track_split_registry'.freeze
 
   collection_path '/api/split_registry'
 
