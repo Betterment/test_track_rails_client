@@ -8,8 +8,8 @@ require 'request_store'
 module TestTrack
   module_function
 
-  SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError]
-  MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error]
+  SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
+  MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error, OpenSSL::OpenSSLError].freeze
 
   mattr_accessor :enabled_override
 

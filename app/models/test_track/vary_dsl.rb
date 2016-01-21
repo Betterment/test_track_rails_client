@@ -2,7 +2,7 @@ class TestTrack::VaryDSL
   include TestTrack::RequiredOptions
 
   attr_reader :defaulted, :default_variant
-  alias_method :defaulted?, :defaulted
+  alias defaulted? defaulted
 
   def initialize(opts)
     @split_name = require_option!(opts, :split_name).to_s

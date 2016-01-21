@@ -43,7 +43,7 @@ class TestTrack::Session
   private
 
   attr_reader :controller, :signed_up
-  alias_method :signed_up?, :signed_up
+  alias signed_up? signed_up
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
