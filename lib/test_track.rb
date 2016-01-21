@@ -9,7 +9,7 @@ module TestTrack
   module_function
 
   SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError]
-  MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error, OpenSSL::SSL::SSLError]
+  MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error, OpenSSL::OpenSSLError]
 
   mattr_accessor :enabled_override
 
