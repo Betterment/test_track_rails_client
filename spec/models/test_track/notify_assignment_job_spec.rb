@@ -121,6 +121,21 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       end
     end
 
+    context "mixpanel client raises OpenSSL::SSL::SSLError" do
+      it "sends test_track assignment with mixpanel_result set to failure" do
+        allow(mixpanel).to receive(:track) { raise OpenSSL::SSL::SSLError.new, "Womp womp" }
+
+        with_test_track_enabled { subject.perform }
+
+        expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
+          visitor_id: 'fake_visitor_id',
+          split: 'phaser',
+          variant: 'stun',
+          mixpanel_result: 'failure'
+        )
+      end
+    end
+
     context "mixpanel client raises Mixpanel::ConnectionError" do
       it "sends test_track assignment with mixpanel_result set to failure" do
         allow(mixpanel).to receive(:track) { raise Mixpanel::ConnectionError.new, "Womp womp" }
