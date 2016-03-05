@@ -1,7 +1,7 @@
 class TestTrack::FakeSplitCollection
   class << self
     def to_h
-      if test_track_schema_yml
+      if test_track_schema_yml.present?
         splits
       else
         {}
