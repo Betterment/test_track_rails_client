@@ -24,7 +24,7 @@ RSpec.describe TestTrack::FakeSplitCollection do
 
     context 'when test_track_schema.yml does not exist' do
       before do
-        allow(YAML).to receive(:load_file).with("#{Rails.root}/db/test_track_schema.yml").and_return(nil)
+        allow(YAML).to receive(:load_file).with(/test_track_schema.yml$/).and_return(nil)
       end
 
       it 'returns an empty hash' do
