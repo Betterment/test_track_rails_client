@@ -1,21 +1,14 @@
-class FakeSplitCollection
+class TestTrack::FakeSplitCollection
   class << self
     def to_h
       if test_track_schema_yml
         splits
       else
-        default_splits
+        {}
       end
     end
 
     private
-
-    def default_splits
-      {
-        time: { hammertime: 100, clobberin_time: 0 },
-        blue_button: { true: 50, false: 50 }
-      }
-    end
 
     def splits
       @splits ||= test_track_schema_yml[:splits]

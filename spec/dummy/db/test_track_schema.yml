@@ -1,0 +1,9 @@
+---
+splits:
+  buy_one_get_one_promotion_enabled:
+    'false': 50
+    'true': 50
+  banner_color:
+    blue: 34
+    red: 33
+    white: 33
