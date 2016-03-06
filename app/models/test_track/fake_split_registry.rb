@@ -1,4 +1,4 @@
-class TestTrack::FakeSplitCollection
+class TestTrack::FakeSplitRegistry
   class << self
     def to_h
       if test_track_schema_yml.present?

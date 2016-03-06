@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::FakeSplitCollection do
+RSpec.describe TestTrack::FakeSplitRegistry do
   subject { Class.new described_class }
 
   describe '.to_h' do
