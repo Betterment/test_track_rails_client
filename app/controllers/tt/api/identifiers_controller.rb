@@ -1,5 +1,5 @@
 class Tt::Api::IdentifiersController < ActionController::Base
   def create
-    @visitor = TestTrack::FakeTestTrack.visitor
+    @visitor = TestTrack::FakeServer.visitor
   end
 end

@@ -18,7 +18,6 @@ Rails.application.routes.draw do
           end
         end
 
-        # Server-side authenticated endpoints
         resources :split_configs, only: [:create, :destroy]
         resource :split_config, only: :create # TODO remove this route once the client is using the pluralize routes
         resource :identifier_type, only: :create

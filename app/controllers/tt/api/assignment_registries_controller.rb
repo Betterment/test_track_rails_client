@@ -1,5 +1,5 @@
 class Tt::Api::AssignmentRegistriesController < ActionController::Base
   def show
-    @assignments = TestTrack::FakeTestTrack.assignments
+    @assignments = TestTrack::FakeServer.assignments
   end
 end

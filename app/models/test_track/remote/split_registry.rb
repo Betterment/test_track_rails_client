@@ -6,7 +6,7 @@ class TestTrack::Remote::SplitRegistry
   collection_path '/api/split_registry'
 
   def self.fake_instance_attributes(_)
-    ::TestTrack::Fake::SplitRegistry.to_h
+    ::TestTrack::Fake::SplitRegistry.instance.to_h
   end
 
   def self.instance
