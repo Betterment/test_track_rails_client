@@ -10,7 +10,7 @@ RSpec.describe Tt::Api::SplitConfigsController do
 
   describe '#destroy' do
     it 'returns no content' do
-      delete :destroy
+      delete :destroy, id: 1
       expect(response).to have_http_status(:no_content)
     end
   end
