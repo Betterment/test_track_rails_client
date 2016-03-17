@@ -10,7 +10,7 @@ class TestTrack::Fake::Visitor
   end
 
   def assignments
-    TestTrack::Fake::SplitRegistry.instance.as_splits
+    TestTrack::Fake::SplitRegistry.instance.splits
   end
 
   def unsynced_splits

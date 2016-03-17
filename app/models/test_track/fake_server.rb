@@ -1,7 +1,7 @@
 class TestTrack::FakeServer
   class << self
     def split_registry
-      TestTrack::Fake::SplitRegistry.instance.as_splits
+      TestTrack::Fake::SplitRegistry.instance.splits
     end
 
     def visitor

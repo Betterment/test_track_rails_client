@@ -1,7 +1,7 @@
 class TestTrack::Fake::SplitRegistry
   Split = Struct.new(:name, :registry) do
     def sample_variant
-      registry.keys.sample
+      registry.keys.first
     end
   end
 
@@ -11,23 +11,19 @@ class TestTrack::Fake::SplitRegistry
 
   def to_h
     if test_track_schema_yml.present?
-      splits
+      test_track_schema_yml[:splits]
     else
       {}
     end
   end
 
-  def as_splits
+  def splits
     to_h.map do |split, registry|
       Split.new(split, registry)
     end
   end
 
   private
-
-  def splits
-    @splits ||= test_track_schema_yml[:splits]
-  end
 
   def test_track_schema_yml
     unless instance_variable_defined?(:@test_track_schema_yml)

@@ -22,9 +22,9 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
       end
     end
 
-    describe '#as_splits' do
+    describe '#splits' do
       it 'returns an array of splits' do
-        expect(subject.as_splits).to eq [
+        expect(subject.splits).to eq [
           TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 50, 'true' => 50),
           TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 34, 'white' => 33, 'red' => 33)]
       end
@@ -42,9 +42,9 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
       end
     end
 
-    describe '#as_splits' do
+    describe '#splits' do
       it 'returns an empty array' do
-        expect(subject.as_splits).to eq([])
+        expect(subject.splits).to eq([])
       end
     end
   end
