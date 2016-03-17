@@ -1,7 +1,8 @@
 class TestTrack::Fake::SplitRegistry
   Split = Struct.new(:name, :registry) do
     def sample_variant
-      registry.keys.first
+      index = Rails.env.test? ? RSpec.configuration.seed % registry.keys.size : 0
+      registry.keys[index]
     end
   end
 
