@@ -27,9 +27,10 @@ RSpec.describe TestTrack::FakeServer do
     it 'resets the visitor instance' do
       old_visitor = TestTrack::Fake::Visitor.instance
 
-      subject.reset!(100)
+      TestTrack::FakeServer.reset!(100)
 
       expect(old_visitor).not_to eq TestTrack::Fake::Visitor.instance
+      expect(TestTrack::Fake::Visitor.instance.id).to eq 100
     end
 
     context 'with no argument' do
@@ -48,7 +49,7 @@ RSpec.describe TestTrack::FakeServer do
 
         subject.reset!(100)
 
-        expect(subject.instance_variable_get(:@seed)).to eq 100
+        expect(subject.seed).to eq 100
       end
     end
   end
