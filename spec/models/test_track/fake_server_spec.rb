@@ -48,7 +48,7 @@ RSpec.describe TestTrack::FakeServer do
       it 'raises as an error to reset the FakeServer' do
         expect(subject.instance_variable_get(:@seed)).to eq nil
 
-        expect{ subject.seed }.to raise_error('TestTrack::FakeServer seed not set. Call TestTrack::FakeServer.reset!(seed) to set seed.')
+        expect { subject.seed }.to raise_error('TestTrack::FakeServer seed not set. Call TestTrack::FakeServer.reset!(seed) to set seed.')
       end
     end
   end
