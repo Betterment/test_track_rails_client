@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'rubocop', require: false
+gem 'rubocop', '~> 0.34', require: false
 gem 'simplecov', require: false
 gem 'shoulda-matchers', '~> 2.8', require: false
 gem 'jbuilder', '~> 2.0'
