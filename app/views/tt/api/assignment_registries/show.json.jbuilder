@@ -1,3 +1,3 @@
-@splits.each do |split|
-  json.set! split.name, split.sample_variant
+@assignments.each do |assignment|
+  json.set! assignment.split_name, split.variant
 end

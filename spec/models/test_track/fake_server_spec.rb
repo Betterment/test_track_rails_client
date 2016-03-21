@@ -19,7 +19,7 @@ RSpec.describe TestTrack::FakeServer do
   describe '.assignments' do
     it 'returns an array of fake splits' do
       expect(subject.assignments).to be_an(Array)
-      expect(subject.assignments.first).to be_a(TestTrack::Fake::SplitRegistry::Split)
+      expect(subject.assignments.first).to be_a(TestTrack::Fake::Visitor::Assignment)
     end
   end
 

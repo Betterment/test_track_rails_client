@@ -10,22 +10,22 @@ RSpec.describe TestTrack::Fake::Visitor do
   end
 
   context 'when splits exist' do
+    before do
+      TestTrack::FakeServer.reset!(1)
+    end
+
     describe '#assignments' do
-      it 'returns an array of splits' do
+      it 'returns an array of assignments' do
         expect(subject.assignments).to match_array [
-          TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 50, 'true' => 50),
-          TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 34, 'white' => 33, 'red' => 33)
+          TestTrack::Fake::Visitor::Assignment.new('buy_one_get_one_promotion_enabled', 'true'),
+          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'red')
         ]
       end
     end
 
     describe '#assignment_registry' do
-      before do
-        allow_any_instance_of(TestTrack::Fake::SplitRegistry::Split).to receive(:sample_variant) { |split| split.registry.keys.first }
-      end
-
       it 'returns a hash of splits and assignments' do
-        expect(subject.assignment_registry).to eq(buy_one_get_one_promotion_enabled: :false, banner_color: :blue)
+        expect(subject.assignment_registry).to eq(buy_one_get_one_promotion_enabled: :true, banner_color: :red)
       end
     end
   end
