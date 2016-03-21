@@ -1,7 +1,7 @@
 class Tt::Api::ResetsController < ActionController::Base
   def update
     TestTrack::FakeServer.reset!(seed)
-    head :no_content 
+    head :no_content
   end
 
   private
