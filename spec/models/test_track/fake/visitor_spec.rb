@@ -3,6 +3,18 @@ require 'rails_helper'
 RSpec.describe TestTrack::Fake::Visitor do
   subject { Class.new(described_class).instance }
 
+  describe '.reset!' do
+    it 'resets the instance' do
+      TestTrack::Fake::Visitor.instance
+
+      allow(TestTrack::FakeServer).to receive(:seed).and_return(5)
+
+      TestTrack::Fake::Visitor.reset!
+
+      expect(TestTrack::Fake::Visitor.instance.id).to eq 5
+    end
+  end
+
   describe '#unsynced_splits' do
     it 'returns an empty array' do
       expect(subject.unsynced_splits).to eq []

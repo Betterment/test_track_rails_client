@@ -24,6 +24,14 @@ RSpec.describe TestTrack::FakeServer do
   end
 
   describe '.reset!' do
+    it 'resets the visitor instance' do
+      old_visitor = TestTrack::Fake::Visitor.instance
+
+      subject.reset!(100)
+
+      expect(old_visitor).not_to eq TestTrack::Fake::Visitor.instance
+    end
+
     context 'with no argument' do
       it 'sets a random seed' do
         expect(subject.instance_variable_get(:@seed)).to eq nil

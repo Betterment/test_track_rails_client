@@ -13,6 +13,7 @@ class TestTrack::FakeServer
     end
 
     def reset!(seed = rand(1000))
+      TestTrack::Fake::Visitor.reset!
       @seed = seed.to_i
     end
 

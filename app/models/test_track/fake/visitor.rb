@@ -4,7 +4,11 @@ class TestTrack::Fake::Visitor
   Assignment = Struct.new(:split_name, :variant)
 
   def self.instance
-    @instance ||= new('39b30d44-fb0c-459c-bab1-352fa385a448')
+    @instance ||= new(TestTrack::FakeServer.seed)
+  end
+
+  def self.reset!
+    @instance = nil
   end
 
   def initialize(id)
@@ -12,11 +16,7 @@ class TestTrack::Fake::Visitor
   end
 
   def assignments
-    TestTrack::Fake::SplitRegistry.instance.splits.map do |split|
-      index = TestTrack::FakeServer.seed % split.registry.keys.size
-      variant = split.registry.keys[index]
-      Assignment.new(split.name, variant)
-    end
+    @assignments ||= _assignments
   end
 
   def unsynced_splits
@@ -25,5 +25,15 @@ class TestTrack::Fake::Visitor
 
   def assignment_registry
     Hash[assignments.map { |assignment| [assignment.split_name.to_sym, assignment.variant.to_sym] }]
+  end
+
+  private
+
+  def _assignments
+    TestTrack::Fake::SplitRegistry.instance.splits.map do |split|
+      index = TestTrack::FakeServer.seed % split.registry.keys.size
+      variant = split.registry.keys[index]
+      Assignment.new(split.name, variant)
+    end
   end
 end
