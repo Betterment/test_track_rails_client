@@ -13,11 +13,11 @@ class TestTrack::FakeServer
     end
 
     def reset!(seed = rand(1000))
-      @seed = seed
+      @seed = seed.to_i
     end
 
     def seed
-      (@seed || reset!).to_i
+      @seed || reset!
     end
   end
 end
