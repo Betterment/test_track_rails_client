@@ -14,7 +14,7 @@ class TestTrack::FakeServer
 
     def reset!(seed)
       TestTrack::Fake::Visitor.reset!
-      @seed = seed.to_i
+      @seed = Integer(seed)
     end
 
     def seed
