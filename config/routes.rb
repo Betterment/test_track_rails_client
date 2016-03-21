@@ -21,6 +21,8 @@ Rails.application.routes.draw do
         resources :split_configs, only: [:create, :destroy]
         resource :split_config, only: :create # TODO remove this route once the client is using the pluralize routes
         resource :identifier_type, only: :create
+
+        resource :reset, only: :update
       end
     end
   end
