@@ -12,13 +12,13 @@ class TestTrack::FakeServer
       TestTrack::Fake::Visitor.instance.assignments
     end
 
-    def reset!(seed = rand(1000))
+    def reset!(seed)
       TestTrack::Fake::Visitor.reset!
       @seed = seed.to_i
     end
 
     def seed
-      @seed || reset!
+      @seed || raise('TestTrack::FakeServer seed not set. Call TestTrack::FakeServer.reset!(seed) to set seed.')
     end
   end
 end

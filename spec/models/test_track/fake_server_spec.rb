@@ -24,33 +24,14 @@ RSpec.describe TestTrack::FakeServer do
   end
 
   describe '.reset!' do
-    it 'resets the visitor instance' do
+    it 'resets the visitor instance and sets the seed' do
       old_visitor = TestTrack::Fake::Visitor.instance
 
       TestTrack::FakeServer.reset!(100)
 
       expect(old_visitor).not_to eq TestTrack::Fake::Visitor.instance
       expect(TestTrack::Fake::Visitor.instance.id).to eq 100
-    end
-
-    context 'with no argument' do
-      it 'sets a random seed' do
-        expect(subject.instance_variable_get(:@seed)).to eq nil
-
-        subject.reset!
-
-        expect(subject.instance_variable_get(:@seed)).not_to eq nil
-      end
-    end
-
-    context 'with an argument' do
-      it 'sets the seed to the argument' do
-        expect(subject.instance_variable_get(:@seed)).to eq nil
-
-        subject.reset!(100)
-
-        expect(subject.seed).to eq 100
-      end
+      expect(TestTrack::FakeServer.seed).to eq 100
     end
   end
 
@@ -64,12 +45,10 @@ RSpec.describe TestTrack::FakeServer do
     end
 
     context 'with no seed set' do
-      it 'sets and returns a random seed' do
+      it 'raises as an error to reset the FakeServer' do
         expect(subject.instance_variable_get(:@seed)).to eq nil
 
-        expect(subject.seed).not_to eq nil
-
-        expect(subject.instance_variable_get(:@seed)).not_to eq nil
+        expect{ subject.seed }.to raise_error('TestTrack::FakeServer seed not set. Call TestTrack::FakeServer.reset!(seed) to set seed.')
       end
     end
   end

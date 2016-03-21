@@ -29,15 +29,15 @@ RSpec.describe TestTrack::Fake::Visitor do
     describe '#assignments' do
       it 'returns an array of assignments' do
         expect(subject.assignments).to match_array [
-          TestTrack::Fake::Visitor::Assignment.new('buy_one_get_one_promotion_enabled', 'true'),
-          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'red')
+          TestTrack::Fake::Visitor::Assignment.new('buy_one_get_one_promotion_enabled', 'false'),
+          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'white')
         ]
       end
     end
 
     describe '#assignment_registry' do
       it 'returns a hash of splits and assignments' do
-        expect(subject.assignment_registry).to eq(buy_one_get_one_promotion_enabled: :true, banner_color: :red)
+        expect(subject.assignment_registry).to eq(buy_one_get_one_promotion_enabled: :false, banner_color: :white)
       end
     end
   end
