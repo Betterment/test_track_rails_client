@@ -1,4 +1,4 @@
-class Tt::Api::IdentifiersController < ActionController::Base
+class Tt::Api::IdentifiersController < Tt::Api::ApplicationController
   def create
     @visitor = TestTrack::FakeServer.visitor
   end

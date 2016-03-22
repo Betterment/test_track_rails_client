@@ -1,4 +1,4 @@
-class Tt::Api::IdentifierTypesController < ActionController::Base
+class Tt::Api::IdentifierTypesController < Tt::Api::ApplicationController
   def create
     head :no_content
   end
