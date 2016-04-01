@@ -6,6 +6,7 @@ gem 'rubocop', '< 0.38', require: false
 gem 'simplecov', require: false
 gem 'shoulda-matchers', '~> 2.8', require: false
 gem 'jbuilder', '~> 2.0'
+gem 'mime-types', '< 3'
 
 #### FOR EVERYDAY USE
 gem 'ruby_spec_helpers', git: 'https://betterment-deploy:2376e006e0caa50ea525cb349142c4702536eaa0@github.com/Betterment/ruby_spec_helpers'
