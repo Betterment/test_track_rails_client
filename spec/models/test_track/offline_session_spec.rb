@@ -67,7 +67,7 @@ RSpec.describe TestTrack::OfflineSession do
 
       it "notifies unsynced assignments" do
         described_class.with_visitor_for("clown_id", 1234) do |visitor|
-          visitor.ab :has_button
+          visitor.ab :has_button, context: :spec
         end
 
         expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|

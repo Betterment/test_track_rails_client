@@ -157,7 +157,7 @@ RSpec.describe TestTrack::Session do
 
         it "notifies unsynced assignments" do
           subject.manage do
-            subject.visitor_dsl.ab('bar', 'baz')
+            subject.visitor_dsl.ab('bar', true_variant: 'baz', context: :spec)
           end
 
           expect(Thread).to have_received(:new)

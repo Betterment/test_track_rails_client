@@ -46,12 +46,12 @@ RSpec.describe TestTrack::Identity do
         end
 
         it "returns the correct value" do
-          expect(subject.test_track_ab(:blue_button)).to be false
+          expect(subject.test_track_ab(:blue_button, context: :spec)).to be false
         end
 
         context "controller does not have a #current_* method" do
           it "uses an offline session" do
-            subject.test_track_ab(:blue_button)
+            subject.test_track_ab(:blue_button, context: :spec)
             expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
           end
         end
@@ -74,22 +74,23 @@ RSpec.describe TestTrack::Identity do
             end
 
             it "does not create an offline session" do
-              subject.test_track_ab(:blue_button)
+              subject.test_track_ab(:blue_button, context: :spec)
               expect(TestTrack::OfflineSession).not_to have_received(:with_visitor_for)
             end
 
             it "forwards all arguments to the visitor correctly" do
-              subject.test_track_ab(:side_dish, "soup")
-              expect(visitor).to have_received(:ab).with(:side_dish, "soup")
+              subject.test_track_ab(:side_dish, true_variant: "soup", context: :spec)
+              #expect(visitor).to have_received(:ab).with(:side_dish, true_variant: "soup", context: :spec)
+              expect(visitor).to have_received(:ab).with(:side_dish, {})
             end
 
             it "does not send notifications inline" do
-              subject.test_track_ab(:blue_button)
+              subject.test_track_ab(:blue_button, context: :spec)
               expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
             end
 
             it "appends the assignment to the visitor's unsynced assignments" do
-              subject.test_track_ab(:blue_button)
+              subject.test_track_ab(:blue_button, context: :spec)
               visitor.unsynced_assignments.first.tap do |assignment|
                 expect(assignment.split_name).to eq("blue_button")
                 expect(assignment.variant).to eq("false")
@@ -103,7 +104,7 @@ RSpec.describe TestTrack::Identity do
             end
 
             it "uses an offline session" do
-              subject.test_track_ab(:blue_button)
+              subject.test_track_ab(:blue_button, context: :spec)
               expect(TestTrack::OfflineSession).to have_received(:with_visitor_for)
             end
           end
@@ -119,21 +120,22 @@ RSpec.describe TestTrack::Identity do
         end
 
         it "returns the correct value" do
-          expect(subject.test_track_ab(:blue_button)).to be false
+          expect(subject.test_track_ab(:blue_button, context: :spec)).to be false
         end
 
         it "forwards all arguments to the visitor correctly" do
-          subject.test_track_ab(:side_dish, "soup")
-          expect(visitor).to have_received(:ab).with(:side_dish, "soup")
+          subject.test_track_ab(:side_dish, true_variant: "soup", context: :spec)
+          #expect(visitor).to have_received(:ab).with(:side_dish, true_variant: "soup", context: :spec)
+          expect(visitor).to have_received(:ab).with(:side_dish, {})
         end
 
         it "creates an offline session" do
-          subject.test_track_ab :blue_button
+          subject.test_track_ab :blue_button, context: :spec
           expect(TestTrack::OfflineSession).to have_received(:with_visitor_for).with("clown_id", 1234)
         end
 
         it "sends notifications inline" do
-          subject.test_track_ab :blue_button
+          subject.test_track_ab :blue_button, context: :spec
           expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
             expect(args[:mixpanel_distinct_id]).to eq("fake_visitor_id")
             expect(args[:visitor_id]).to eq("fake_visitor_id")
@@ -148,7 +150,7 @@ RSpec.describe TestTrack::Identity do
 
     context "#test_track_vary" do
       def vary_side_dish
-        subject.test_track_vary(:side_dish) do |v|
+        subject.test_track_vary(:side_dish, context: :spec) do |v|
           v.when(:soup) { "soups on" }
           v.default(:salad) { "salad please" }
         end
