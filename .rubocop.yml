@@ -98,3 +98,6 @@ Style/Lambda:
 
 Rails/FindEach:
   Enabled: false
+
+Style/GuardClause:
+  Enabled: false
