@@ -1,13 +1,12 @@
 class TestTrack::NotifyAssignmentJob
-  attr_reader :mixpanel_distinct_id, :visitor_id, :split_name, :variant
+  attr_reader :mixpanel_distinct_id, :visitor_id, :assignment
 
   def initialize(opts)
     @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id)
     @visitor_id = opts.delete(:visitor_id)
-    @split_name = opts.delete(:split_name)
-    @variant = opts.delete(:variant)
+    @assignment = opts.delete(:assignment)
 
-    %w(mixpanel_distinct_id visitor_id split_name variant).each do |param_name|
+    %w(mixpanel_distinct_id visitor_id assignment).each do |param_name|
       raise "#{param_name} must be present" unless send(param_name).present?
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
@@ -16,8 +15,8 @@ class TestTrack::NotifyAssignmentJob
   def perform
     TestTrack::Remote::Assignment.create!(
       visitor_id: visitor_id,
-      split: split_name,
-      variant: variant,
+      split: assignment.split_name,
+      variant: assignment.variant,
       mixpanel_result: mixpanel_track
     )
   end
@@ -34,8 +33,8 @@ class TestTrack::NotifyAssignmentJob
 
   def mixpanel_track_properties
     {
-      "SplitName" => split_name,
-      "SplitVariant" => variant,
+      "SplitName" => assignment.split_name,
+      "SplitVariant" => assignment.variant,
       "TTVisitorID" => visitor_id
     }
   end

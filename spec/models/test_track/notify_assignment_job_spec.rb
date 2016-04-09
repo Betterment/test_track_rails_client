@@ -1,12 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::NotifyAssignmentJob do
+  let(:assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun") }
   let(:params) do
     {
       mixpanel_distinct_id: "fake_mixpanel_id",
       visitor_id: "fake_visitor_id",
-      split_name: "phaser",
-      variant: "stun"
+      assignment: assignment
     }
   end
 
@@ -22,14 +22,9 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       .to raise_error(/visitor_id/)
   end
 
-  it "blows up with empty split_name" do
-    expect { described_class.new(params.merge(split_name: '')) }
-      .to raise_error(/split_name/)
-  end
-
-  it "blows up with empty variant" do
-    expect { described_class.new(params.merge(variant: '')) }
-      .to raise_error(/variant/)
+  it "blows up with empty assignment" do
+    expect { described_class.new(params.merge(assignment: nil)) }
+      .to raise_error(/assignment/)
   end
 
   it "blows up with unknown opts" do

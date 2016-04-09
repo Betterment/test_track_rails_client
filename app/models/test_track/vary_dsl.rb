@@ -5,13 +5,9 @@ class TestTrack::VaryDSL
   alias defaulted? defaulted
 
   def initialize(opts)
-    @split_name = require_option!(opts, :split_name).to_s
-    assigned_variant = require_option!(opts, :assigned_variant, allow_nil: true)
+    @assignment = require_option!(opts, :assignment)
     @split_registry = require_option!(opts, :split_registry, allow_nil: true)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
-
-    @assigned_variant = assigned_variant.to_s if assigned_variant
-
     raise ArgumentError, "unknown split: #{split_name}" if @split_registry && !split
   end
 
@@ -29,7 +25,8 @@ class TestTrack::VaryDSL
 
   private
 
-  attr_reader :split_name, :split_registry, :assigned_variant
+  attr_reader :split_registry, :assignment
+  delegate :split_name, to: :assignment
 
   def split
     split_registry && split_registry[split_name]
@@ -69,10 +66,11 @@ class TestTrack::VaryDSL
   def run
     validate!
 
-    if variant_behaviors[assigned_variant]
-      chosen_proc = variant_behaviors[assigned_variant]
+    if variant_behaviors[assignment.variant]
+      chosen_proc = variant_behaviors[assignment.variant]
     else
       chosen_proc = default_proc
+      assignment.variant = default_variant
       @defaulted = true
     end
     chosen_proc.call

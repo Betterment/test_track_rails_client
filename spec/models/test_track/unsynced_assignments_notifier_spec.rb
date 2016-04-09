@@ -1,11 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
+  let(:phaser_assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun") }
+  let(:alert_assignment) { instance_double(TestTrack::Assignment, split_name: "alert", variant: "yellow") }
   let(:params) do
     {
       mixpanel_distinct_id: "fake_mixpanel_id",
       visitor_id: "fake_visitor_id",
-      assignments: { "phaser" => "stun", "alert" => "yellow" }
+      assignments: [phaser_assignment, alert_assignment]
     }
   end
 
@@ -22,7 +24,7 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
   end
 
   it "blows up with empty assignments" do
-    expect { described_class.new(params.merge(assignments: {})) }
+    expect { described_class.new(params.merge(assignments: [])) }
       .to raise_error(/assignments/)
   end
 
@@ -39,15 +41,13 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
       allow(TestTrack::NotifyAssignmentJob).to receive(:new).with(
         mixpanel_distinct_id: "fake_mixpanel_id",
         visitor_id: "fake_visitor_id",
-        split_name: "phaser",
-        variant: "stun"
+        assignment: phaser_assignment
       ).and_return(phaser_job)
 
       allow(TestTrack::NotifyAssignmentJob).to receive(:new).with(
         mixpanel_distinct_id: "fake_mixpanel_id",
         visitor_id: "fake_visitor_id",
-        split_name: "alert",
-        variant: "yellow"
+        assignment: alert_assignment
       ).and_return(alert_job)
 
       allow(Delayed::Job).to receive(:enqueue).and_return(true)
@@ -83,7 +83,7 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
 
       with_test_track_enabled do
         with_jobs_delayed(work_off: false) do
-          described_class.new(params.merge(assignments: { "phaser" => "stun" })).notify
+          described_class.new(params.merge(assignments: [phaser_assignment])).notify
         end
       end
 

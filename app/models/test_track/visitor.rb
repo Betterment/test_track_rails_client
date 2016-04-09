@@ -17,11 +17,9 @@ class TestTrack::Visitor
     split_name = split_name.to_s
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-    v = TestTrack::VaryDSL.new(split_name: split_name, assigned_variant: assignment_for(split_name), split_registry: split_registry)
+    v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), split_registry: split_registry)
     yield v
-    result = v.send :run
-    assign_to(split_name, v.default_variant) if v.defaulted?
-    result
+    v.send :run
   end
 
   def ab(split_name, true_variant = nil)
@@ -120,10 +118,6 @@ class TestTrack::Visitor
   end
 
   def generate_assignment_for(split_name)
-    assign_to(split_name, TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant)
-  end
-
-  def assign_to(split_name, variant)
-    new_assignments[split_name] = assignment_registry[split_name] = variant unless tt_offline?
+    assignment_registry[split_name] = TestTrack::Assignment.new(self, split_name)
   end
 end
