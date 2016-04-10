@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::SplitConfig do
   let(:params) { { name: "my_split", weighting_registry: { foo: 25, bar: 75 } } }
-  let(:create_url) { "http://testtrack.dev/api/split_configs" }
-  let(:destroy_url) { "http://testtrack.dev/api/split_configs/some_split" }
+  let(:create_url) { "http://testtrack.dev/api/v1/split_configs" }
+  let(:destroy_url) { "http://testtrack.dev/api/v1/split_configs/some_split" }
 
   subject { described_class.new(params) }
 

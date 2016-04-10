@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::Identifier do
   let(:params) { { identifier_type: "clown_id", visitor_id: "fake_visitor_id", value: 1234 } }
-  let(:url) { "http://testtrack.dev/api/identifier" }
+  let(:url) { "http://testtrack.dev/api/v1/identifier" }
 
   subject { described_class.new(params) }
 

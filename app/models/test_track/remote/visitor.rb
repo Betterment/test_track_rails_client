@@ -1,7 +1,7 @@
 class TestTrack::Remote::Visitor
   include TestTrack::RemoteModel
 
-  collection_path '/api/visitors'
+  collection_path '/api/v1/visitors'
 
   def self.fake_instance_attributes(_)
     {

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::IdentifierType do
   let(:params) { { name: "bettermentdb_user_id" } }
-  let(:url) { "http://testtrack.dev/api/identifier_type" }
+  let(:url) { "http://testtrack.dev/api/v1/identifier_type" }
 
   subject { described_class.new(params) }
 
