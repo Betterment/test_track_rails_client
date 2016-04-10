@@ -3,7 +3,7 @@ require 'digest'
 class TestTrack::Fake::Visitor
   attr_reader :id
 
-  Assignment = Struct.new(:split_name, :variant)
+  Assignment = Struct.new(:split_name, :variant, :unsynced)
 
   def self.instance
     @instance ||= new(TestTrack::FakeServer.seed)
@@ -21,21 +21,13 @@ class TestTrack::Fake::Visitor
     @assignments ||= _assignments
   end
 
-  def unsynced_splits
-    []
-  end
-
-  def assignment_registry
-    Hash[assignments.map { |assignment| [assignment.split_name.to_sym, assignment.variant.to_sym] }]
-  end
-
   private
 
   def _assignments
     TestTrack::Fake::SplitRegistry.instance.splits.map do |split|
       index = hash_fixnum(split.name) % split.registry.keys.size
       variant = split.registry.keys[index]
-      Assignment.new(split.name, variant)
+      Assignment.new(split.name, variant, false)
     end
   end
 

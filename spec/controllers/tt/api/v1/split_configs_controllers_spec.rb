@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Tt::Api::SplitConfigsController do
+RSpec.describe Tt::Api::V1::SplitConfigsController do
   describe '#create' do
     it 'returns no content' do
       post :create

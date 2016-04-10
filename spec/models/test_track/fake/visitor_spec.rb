@@ -15,12 +15,6 @@ RSpec.describe TestTrack::Fake::Visitor do
     end
   end
 
-  describe '#unsynced_splits' do
-    it 'returns an empty array' do
-      expect(subject.unsynced_splits).to eq []
-    end
-  end
-
   context 'when splits exist' do
     before do
       TestTrack::FakeServer.reset!(1)
@@ -29,15 +23,9 @@ RSpec.describe TestTrack::Fake::Visitor do
     describe '#assignments' do
       it 'returns an array of assignments' do
         expect(subject.assignments).to match_array [
-          TestTrack::Fake::Visitor::Assignment.new('buy_one_get_one_promotion_enabled', 'false'),
-          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'white')
+          TestTrack::Fake::Visitor::Assignment.new('buy_one_get_one_promotion_enabled', 'false', false),
+          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'white', false)
         ]
-      end
-    end
-
-    describe '#assignment_registry' do
-      it 'returns a hash of splits and assignments' do
-        expect(subject.assignment_registry).to eq(buy_one_get_one_promotion_enabled: :false, banner_color: :white)
       end
     end
   end
@@ -50,12 +38,6 @@ RSpec.describe TestTrack::Fake::Visitor do
     describe '#assignments' do
       it 'returns an empty array' do
         expect(subject.assignments).to eq []
-      end
-    end
-
-    describe '#assignment_registry' do
-      it 'returns an empty hash' do
-        expect(subject.assignment_registry).to eq({})
       end
     end
   end
