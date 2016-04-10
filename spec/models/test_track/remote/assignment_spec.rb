@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::Assignment do
-  let(:params) { { visitor_id: "fake_visitor_id", split: "button_color", variant: "blue", mixpanel_result: "success" } }
+  let(:params) { { visitor_id: "fake_visitor_id", split_name: "button_color", variant: "blue", mixpanel_result: "success" } }
   let(:url) { "http://testtrack.dev/api/assignment" }
 
   subject { described_class.new(params) }
@@ -30,9 +30,9 @@ RSpec.describe TestTrack::Remote::Assignment do
     end
 
     it "validates split" do
-      assignment = described_class.new(params.except(:split))
+      assignment = described_class.new(params.except(:split_name))
       expect(assignment).not_to be_valid
-      expect(assignment.errors).to be_added(:split, "can't be blank")
+      expect(assignment.errors).to be_added(:split_name, "can't be blank")
     end
 
     it "validates variant" do
