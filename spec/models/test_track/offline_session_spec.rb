@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe TestTrack::OfflineSession do
   describe ".with_visitor_for" do
     let(:remote_visitor) do
-      TestTrack::Remote::IdentifierVisitor.new(
+      TestTrack::Remote::Visitor.new(
         id: "remote_visitor_id",
         assignments: [
           { split_name: "foo", variant: "bar", unsynced: false }
@@ -12,7 +12,7 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     before do
-      allow(TestTrack::Remote::IdentifierVisitor).to receive(:from_identifier).and_return(remote_visitor)
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
     end
 
     it "blows up when a block is not provided" do
@@ -22,7 +22,7 @@ RSpec.describe TestTrack::OfflineSession do
 
     it "gets the remote visitor via the identifier info" do
       described_class.with_visitor_for("clown_id", 1234) {}
-      expect(TestTrack::Remote::IdentifierVisitor).to have_received(:from_identifier).with("clown_id", 1234)
+      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("clown_id", 1234)
     end
 
     it "creates a visitor with the properties of the remote visitor" do
