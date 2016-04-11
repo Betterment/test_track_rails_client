@@ -7,7 +7,17 @@ class TestTrack::Remote::Assignment
 
   validates :visitor_id, :split_name, :variant, :mixpanel_result, presence: true
 
+  alias unsynced? unsynced
+
   def fake_save_response_attributes
     nil # :no_content is the expected response type
+  end
+
+  def self.fake_instance_attributes(id)
+    {
+      split_name: "split_#{id}",
+      variant: "true",
+      unsynced: false
+    }
   end
 end

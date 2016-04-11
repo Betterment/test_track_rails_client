@@ -12,8 +12,10 @@ RSpec.describe TestTrack::Remote::Identifier do
       .to_return(status: 200, body: {
         visitor: {
           id: "fake_visitor_id_from_server",
-          assignment_registry: { time: "clownin_around" },
-          unsynced_splits: %w(car_size)
+          assignments: [
+            { split_name: "time", variant: "clownin_around", unsynced: false },
+            { split_name: "car_size", variant: "mini", unsynced: true }
+          ]
         }
       }.to_json)
   end
@@ -32,20 +34,27 @@ RSpec.describe TestTrack::Remote::Identifier do
     with_test_track_enabled do
       subject.save
       expect(subject.visitor.id).to eq "fake_visitor_id_from_server"
-      expect(subject.visitor.assignment_registry).to eq("time" => "clownin_around")
-      expect(subject.visitor.unsynced_splits).to eq(%w(car_size))
+      subject.visitor.assignment_registry["time"].tap do |assignment|
+        expect(assignment.split_name).to eq "time"
+        expect(assignment.variant).to eq "clownin_around"
+        expect(assignment.unsynced).to eq false
+      end
+      subject.visitor.assignment_registry["car_size"].tap do |assignment|
+        expect(assignment.split_name).to eq "car_size"
+        expect(assignment.variant).to eq "mini"
+        expect(assignment.unsynced).to eq true
+      end
     end
   end
 
   it "ignores extra data in the response body" do
     allow(subject).to receive(:fake_save_response_attributes).and_return(
-      visitor: { id: "fake_visitor_id", assignment_registry: {}, unsynced_splits: %w(some_split), other_data: %w(a b c d) }
+      visitor: { id: "fake_visitor_id", assignments: [], other_data: %w(a b c d) }
     )
 
     subject.save
     expect(subject.visitor.id).to eq "fake_visitor_id"
     expect(subject.visitor.assignment_registry).to eq({})
-    expect(subject.visitor.unsynced_splits).to eq(%w(some_split))
   end
 
   describe "#visitor" do

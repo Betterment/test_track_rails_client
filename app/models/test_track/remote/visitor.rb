@@ -3,6 +3,8 @@ class TestTrack::Remote::Visitor
 
   collection_path '/api/v1/visitors'
 
+  has_many :assignments
+
   def self.from_identifier(identifier_type, identifier_value)
     raise "must provide an identifier_type" unless identifier_type.present?
     raise "must provide an identifier_value" unless identifier_value.present?
@@ -18,10 +20,10 @@ class TestTrack::Remote::Visitor
   def self.fake_instance_attributes(_)
     {
       id: "fake_visitor_id",
-      assignment_registry: {
-        time: 'hammertime'
-      },
-      unsynced_splits: []
+      assignments: [
+        TestTrack::Remote::Assignment.fake_instance_attributes(1),
+        TestTrack::Remote::Assignment.fake_instance_attributes(2)
+      ]
     }
   end
 end
