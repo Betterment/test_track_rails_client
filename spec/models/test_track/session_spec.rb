@@ -11,6 +11,7 @@ RSpec.describe TestTrack::Session do
 
   before do
     allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
+    allow(Thread).to receive(:new).and_call_original
     allow(TestTrack::CreateAliasJob).to receive(:new).and_call_original
     ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
@@ -141,16 +142,20 @@ RSpec.describe TestTrack::Session do
         end
 
         it "notifies unsynced assignments" do
+          allow(Thread).to receive(:new) do |&block|
+            block.call
+          end
+
           subject.manage do
             subject.visitor_dsl.ab('bar', 'baz')
           end
 
+          expect(Thread).to have_received(:new)
           expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
             mixpanel_distinct_id: 'fake_distinct_id',
             visitor_id: 'fake_visitor_id',
             assignments: { 'bar' => 'baz' }
           )
-
           expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
@@ -171,15 +176,18 @@ RSpec.describe TestTrack::Session do
 
         it "notifies unsynced assignments" do
           allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
+          allow(Thread).to receive(:new) do |&block|
+            block.call
+          end
 
           subject.manage {}
 
+          expect(Thread).to have_received(:new)
           expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
             mixpanel_distinct_id: "fake_distinct_id",
             visitor_id: "fake_visitor_id",
             assignments: { 'switched_split' => 'not_what_i_thought' }
           )
-
           expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
@@ -191,6 +199,23 @@ RSpec.describe TestTrack::Session do
           subject.manage {}
 
           expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+        end
+
+        it "notifies in background thread" do
+          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
+
+          notifier_thread = subject.send(:notify_unsynced_assignments!)
+
+          # block until thread completes
+          notifier_thread.join
+
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
+            mixpanel_distinct_id: "fake_distinct_id",
+            visitor_id: "fake_visitor_id",
+            assignments: { 'switched_split' => 'not_what_i_thought' }
+          )
+
+          expect(unsynced_assignments_notifier).to have_received(:notify)
         end
       end
     end

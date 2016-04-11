@@ -85,11 +85,19 @@ class TestTrack::Session
   end
 
   def notify_unsynced_assignments!
-    TestTrack::UnsyncedAssignmentsNotifier.new(
+    payload = {
       mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       assignments: visitor.unsynced_assignments
-    ).notify
+    }
+    ActiveSupport::Notifications.instrument('test_track.notify_unsynced_assignments', payload) do
+      ##
+      # This block creates an unbounded number of threads up to 1 per request.
+      # This can potentially cause issues under high load, in which case we should move to a thread pool/work queue.
+      Thread.new do
+        TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
+      end
+    end
   end
 
   def create_alias!
