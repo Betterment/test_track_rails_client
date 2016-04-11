@@ -90,7 +90,10 @@ RSpec.describe TestTrack::Identity do
 
             it "appends the assignment to the visitor's unsynced assignments" do
               subject.test_track_ab(:blue_button)
-              expect(visitor.unsynced_assignments).to eq("blue_button" => "false")
+              visitor.unsynced_assignments.first.tap do |assignment|
+                expect(assignment.split_name).to eq("blue_button")
+                expect(assignment.variant).to eq("false")
+              end
             end
           end
 
@@ -201,7 +204,10 @@ RSpec.describe TestTrack::Identity do
 
             it "appends the assignment to the visitor's unsynced assignments" do
               vary_side_dish
-              expect(visitor.unsynced_assignments).to eq("side_dish" => "salad")
+              visitor.unsynced_assignments.first.tap do |assignment|
+                expect(assignment.split_name).to eq("side_dish")
+                expect(assignment.variant).to eq("salad")
+              end
             end
           end
 

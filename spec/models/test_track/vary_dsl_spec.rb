@@ -3,10 +3,12 @@ require 'rails_helper'
 RSpec.describe TestTrack::VaryDSL do
   subject do
     described_class.new(
-      split_name: :button_size,
-      assigned_variant: :one,
+      assignment: assignment,
       split_registry: split_registry
     )
+  end
+  let(:assignment) do
+    instance_double(TestTrack::Assignment, split_name: "button_size", variant: "one")
   end
   let(:split_registry) do
     {
@@ -36,8 +38,7 @@ RSpec.describe TestTrack::VaryDSL do
     it "raises when given an unknown option" do
       expect do
         described_class.new(
-          split_name: :button_size,
-          assigned_variant: :one,
+          assignment: assignment,
           split_registry: split_registry,
           one_of_these_things_is_not_like_the_other: "hint: its me!"
         )
@@ -47,20 +48,24 @@ RSpec.describe TestTrack::VaryDSL do
     it "raises when missing a required option" do
       expect do
         described_class.new(
-          assigned_variant: :one,
           split_registry: split_registry
         )
-      end.to raise_error("Must provide split_name")
+      end.to raise_error("Must provide assignment")
     end
 
-    it "raises a descriptive error when the split is not in the split_registry" do
-      expect do
-        described_class.new(
-          split_name: :not_a_real_split,
-          assigned_variant: :one,
-          split_registry: split_registry
-        )
-      end.to raise_error("unknown split: not_a_real_split")
+    context "when the split is not in the split_registry" do
+      let(:assignment) do
+        instance_double(TestTrack::Assignment, split_name: "not_a_real_split", variant: "one")
+      end
+
+      it "raises a descriptive error" do
+        expect do
+          described_class.new(
+            assignment: assignment,
+            split_registry: split_registry
+          )
+        end.to raise_error("unknown split: not_a_real_split")
+      end
     end
   end
 
@@ -90,22 +95,20 @@ RSpec.describe TestTrack::VaryDSL do
       end
     end
 
-    context "with a nil assignment" do
+    context "with a nil variant" do
+      let(:assignment) do
+        instance_double(TestTrack::Assignment, split_name: "button_size", variant: nil)
+      end
+
       before do
         subject.when(:one) { "regular" }
         subject.default(:two) { "default" }
+        allow(assignment).to receive(:variant=)
       end
 
-      subject do
-        described_class.new(
-          split_name: :button_size,
-          assigned_variant: nil,
-          split_registry: split_registry
-        )
-      end
-
-      it "runs the default proc" do
+      it "runs the default proc and sets the assignment's variant" do
         expect(subject.send(:run)).to eq "default"
+        expect(assignment).to have_received(:variant=).with("two")
       end
     end
   end

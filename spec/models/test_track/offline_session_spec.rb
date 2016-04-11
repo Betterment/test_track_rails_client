@@ -5,8 +5,9 @@ RSpec.describe TestTrack::OfflineSession do
     let(:remote_visitor) do
       TestTrack::Remote::IdentifierVisitor.new(
         id: "remote_visitor_id",
-        assignment_registry: { "foo" => "bar" },
-        unsynced_splits: []
+        assignments: [
+          { split_name: "foo", variant: "bar", unsynced: false }
+        ]
       )
     end
 
@@ -25,12 +26,14 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     it "creates a visitor with the properties of the remote visitor" do
-      allow(TestTrack::Visitor).to receive(:new).and_call_original
-      expect(TestTrack::Visitor).to receive(:new).with(
-        id: "remote_visitor_id",
-        assignment_registry: { "foo" => "bar" },
-        unsynced_splits: []
-      )
+      expect(TestTrack::Visitor).to receive(:new).and_wrap_original do |m, args|
+        expect(args[:id]).to eq("remote_visitor_id")
+        args[:assignments].first.tap do |assignment|
+          expect(assignment.split_name).to eq("foo")
+          expect(assignment.variant).to eq("bar")
+        end
+        m.call(args)
+      end
 
       described_class.with_visitor_for("clown_id", 1234) {}
     end
@@ -44,8 +47,7 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     it "yields a VisitorDSL" do
-      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
-      expect(TestTrack::VisitorDSL).to receive(:new).with(an_instance_of(TestTrack::Visitor))
+      expect(TestTrack::VisitorDSL).to receive(:new).with(an_instance_of(TestTrack::Visitor)).and_call_original
 
       described_class.with_visitor_for("clown_id", 1234) do |v|
         expect(v).to be_an_instance_of(TestTrack::VisitorDSL)
@@ -65,11 +67,14 @@ RSpec.describe TestTrack::OfflineSession do
           visitor.ab :has_button
         end
 
-        expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
-          mixpanel_distinct_id: "remote_visitor_id",
-          visitor_id: "remote_visitor_id",
-          assignments: { 'has_button' => 'true' }
-        )
+        expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+          expect(args[:mixpanel_distinct_id]).to eq('remote_visitor_id')
+          expect(args[:visitor_id]).to eq('remote_visitor_id')
+          args[:assignments].first.tap do |assignment|
+            expect(assignment.split_name).to eq('has_button')
+            expect(assignment.variant).to eq('true')
+          end
+        end
 
         expect(unsynced_assignments_notifier).to have_received(:notify)
       end
