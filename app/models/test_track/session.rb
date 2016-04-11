@@ -25,7 +25,7 @@ class TestTrack::Session
       url: TestTrack.url,
       cookieDomain: cookie_domain,
       registry: visitor.split_registry,
-      assignments: visitor.assignment_registry
+      assignments: visitor.assignment_json
     }
   end
 

@@ -261,7 +261,7 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#state_hash" do
-    let(:visitor) { instance_double(TestTrack::Visitor, split_registry: "split registry", assignment_registry: "assignment registry") }
+    let(:visitor) { instance_double(TestTrack::Visitor, split_registry: "split registry", assignment_json: "assignments") }
     before do
       allow(subject).to receive(:visitor).and_return(visitor)
     end
@@ -280,7 +280,7 @@ RSpec.describe TestTrack::Session do
     end
 
     it "includes the assignment registry" do
-      expect(subject.state_hash[:assignments]).to eq("assignment registry")
+      expect(subject.state_hash[:assignments]).to eq("assignments")
     end
 
     it "includes a nil :registry if visitor returns a nil split_registry" do
@@ -290,7 +290,7 @@ RSpec.describe TestTrack::Session do
     end
 
     it "includes a nil :assignments if visitor returns a nil assignment_registry" do
-      allow(visitor).to receive(:assignment_registry).and_return(nil)
+      allow(visitor).to receive(:assignment_json).and_return(nil)
       expect(subject.state_hash).to have_key(:assignments)
       expect(subject.state_hash[:assignments]).to eq(nil)
     end

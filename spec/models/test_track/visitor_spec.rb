@@ -109,6 +109,33 @@ RSpec.describe TestTrack::Visitor do
     end
   end
 
+  describe "#unsynced_assignments" do
+    subject { existing_visitor }
+
+    it "includes any new_assignments" do
+      subject.new_assignments['quagmire'] = 'manageable'
+      expect(subject.unsynced_assignments).to include('quagmire' => 'manageable')
+    end
+
+    it "includes any unsynced_splits" do
+      expect(subject.unsynced_assignments).to include('blue_button' => 'true')
+    end
+
+    context "tt_offline" do
+      before do
+        allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
+      end
+
+      it "is an empty hash" do
+        expect(subject.unsynced_assignments).to eq({})
+      end
+    end
+  end
+
+  describe "#assignment_json" do
+    it 'write me!'
+  end
+
   describe "#vary" do
     let(:blue_block) { -> { '.blue' } }
     let(:red_block) { -> { '.red' } }

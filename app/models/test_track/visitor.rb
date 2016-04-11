@@ -45,6 +45,12 @@ class TestTrack::Visitor
     @unsynced_assignments ||= assignment_registry.values.select(&:unsynced?)
   end
 
+  def assignment_json
+    assignment_registry.values.map do |assignment|
+      { split_name: assignment.split_name, variant: assignment.variant, unsynced: false }
+    end
+  end
+
   def split_registry
     @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
