@@ -35,14 +35,14 @@ RSpec.describe TestTrack::Session do
 
     context "log_in!" do
       before do
-        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {}, unsynced_splits: [])
+        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
         identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
       end
 
       it "sets correct tt_visitor_id" do
         subject.manage do
-          subject.log_in!("indetifier_type", "value")
+          subject.log_in!("indentifier_type", "value")
         end
         expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
       end
@@ -161,11 +161,15 @@ RSpec.describe TestTrack::Session do
           end
 
           expect(Thread).to have_received(:new)
-          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
-            mixpanel_distinct_id: 'fake_distinct_id',
-            visitor_id: 'fake_visitor_id',
-            assignments: { 'bar' => 'baz' }
-          )
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+            expect(args[:mixpanel_distinct_id]).to eq('fake_distinct_id')
+            expect(args[:visitor_id]).to eq('fake_visitor_id')
+            args[:assignments].first.tap do |assignment|
+              expect(assignment.split_name).to eq('bar')
+              expect(assignment.variant).to eq('baz')
+            end
+          end
+
           expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
@@ -176,28 +180,47 @@ RSpec.describe TestTrack::Session do
       end
 
       context "unsynced_splits" do
-        it "notifies unsynced assignments" do
-          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
-
-          subject.manage {}
-
-          expect(Thread).to have_received(:new)
-          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
-            mixpanel_distinct_id: "fake_distinct_id",
-            visitor_id: "fake_visitor_id",
-            assignments: { 'switched_split' => 'not_what_i_thought' }
-          )
-          expect(unsynced_assignments_notifier).to have_received(:notify)
+        let(:remote_visitor_attributes) do
+          {
+            id: "fake_visitor_id",
+            assignments: [
+              { split_name: 'switched_split', variant: 'not_what_i_thought', unsynced: unsynced }
+            ]
+          }
         end
 
-        it "does not notify unsynced assignments if there are no unsynced_splits" do
-          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(
-            remote_visitor_attributes.merge(unsynced_splits: [])
-          )
+        before do
+          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
+        end
 
-          subject.manage {}
+        context "with an unsynced split" do
+          let(:unsynced) { true }
 
-          expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+          it "notifies unsynced assignments" do
+            subject.manage {}
+
+            expect(Thread).to have_received(:new)
+            expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+              expect(args[:mixpanel_distinct_id]).to eq("fake_distinct_id")
+              expect(args[:visitor_id]).to eq("fake_visitor_id")
+              args[:assignments].first.tap do |assignment|
+                expect(assignment.split_name).to eq("switched_split")
+                expect(assignment.variant).to eq("not_what_i_thought")
+              end
+            end
+
+            expect(unsynced_assignments_notifier).to have_received(:notify)
+          end
+        end
+
+        context "without an unsynced split" do
+          let(:unsynced) { false }
+
+          it "does not notify unsynced assignments" do
+            subject.manage {}
+
+            expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+          end
         end
       end
     end
