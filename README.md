@@ -13,17 +13,23 @@ Install the gem:
 gem 'test_track_rails_client', git: 'https://[GITHUB AUTH CREDS GO HERE]@github.com/Betterment/test_track_rails_client'
 ```
 
-Cut an App record via the TestTrack rails console:
+In every environment (local included) cut an App record via the TestTrack rails console:
 
 ```ruby
 > App.create!(name: "[myapp]", auth_secret: SecureRandom.urlsafe_base64(32)).auth_secret
 => "[your new app password]"
 ```
 
-Set up ENV vars:
+Set up ENV vars in every environment:
 
 * `MIXPANEL_TOKEN` - Set this to your mixpanel key
 * `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@testtrack.dev/`
+
+Add find or create to `seeds.rb` in the test_track app
+
+```ruby
+App.find_or_create_by!(name: "[myapp]", auth_secret: "[your LOCAL app password]")
+```
 
 Mix `TestTrack::Controller` into any controllers needing access to TestTrack:
 
