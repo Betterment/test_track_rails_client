@@ -135,17 +135,27 @@ RSpec.describe TestTrack::Session do
       end
     end
 
-    context "assignments notifications" do
+    context "assignments notifications with threading disabled" do
+      let(:remote_visitor_attributes) do
+        {
+          id: "fake_visitor_id",
+          assignment_registry: { 'switched_split' => 'not_what_i_thought' },
+          unsynced_splits: %w(switched_split)
+        }
+      end
+
+      before do
+        allow(Thread).to receive(:new) do |&block|
+          block.call
+        end
+      end
+
       context "new assignments" do
         before do
           allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
         end
 
         it "notifies unsynced assignments" do
-          allow(Thread).to receive(:new) do |&block|
-            block.call
-          end
-
           subject.manage do
             subject.visitor_dsl.ab('bar', 'baz')
           end
@@ -166,19 +176,8 @@ RSpec.describe TestTrack::Session do
       end
 
       context "unsynced_splits" do
-        let(:remote_visitor_attributes) do
-          {
-            id: "fake_visitor_id",
-            assignment_registry: { 'switched_split' => 'not_what_i_thought' },
-            unsynced_splits: %w(switched_split)
-          }
-        end
-
         it "notifies unsynced assignments" do
           allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
-          allow(Thread).to receive(:new) do |&block|
-            block.call
-          end
 
           subject.manage {}
 
@@ -199,23 +198,6 @@ RSpec.describe TestTrack::Session do
           subject.manage {}
 
           expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
-        end
-
-        it "notifies in background thread" do
-          allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor_attributes)
-
-          notifier_thread = subject.send(:notify_unsynced_assignments!)
-
-          # block until thread completes
-          notifier_thread.join
-
-          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
-            mixpanel_distinct_id: "fake_distinct_id",
-            visitor_id: "fake_visitor_id",
-            assignments: { 'switched_split' => 'not_what_i_thought' }
-          )
-
-          expect(unsynced_assignments_notifier).to have_received(:notify)
         end
       end
     end
@@ -243,6 +225,25 @@ RSpec.describe TestTrack::Session do
         expect(TestTrack::CreateAliasJob).not_to have_received(:new)
         expect(Delayed::Job).not_to have_received(:enqueue).with(an_instance_of(TestTrack::CreateAliasJob))
       end
+    end
+  end
+
+  describe "#notify_unsynced_assignments!" do
+    it "notifies in background thread" do
+      notifier_thread = subject.send(:notify_unsynced_assignments!)
+
+      expect(notifier_thread).to be_a(Thread)
+
+      # block until thread completes
+      notifier_thread.join
+
+      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
+        mixpanel_distinct_id: "fake_distinct_id",
+        visitor_id: "fake_visitor_id",
+        assignments: {}
+      )
+
+      expect(unsynced_assignments_notifier).to have_received(:notify)
     end
   end
 
