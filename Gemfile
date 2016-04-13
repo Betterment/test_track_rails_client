@@ -17,7 +17,7 @@ gem 'ruby_spec_helpers', git: 'https://betterment-deploy:de4372bdef0377c76679aab
 #### FOR EVERYDAY USE
 gem 'her', git: 'https://betterment-deploy:de4372bdef0377c76679aabdcea71a92fbf467ab@github.com/Betterment/her'
 #### FOR LOCAL GEM DEVELOPMENT
-# gem 'her', path: '../../her'
+# gem 'her', path: '../her'
 ####
 
 #### FOR EVERYDAY USE
