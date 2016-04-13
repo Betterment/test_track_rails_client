@@ -8,10 +8,10 @@ class TestTrack::Assignment
   end
 
   def variant
-    @variant ||= (TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant unless visitor.send :tt_offline?)
+    @variant ||= (TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant if visitor.known_visitor?)
   end
 
   def unsynced?
-    !visitor.send :tt_offline?
+    true
   end
 end

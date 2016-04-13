@@ -78,6 +78,10 @@ class TestTrack::Visitor
     visitor
   end
 
+  def known_visitor?
+    !@tt_offline
+  end
+
   private
 
   def assignments

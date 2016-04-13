@@ -211,6 +211,18 @@ RSpec.describe TestTrack::Session do
 
             expect(unsynced_assignments_notifier).to have_received(:notify)
           end
+
+          context "when the visitor is unknown" do
+            before do
+              allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "woopsie") }
+            end
+
+            it "does not notify unsynced assignments" do
+              subject.manage {}
+
+              expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+            end
+          end
         end
 
         context "without an unsynced split" do
