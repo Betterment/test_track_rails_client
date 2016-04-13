@@ -109,44 +109,30 @@ RSpec.describe TestTrack::Visitor do
     end
   end
 
-  describe "#unsynced_assignments" do
-    subject { existing_visitor }
-
-    it "includes any new_assignments" do
-      subject.new_assignments['quagmire'] = 'manageable'
-      expect(subject.unsynced_assignments).to include('quagmire' => 'manageable')
-    end
-
-    it "includes any unsynced_splits" do
-      expect(subject.unsynced_assignments).to include('blue_button' => 'true')
-    end
-
-    context "tt_offline" do
-      before do
-        allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
-      end
-
-      it "is an empty hash" do
-        expect(subject.unsynced_assignments).to eq({})
-      end
-    end
-  end
-
   describe "#assignment_json" do
-    it 'write me!'
+    it 'returns a json formatted array of assignments' do
+      expect(existing_visitor.assignment_json).to eq(
+        [
+          { split_name: "blue_button", variant: "true", unsynced: false },
+          { split_name: "time", variant: "waits_for_no_man", unsynced: false }
+        ]
+      )
+    end
   end
 
   describe "#vary" do
     let(:blue_block) { -> { '.blue' } }
     let(:red_block) { -> { '.red' } }
     let(:split_name) { 'quagmire' }
-    let(:assignment) { double(split_name: split_name, variant: 'manageable', unsynced?: true) }
-
-    before do
-      allow(TestTrack::Assignment).to receive(:new).and_return(assignment)
-    end
 
     context "new_visitor" do
+      before do
+        allow(TestTrack::Assignment).to receive(:new).and_return(instance_double(TestTrack::Assignment,
+          split_name: split_name,
+          variant: "manageable",
+          unsynced?: true))
+      end
+
       def vary_quagmire_split
         new_visitor.vary(split_name.to_sym) do |v|
           v.when :untenable do
@@ -173,6 +159,10 @@ RSpec.describe TestTrack::Visitor do
     end
 
     context "existing_visitor" do
+      before do
+        allow(TestTrack::Assignment).to receive(:new).and_call_original
+      end
+
       def vary_blue_button_split
         existing_visitor.vary :blue_button do |v|
           v.when :true, &blue_block
@@ -191,15 +181,12 @@ RSpec.describe TestTrack::Visitor do
         end
       end
 
-      it "does not create a new Assignment" do
+      it "does not create a new Assignment for an already assigned split" do
         expect(vary_blue_button_split).to eq ".blue"
         expect(TestTrack::Assignment).not_to have_received(:new)
       end
 
       it "creates new assignment for unimplemented previous assignment" do
-        pending "previous assignments that are defaulted should be marked as unsynced"
-
-        expect(assignment).to receive(:variant=).with('hammertime')
         expect(existing_visitor.assignment_registry['time'].variant).to eq 'waits_for_no_man'
 
         expect(vary_time_split).to eq "can't touch this"
@@ -214,9 +201,7 @@ RSpec.describe TestTrack::Visitor do
           allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "woopsie") }
         end
 
-        it "doesn't assign anything" do
-          expect(assignment).to receive(:variant=).with('hammertime')
-
+        it "assigns the default variant" do
           expect(vary_time_split).to eq "can't touch this"
           expect(existing_visitor.assignment_registry['time'].variant).to eq 'hammertime'
           expect(existing_visitor.assignment_registry['time']).to be_unsynced
@@ -363,49 +348,68 @@ RSpec.describe TestTrack::Visitor do
       it "ingests a server-provided assignment as non-new" do
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.assignment_registry['foo'].variant).to eq 'definitely'
-        expect(subject.new_assignments).not_to have_key 'foo'
+        subject.assignment_registry['foo'].tap do |assignment|
+          expect(assignment.variant).to eq 'definitely'
+          expect(assignment).not_to be_unsynced
+          expect(assignment).not_to be_new_assignment
+        end
       end
 
       it "preserves a local new assignment with no conflicting server-provided assignment as new" do
-        subject.new_assignments['baz'] = subject.assignment_registry['baz'] = 'never'
+        subject.assignment_registry['baz'] = instance_double(TestTrack::Assignment,
+          split_name: "baz",
+          variant: "never",
+          unsynced?: true,
+          new_assignment?: true)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
         subject.assignment_registry['baz'].tap do |assignment|
           expect(assignment.variant).to eq 'never'
           expect(assignment).to be_unsynced
+          expect(assignment).to be_new_assignment
         end
       end
 
       it "removes and overrides a local new assignment with a conflicting server-provided assignment" do
-        subject.new_assignments['foo'] = subject.assignment_registry['foo'] = 'something_else'
+        subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
+          split_name: "foo",
+          variant: "something_else",
+          unsynced?: true,
+          new_assignment?: true)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
           expect(assignment).not_to be_unsynced
+          expect(assignment).not_to be_new_assignment
         end
       end
 
       it "overrides a local existing assignment with a conflicting server-provided assignment" do
-        subject.assignment_registry['foo'] = 'something_else'
+        subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
+          split_name: "foo",
+          variant: "something_else",
+          unsynced?: false,
+          new_assignment?: false)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
           expect(assignment).not_to be_unsynced
+          expect(assignment).not_to be_new_assignment
         end
       end
 
       it "merges server-provided unsynced_assignments into local unsynced_assignments" do
-        expect(subject.unsynced_assignments).to eq(%w(blue_button))
+        expect(subject.assignment_registry['blue_button']).to be_unsynced
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.unsynced_assignments).to eq(%w(blue_button bar))
+        expect(subject.assignment_registry['blue_button']).to be_unsynced
+        expect(subject.assignment_registry['bar']).to be_unsynced
       end
     end
   end
@@ -430,8 +434,7 @@ RSpec.describe TestTrack::Visitor do
     it "returns a new visitor populated with data from the test track server" do
       visitor = described_class.backfill_identity(params)
       expect(visitor.id).to eq "remote_visitor_id"
-      expect(visitor.assignment_registry).to eq("foo" => "bar")
-      expect(visitor.unsynced_splits).to eq([])
+      expect(visitor.assignment_registry["foo"].variant).to eq("bar")
       expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("clown_id", "1234")
     end
 

@@ -93,8 +93,8 @@ class TestTrack::Visitor
 
   def merge!(other)
     @id = other.id
-    new_assignment_registry = assignment_registry.select { |k, v| v.new_assignment? }
-    @assigment_registry = new_assignment_registry.merge(other.assignment_registry).merge(assignment_registry)
+    new_assignment_registry = assignment_registry.select { |_, a| a.new_assignment? }
+    @assignment_registry = new_assignment_registry.merge(other.assignment_registry).merge(assignment_registry)
   end
 
   def tt_offline?

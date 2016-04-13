@@ -14,4 +14,8 @@ class TestTrack::Assignment
   def unsynced?
     true
   end
+
+  def new_assignment?
+    true
+  end
 end

@@ -6,6 +6,8 @@ RSpec.describe TestTrack::Remote::Assignment do
 
   subject { described_class.new(params) }
 
+  let(:existing_assignment) { described_class.find("fake_assignment_id") }
+
   before do
     stub_request(:post, url)
       .with(basic_auth: %w(dummy fakepassword))
@@ -45,6 +47,30 @@ RSpec.describe TestTrack::Remote::Assignment do
       assignment = described_class.new(params.except(:mixpanel_result))
       expect(assignment).not_to be_valid
       expect(assignment.errors).to be_added(:mixpanel_result, "can't be blank")
+    end
+  end
+
+  describe "#new_assignment?" do
+    it "returns true if the variant changed" do
+      expect(existing_assignment).not_to be_new_assignment
+
+      existing_assignment.variant = "new_variant"
+
+      expect(existing_assignment).to be_new_assignment
+    end
+  end
+
+  describe "#unsynced?" do
+    before do
+      allow(described_class).to receive(:fake_instance_attributes) { { split_name: "split", variant: "variant", unsynced: false } }
+    end
+
+    it "returns true if the variant changed" do
+      expect(existing_assignment).not_to be_unsynced
+
+      existing_assignment.variant = "new_variant"
+
+      expect(existing_assignment).to be_unsynced
     end
   end
 end
