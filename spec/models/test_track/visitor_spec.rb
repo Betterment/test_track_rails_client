@@ -196,10 +196,10 @@ RSpec.describe TestTrack::Visitor do
           allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "woopsie") }
         end
 
-        it "assigns the default variant" do
+        it "doesn't do anything" do
           expect(vary_time_split).to eq "can't touch this"
           expect(existing_visitor.assignment_registry['time'].variant).to eq 'hammertime'
-          expect(existing_visitor.assignment_registry['time']).to be_unsynced
+          expect(existing_visitor.assignment_registry['time']).not_to be_unsynced
         end
       end
     end
