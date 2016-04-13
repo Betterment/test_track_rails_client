@@ -260,11 +260,11 @@ RSpec.describe TestTrack::Session do
       # block until thread completes
       notifier_thread.join
 
-      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(
-        mixpanel_distinct_id: "fake_distinct_id",
-        visitor_id: "fake_visitor_id",
-        assignments: {}
-      )
+      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+        expect(args[:mixpanel_distinct_id]).to eq("fake_distinct_id")
+        expect(args[:visitor_id]).to eq("fake_visitor_id")
+        expect(args[:assignments]).to eq([])
+      end
 
       expect(unsynced_assignments_notifier).to have_received(:notify)
     end
