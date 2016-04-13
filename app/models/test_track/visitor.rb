@@ -46,8 +46,8 @@ class TestTrack::Visitor
   end
 
   def assignment_json
-    assignment_registry.values.map do |assignment|
-      { split_name: assignment.split_name, variant: assignment.variant, unsynced: false }
+    assignment_registry.values.each_with_object({}) do |assignment, hsh|
+      hsh[assignment.split_name] = assignment.variant
     end
   end
 

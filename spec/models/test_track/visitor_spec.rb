@@ -110,13 +110,8 @@ RSpec.describe TestTrack::Visitor do
   end
 
   describe "#assignment_json" do
-    it 'returns a json formatted array of assignments' do
-      expect(existing_visitor.assignment_json).to eq(
-        [
-          { split_name: "blue_button", variant: "true", unsynced: false },
-          { split_name: "time", variant: "waits_for_no_man", unsynced: false }
-        ]
-      )
+    it 'returns a json formatted hash of assignments' do
+      expect(existing_visitor.assignment_json).to eq({ "blue_button" => "true", "time" => "waits_for_no_man" })
     end
   end
 

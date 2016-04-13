@@ -45,18 +45,16 @@ RSpec.describe TestTrack::Controller do
     expect(response_json['split_registry']).to eq(split_registry)
   end
 
-  it "returns an empty assignment list for a generated visitor" do
+  it "returns an empty assignment hash for a generated visitor" do
     get :index
-    expect(response_json['assignments']).to eq([])
+    expect(response_json['assignments']).to eq({})
     expect(TestTrack::Remote::Visitor).not_to have_received(:fake_instance_attributes)
   end
 
-  it "returns a server-provided assignment list for an existing visitor" do
+  it "returns a server-provided assignment hash for an existing visitor" do
     request.cookies['tt_visitor_id'] = existing_visitor_id
     get :index
-    expect(response_json['assignments']).to eq(
-      [{ "split_name" => "time", "variant" => "beer_thirty", "unsynced" => false }]
-    )
+    expect(response_json['assignments']).to eq({ "time" => "beer_thirty" })
   end
 
   it "sets a UUID tt_visitor_id cookie if unset" do
