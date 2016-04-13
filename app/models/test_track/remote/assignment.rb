@@ -8,11 +8,7 @@ class TestTrack::Remote::Assignment
   validates :visitor_id, :split_name, :variant, :mixpanel_result, presence: true
 
   def unsynced?
-    unsynced || new_assignment?
-  end
-
-  def new_assignment?
-    variant_changed?
+    unsynced || variant_changed?
   end
 
   def fake_save_response_attributes

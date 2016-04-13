@@ -23,7 +23,6 @@ RSpec.describe TestTrack::Remote::Visitor do
         expect(assignment.split_name).to eq("split_1")
         expect(assignment.variant).to eq("true")
         expect(assignment).not_to be_unsynced
-        expect(assignment).not_to be_new_assignment
       end
     end
 
@@ -34,7 +33,6 @@ RSpec.describe TestTrack::Remote::Visitor do
           expect(assignment.split_name).to eq("time")
           expect(assignment.variant).to eq("clownin_around")
           expect(assignment).to be_unsynced
-          expect(assignment).not_to be_new_assignment
         end
       end
     end

@@ -14,8 +14,4 @@ class TestTrack::Assignment
   def unsynced?
     !visitor.send :tt_offline?
   end
-
-  def new_assignment?
-    true
-  end
 end

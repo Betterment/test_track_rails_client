@@ -50,16 +50,6 @@ RSpec.describe TestTrack::Remote::Assignment do
     end
   end
 
-  describe "#new_assignment?" do
-    it "returns true if the variant changed" do
-      expect(existing_assignment).not_to be_new_assignment
-
-      existing_assignment.variant = "new_variant"
-
-      expect(existing_assignment).to be_new_assignment
-    end
-  end
-
   describe "#unsynced?" do
     before do
       allow(described_class).to receive(:fake_instance_attributes) { { split_name: "split", variant: "variant", unsynced: false } }

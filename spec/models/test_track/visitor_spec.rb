@@ -346,7 +346,6 @@ RSpec.describe TestTrack::Visitor do
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
           expect(assignment).not_to be_unsynced
-          expect(assignment).not_to be_new_assignment
         end
       end
 
@@ -354,15 +353,13 @@ RSpec.describe TestTrack::Visitor do
         subject.assignment_registry['baz'] = instance_double(TestTrack::Assignment,
           split_name: "baz",
           variant: "never",
-          unsynced?: true,
-          new_assignment?: true)
+          unsynced?: true)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
         subject.assignment_registry['baz'].tap do |assignment|
           expect(assignment.variant).to eq 'never'
           expect(assignment).to be_unsynced
-          expect(assignment).to be_new_assignment
         end
       end
 
@@ -370,15 +367,13 @@ RSpec.describe TestTrack::Visitor do
         subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
           split_name: "foo",
           variant: "something_else",
-          unsynced?: true,
-          new_assignment?: true)
+          unsynced?: true)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
           expect(assignment).not_to be_unsynced
-          expect(assignment).not_to be_new_assignment
         end
       end
 
@@ -386,15 +381,13 @@ RSpec.describe TestTrack::Visitor do
         subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
           split_name: "foo",
           variant: "something_else",
-          unsynced?: false,
-          new_assignment?: false)
+          unsynced?: false)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
           expect(assignment).not_to be_unsynced
-          expect(assignment).not_to be_new_assignment
         end
       end
 
