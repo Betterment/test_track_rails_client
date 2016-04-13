@@ -111,7 +111,7 @@ RSpec.describe TestTrack::Visitor do
 
   describe "#assignment_json" do
     it 'returns a json formatted hash of assignments' do
-      expect(existing_visitor.assignment_json).to eq({ "blue_button" => "true", "time" => "waits_for_no_man" })
+      expect(existing_visitor.assignment_json).to eq("blue_button" => "true", "time" => "waits_for_no_man")
     end
   end
 

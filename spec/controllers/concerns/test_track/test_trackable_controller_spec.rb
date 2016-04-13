@@ -54,7 +54,7 @@ RSpec.describe TestTrack::Controller do
   it "returns a server-provided assignment hash for an existing visitor" do
     request.cookies['tt_visitor_id'] = existing_visitor_id
     get :index
-    expect(response_json['assignments']).to eq({ "time" => "beer_thirty" })
+    expect(response_json['assignments']).to eq("time" => "beer_thirty")
   end
 
   it "sets a UUID tt_visitor_id cookie if unset" do
