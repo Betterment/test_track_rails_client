@@ -17,6 +17,7 @@ class TestTrack::NotifyAssignmentJob
       visitor_id: visitor_id,
       split_name: assignment.split_name,
       variant: assignment.variant,
+      context: assignment.context,
       mixpanel_result: mixpanel_track
     )
   end
@@ -35,6 +36,7 @@ class TestTrack::NotifyAssignmentJob
     {
       "SplitName" => assignment.split_name,
       "SplitVariant" => assignment.variant,
+      "SplitContext" => assignment.context,
       "TTVisitorID" => visitor_id
     }
   end

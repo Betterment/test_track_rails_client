@@ -1,7 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::Assignment do
-  let(:params) { { visitor_id: "fake_visitor_id", split_name: "button_color", variant: "blue", mixpanel_result: "success" } }
+  let(:params) do
+    {
+      visitor_id: "fake_visitor_id",
+      split_name: "button_color",
+      variant: "blue",
+      context: "the_context",
+      mixpanel_result: "success"
+    }
+  end
   let(:url) { "http://testtrack.dev/api/v1/assignment" }
 
   subject { described_class.new(params) }
@@ -41,6 +49,12 @@ RSpec.describe TestTrack::Remote::Assignment do
       assignment = described_class.new(params.except(:variant))
       expect(assignment).not_to be_valid
       expect(assignment.errors).to be_added(:variant, "can't be blank")
+    end
+
+    it "validates context" do
+      assignment = described_class.new(params.except(:context))
+      expect(assignment).not_to be_valid
+      expect(assignment.errors).to be_added(:context, "can't be blank")
     end
 
     it "validates mixpanel_result" do
