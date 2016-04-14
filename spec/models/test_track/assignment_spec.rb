@@ -4,7 +4,7 @@ RSpec.describe TestTrack::Assignment do
   let(:visitor) { instance_double(TestTrack::Visitor, offline?: offline) }
   let(:offline) { false }
 
-  subject { described_class.new(visitor, :split_name) }
+  subject { described_class.new(visitor: visitor, split_name: :split_name) }
 
   describe "#split_name" do
     it "returns a string" do

@@ -127,7 +127,8 @@ RSpec.describe TestTrack::Visitor do
         allow(TestTrack::Assignment).to receive(:new).and_return(instance_double(TestTrack::Assignment,
           split_name: split_name,
           variant: "manageable",
-          unsynced?: true))
+          unsynced?: true,
+          :context= => nil))
       end
 
       def vary_quagmire_split
@@ -143,7 +144,7 @@ RSpec.describe TestTrack::Visitor do
 
       it "creates a new assignment" do
         expect(vary_quagmire_split).to eq "#winning"
-        expect(TestTrack::Assignment).to have_received(:new).with(new_visitor, split_name)
+        expect(TestTrack::Assignment).to have_received(:new).with(visitor: new_visitor, split_name: split_name)
       end
 
       it "updates #unsynced_assignments with assignment" do
@@ -222,7 +223,9 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "requires more than zero defaults" do
-        expect { new_visitor.vary(:blue_button, context: :spec) { |v| v.when(:true, &blue_block) } }.to raise_error("must provide exactly one `default`")
+        expect do
+          new_visitor.vary(:blue_button, context: :spec) { |v| v.when(:true, &blue_block) }
+        end.to raise_error("must provide exactly one `default`")
       end
 
       it "requires at least one when" do
@@ -239,7 +242,7 @@ RSpec.describe TestTrack::Visitor do
     it "leverages vary to configure the split" do
       allow(new_visitor).to receive(:vary).and_call_original
       new_visitor.ab "quagmire", true_variant: "manageable", context: :spec
-      #expect(new_visitor).to have_received(:vary).with("quagmire", context: :spec).exactly(:once)
+      # expect(new_visitor).to have_received(:vary).with("quagmire", context: :spec).exactly(:once)
       expect(new_visitor).to have_received(:vary).with("quagmire", {}).exactly(:once)
     end
 

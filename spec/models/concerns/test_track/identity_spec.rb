@@ -80,7 +80,7 @@ RSpec.describe TestTrack::Identity do
 
             it "forwards all arguments to the visitor correctly" do
               subject.test_track_ab(:side_dish, true_variant: "soup", context: :spec)
-              #expect(visitor).to have_received(:ab).with(:side_dish, true_variant: "soup", context: :spec)
+              # expect(visitor).to have_received(:ab).with(:side_dish, true_variant: "soup", context: :spec)
               expect(visitor).to have_received(:ab).with(:side_dish, {})
             end
 
@@ -125,7 +125,7 @@ RSpec.describe TestTrack::Identity do
 
         it "forwards all arguments to the visitor correctly" do
           subject.test_track_ab(:side_dish, true_variant: "soup", context: :spec)
-          #expect(visitor).to have_received(:ab).with(:side_dish, true_variant: "soup", context: :spec)
+          # expect(visitor).to have_received(:ab).with(:side_dish, true_variant: "soup", context: :spec)
           expect(visitor).to have_received(:ab).with(:side_dish, {})
         end
 
