@@ -8,8 +8,8 @@ RSpec.describe TestTrack::Visitor do
     {
       id: existing_visitor_id,
       assignments: [
-        { split_name: 'blue_button', variant: 'true', unsynced: true },
-        { split_name: 'time', variant: 'waits_for_no_man', unsynced: false }
+        { split_name: 'blue_button', variant: 'true', unsynced: true, context: 'original_context' },
+        { split_name: 'time', variant: 'waits_for_no_man', unsynced: false, context: 'original_context' }
       ]
     }
   end
@@ -121,14 +121,12 @@ RSpec.describe TestTrack::Visitor do
     let(:blue_block) { -> { '.blue' } }
     let(:red_block) { -> { '.red' } }
     let(:split_name) { 'quagmire' }
+    let(:assignment) { instance_double(TestTrack::Assignment, split_name: split_name, variant: "manageable", unsynced?: true) }
 
     context "new_visitor" do
       before do
-        allow(TestTrack::Assignment).to receive(:new).and_return(instance_double(TestTrack::Assignment,
-          split_name: split_name,
-          variant: "manageable",
-          unsynced?: true,
-          :context= => nil))
+        allow(TestTrack::Assignment).to receive(:new).and_return(assignment)
+        allow(assignment).to receive(:context=)
       end
 
       def vary_quagmire_split
@@ -145,6 +143,7 @@ RSpec.describe TestTrack::Visitor do
       it "creates a new assignment" do
         expect(vary_quagmire_split).to eq "#winning"
         expect(TestTrack::Assignment).to have_received(:new).with(visitor: new_visitor, split_name: split_name)
+        expect(assignment).to have_received(:context=).with(:spec)
       end
 
       it "updates #unsynced_assignments with assignment" do
@@ -212,6 +211,10 @@ RSpec.describe TestTrack::Visitor do
         expect { new_visitor.vary(:blue_button, context: :spec) }.to raise_error("must provide block to `vary` for blue_button")
       end
 
+      it "requires a context" do
+        expect { new_visitor.vary(:blue_button) }.to raise_error("Must provide context")
+      end
+
       it "requires less than two defaults" do
         expect do
           new_visitor.vary(:blue_button, context: :spec) do |v|
@@ -239,6 +242,10 @@ RSpec.describe TestTrack::Visitor do
   end
 
   describe "#ab" do
+    it "requires a context" do
+      expect { new_visitor.ab("blue_button") }.to raise_error("Must provide context")
+    end
+
     it "leverages vary to configure the split" do
       allow(new_visitor).to receive(:vary).and_call_original
       new_visitor.ab "quagmire", true_variant: "manageable", context: :spec

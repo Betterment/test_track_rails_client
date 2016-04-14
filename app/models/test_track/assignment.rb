@@ -8,7 +8,6 @@ class TestTrack::Assignment
   def initialize(opts = {})
     @visitor = require_option!(opts, :visitor)
     @split_name = require_option!(opts, :split_name).to_s
-    @context = opts.delete(:context)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 
