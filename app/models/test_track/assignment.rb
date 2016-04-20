@@ -4,11 +4,11 @@ class TestTrack::Assignment
 
   def initialize(visitor, split_name)
     @visitor = visitor
-    @split_name = split_name
+    @split_name = split_name.to_s
   end
 
   def variant
-    @variant ||= (TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant if visitor.known_visitor?)
+    @variant ||= (TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant.to_s if visitor.known_visitor?)
   end
 
   def unsynced?
