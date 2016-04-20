@@ -98,6 +98,7 @@ class TestTrack::Visitor
   def merge!(other)
     @id = other.id
     @assignment_registry = assignment_registry.merge(other.assignment_registry)
+    @unsynced_assignments = nil
   end
 
   def tt_offline?

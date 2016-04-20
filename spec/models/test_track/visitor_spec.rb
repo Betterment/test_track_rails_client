@@ -391,13 +391,15 @@ RSpec.describe TestTrack::Visitor do
         end
       end
 
-      it "merges server-provided unsynced_assignments into local unsynced_assignments" do
-        expect(subject.assignment_registry['blue_button']).to be_unsynced
+      it "merges server-provided unsynced assignments into local unsynced assignments" do
+        expect(subject.unsynced_assignments.count).to eq 1
+        expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.assignment_registry['blue_button']).to be_unsynced
-        expect(subject.assignment_registry['bar']).to be_unsynced
+        expect(subject.unsynced_assignments.count).to eq 2
+        expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
+        expect(subject.unsynced_assignments.second.split_name).to eq 'bar'
       end
     end
   end
