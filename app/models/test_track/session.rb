@@ -109,7 +109,7 @@ class TestTrack::Session
   end
 
   def sync_assignments?
-    visitor.known_visitor? && visitor.unsynced_assignments.present?
+    !visitor.offline? && visitor.unsynced_assignments.present?
   end
 
   def mixpanel_distinct_id

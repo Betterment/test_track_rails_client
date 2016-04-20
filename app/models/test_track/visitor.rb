@@ -78,8 +78,8 @@ class TestTrack::Visitor
     visitor
   end
 
-  def known_visitor?
-    !@tt_offline
+  def offline?
+    @tt_offline
   end
 
   private

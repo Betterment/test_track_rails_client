@@ -8,7 +8,7 @@ class TestTrack::Assignment
   end
 
   def variant
-    @variant ||= (TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant.to_s if visitor.known_visitor?)
+    @variant ||= (TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant.to_s unless visitor.offline?)
   end
 
   def unsynced?
