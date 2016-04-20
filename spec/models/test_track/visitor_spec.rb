@@ -49,8 +49,8 @@ RSpec.describe TestTrack::Visitor do
     it "returns the passed in unsynced assignments" do
       visitor = TestTrack::Visitor.new(assignments:
         [
-          double(split_name: 'foo', variant: 'baz', unsynced?: true),
-          double(split_name: 'bar', variant: 'buz', unsynced?: false)
+          instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: true),
+          instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
         ]
       )
 
@@ -80,8 +80,8 @@ RSpec.describe TestTrack::Visitor do
     it "return a hash generated from the passed in assignments" do
       visitor = TestTrack::Visitor.new(assignments:
         [
-          double(split_name: 'foo', variant: 'baz', unsynced?: false),
-          double(split_name: 'bar', variant: 'buz', unsynced?: false)
+          instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: false),
+          instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
         ]
       )
 
@@ -181,7 +181,7 @@ RSpec.describe TestTrack::Visitor do
         expect(TestTrack::Assignment).not_to have_received(:new)
       end
 
-      it "creates new assignment for unimplemented previous assignment" do
+      it "marks previous assignment as unsynced for unimplemented variant" do
         expect(existing_visitor.assignment_registry['time'].variant).to eq 'waits_for_no_man'
 
         expect(vary_time_split).to eq "can't touch this"

@@ -42,7 +42,7 @@ RSpec.describe TestTrack::Session do
 
       it "sets correct tt_visitor_id" do
         subject.manage do
-          subject.log_in!("indentifier_type", "value")
+          subject.log_in!("identifier_type", "value")
         end
         expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
       end

@@ -103,10 +103,11 @@ RSpec.describe TestTrack::VaryDSL do
       before do
         subject.when(:one) { "regular" }
         subject.default(:two) { "default" }
-        allow(assignment).to receive(:variant=)
       end
 
       it "runs the default proc and sets the assignment's variant" do
+        allow(assignment).to receive(:variant=)
+
         expect(subject.send(:run)).to eq "default"
         expect(assignment).to have_received(:variant=).with("two")
       end
