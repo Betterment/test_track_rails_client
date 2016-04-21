@@ -47,11 +47,13 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     it "yields a VisitorDSL" do
-      expect(TestTrack::VisitorDSL).to receive(:new).with(an_instance_of(TestTrack::Visitor)).and_call_original
+      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
 
       described_class.with_visitor_for("clown_id", 1234) do |v|
         expect(v).to be_an_instance_of(TestTrack::VisitorDSL)
       end
+
+      expect(TestTrack::VisitorDSL).to have_received(:new).with(an_instance_of(TestTrack::Visitor))
     end
 
     context "notify unsynced assignments" do

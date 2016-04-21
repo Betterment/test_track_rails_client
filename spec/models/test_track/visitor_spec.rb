@@ -70,9 +70,11 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "returns an empty array if fetching the visitor times out" do
-      expect(TestTrack::Remote::Visitor).to receive(:find).with(existing_visitor_id) { raise(Faraday::TimeoutError, "Womp womp") }
+      allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
 
       expect(existing_visitor.unsynced_assignments).to eq []
+
+      expect(TestTrack::Remote::Visitor).to have_received(:find).with(existing_visitor_id)
     end
   end
 
