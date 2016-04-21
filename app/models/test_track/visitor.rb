@@ -2,6 +2,7 @@ class TestTrack::Visitor
   attr_reader :id
 
   def initialize(opts = {})
+    opts = opts.dup
     @id = opts.delete(:id)
     @assignments = opts.delete(:assignments)
     unless id

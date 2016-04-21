@@ -26,16 +26,17 @@ RSpec.describe TestTrack::OfflineSession do
     end
 
     it "creates a visitor with the properties of the remote visitor" do
-      expect(TestTrack::Visitor).to receive(:new).and_wrap_original do |m, args|
+      allow(TestTrack::Visitor).to receive(:new).and_call_original
+
+      described_class.with_visitor_for("clown_id", 1234) {}
+
+      expect(TestTrack::Visitor).to have_received(:new) do |args|
         expect(args[:id]).to eq("remote_visitor_id")
         args[:assignments].first.tap do |assignment|
           expect(assignment.split_name).to eq("foo")
           expect(assignment.variant).to eq("bar")
         end
-        m.call(args)
       end
-
-      described_class.with_visitor_for("clown_id", 1234) {}
     end
 
     it "instantiates a session with the identifier_type and identifier_value" do
