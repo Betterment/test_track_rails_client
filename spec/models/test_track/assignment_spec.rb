@@ -13,7 +13,8 @@ RSpec.describe TestTrack::Assignment do
   end
 
   describe "#variant" do
-    let(:variant_calculator) { instance_double(TestTrack::VariantCalculator, variant: :the_variant) }
+    let(:variant) { :the_variant }
+    let(:variant_calculator) { instance_double(TestTrack::VariantCalculator, variant: variant) }
 
     before do
       allow(TestTrack::VariantCalculator).to receive(:new).and_return(variant_calculator)
@@ -36,6 +37,14 @@ RSpec.describe TestTrack::Assignment do
       it "returns nil" do
         expect(subject.variant).to eq nil
         expect(variant_calculator).not_to have_received(:variant)
+      end
+    end
+
+    context "when the variant calculator returns nil" do
+      let(:variant) { nil }
+
+      it "returns nil" do
+        expect(subject.variant).to eq nil
       end
     end
   end
