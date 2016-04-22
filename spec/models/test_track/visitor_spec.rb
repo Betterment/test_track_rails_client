@@ -249,8 +249,7 @@ RSpec.describe TestTrack::Visitor do
     it "leverages vary to configure the split" do
       allow(new_visitor).to receive(:vary).and_call_original
       new_visitor.ab "quagmire", true_variant: "manageable", context: :spec
-      # expect(new_visitor).to have_received(:vary).with("quagmire", context: :spec).exactly(:once)
-      expect(new_visitor).to have_received(:vary).with("quagmire", {}).exactly(:once)
+      expect(new_visitor).to have_received(:vary).with("quagmire", context: :spec).exactly(:once)
     end
 
     context "with an explicit true_variant" do

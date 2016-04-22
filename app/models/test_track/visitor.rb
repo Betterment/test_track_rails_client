@@ -15,6 +15,7 @@ class TestTrack::Visitor
   end
 
   def vary(split_name, opts = {})
+    opts = opts.dup
     split_name = split_name.to_s
     context = require_option!(opts, :context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
@@ -26,6 +27,7 @@ class TestTrack::Visitor
   end
 
   def ab(split_name, opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    opts = opts.dup
     split_name = split_name.to_s
     true_variant = opts.delete(:true_variant)
     context = require_option!(opts, :context)
