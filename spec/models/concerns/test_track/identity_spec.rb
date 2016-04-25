@@ -235,5 +235,11 @@ RSpec.describe TestTrack::Identity do
         end
       end
     end
+
+    context "#test_track_identifier" do
+      it "returns the correct value" do
+        expect(subject.test_track_identifier).to eq 'fake_visitor_id'
+      end
+    end
   end
 end

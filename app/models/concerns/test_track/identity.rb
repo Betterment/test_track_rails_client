@@ -33,6 +33,19 @@ module TestTrack::Identity
             end
           end
         end
+
+        define_method :test_track_identifier do
+          discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
+
+          if discriminator.participate_in_online_session?
+            discriminator.controller.send(:test_track_visitor).identifier
+          else
+            identifier_value = send(identifier_value_method)
+            TestTrack::OfflineSession.with_visitor_for(identifier_type, identifier_value) do |v|
+              v.id
+            end
+          end
+        end
       end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
