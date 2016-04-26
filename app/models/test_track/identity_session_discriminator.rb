@@ -20,6 +20,7 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def controller_has_authenticated_resource?
+    # pass true to `respond_to?` to include private methods
     web_context? && controller.respond_to?(authenticated_resource_method_name, true)
   end
 
