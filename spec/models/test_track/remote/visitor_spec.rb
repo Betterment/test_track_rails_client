@@ -40,7 +40,7 @@ RSpec.describe TestTrack::Remote::Visitor do
 
   describe ".from_identifier" do
     subject { described_class.from_identifier("clown_id", "1234") }
-    let(:url) { "http://dummy:fakepassword@testtrack.dev/api/v1/identifier_types/clown_id/identifiers/1234/visitor" }
+    let(:url) { "http://testtrack.dev/api/v1/identifier_types/clown_id/identifiers/1234/visitor" }
 
     it "raises when given a blank identifier_type" do
       expect { TestTrack::Remote::Visitor.from_identifier("", "1234") }
