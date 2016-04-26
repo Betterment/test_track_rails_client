@@ -57,8 +57,12 @@ RSpec.describe TestTrack::Identity do
         end
 
         context "controller has a #current_* method" do
-          before do
-            test_track_controller.class_eval do
+          let(:test_track_controller_class) do
+            Class.new(ApplicationController) do
+              include TestTrack::Controller
+
+              private # make current_clown_model private to better simulate real world scenario
+
               def current_clown_model
               end
             end
@@ -166,8 +170,12 @@ RSpec.describe TestTrack::Identity do
         end
 
         context "controller has a #current_* method" do
-          before do
-            test_track_controller.class_eval do
+          let(:test_track_controller_class) do
+            Class.new(ApplicationController) do
+              include TestTrack::Controller
+
+              private # make current_clown_model private to better simulate real world scenario
+
               def current_clown_model
               end
             end

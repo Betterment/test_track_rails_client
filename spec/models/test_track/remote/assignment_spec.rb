@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::Assignment do
   let(:params) { { visitor_id: "fake_visitor_id", split: "button_color", variant: "blue", mixpanel_result: "success" } }
-  let(:url) { "http://dummy:fakepassword@testtrack.dev/api/assignment" }
+  let(:url) { "http://testtrack.dev/api/assignment" }
 
   subject { described_class.new(params) }
 

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::Visitor do
   describe ".find" do
-    let(:url) { "http://dummy:fakepassword@testtrack.dev/api/visitors/fake_visitor_id_from_server" }
+    let(:url) { "http://testtrack.dev/api/visitors/fake_visitor_id_from_server" }
 
     subject { described_class.find("fake_visitor_id_from_server") }
 
