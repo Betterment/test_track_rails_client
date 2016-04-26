@@ -7,13 +7,15 @@ RSpec.describe TestTrack::Remote::Identifier do
   subject { described_class.new(params) }
 
   before do
-    stub_request(:post, url).to_return(status: 200, body: {
-      visitor: {
-        id: "fake_visitor_id_from_server",
-        assignment_registry: { time: "clownin_around" },
-        unsynced_splits: %w(car_size)
-      }
-    }.to_json)
+    stub_request(:post, url)
+      .with(basic_auth: %w(dummy fakepassword))
+      .to_return(status: 200, body: {
+        visitor: {
+          id: "fake_visitor_id_from_server",
+          assignment_registry: { time: "clownin_around" },
+          unsynced_splits: %w(car_size)
+        }
+      }.to_json)
   end
 
   it "doesn't hit the remote in test mode" do

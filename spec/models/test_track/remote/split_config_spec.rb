@@ -8,8 +8,13 @@ RSpec.describe TestTrack::Remote::SplitConfig do
   subject { described_class.new(params) }
 
   before do
-    stub_request(:post, create_url).to_return(status: 204, body: "")
-    stub_request(:delete, destroy_url).to_return(status: 204, body: "")
+    stub_request(:post, create_url)
+      .with(basic_auth: %w(dummy fakepassword))
+      .to_return(status: 204, body: "")
+
+    stub_request(:delete, destroy_url)
+      .with(basic_auth: %w(dummy fakepassword))
+      .to_return(status: 204, body: "")
   end
 
   describe "#save" do

@@ -14,12 +14,14 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
       let(:url) { "http://testtrack.dev/api/split_registry" }
       around do |example|
         with_test_track_enabled do
-          stub_request(:get, url).to_return(status: 200, body: {
-            time: {
-              back_in_time: 100,
-              power_of_love: 0
-            }
-          }.to_json)
+          stub_request(:get, url)
+            .with(basic_auth: %w(dummy fakepassword))
+            .to_return(status: 200, body: {
+              time: {
+                back_in_time: 100,
+                power_of_love: 0
+              }
+            }.to_json)
           example.run
         end
       end
@@ -56,9 +58,11 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
     let(:url) { "http://testtrack.dev/api/split_registry" }
 
     before do
-      stub_request(:get, url).to_return(status: 200, body: {
-        remote_split: { variant1: 50, variant2: 50 }
-      }.to_json)
+      stub_request(:get, url)
+        .with(basic_auth: %w(dummy fakepassword))
+        .to_return(status: 200, body: {
+          remote_split: { variant1: 50, variant2: 50 }
+        }.to_json)
     end
 
     it "instantiates a SplitRegistry with fake instance attributes" do

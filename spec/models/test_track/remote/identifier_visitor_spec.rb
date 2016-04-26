@@ -6,11 +6,13 @@ RSpec.describe TestTrack::Remote::IdentifierVisitor do
     let(:url) { "http://testtrack.dev/api/identifier_types/clown_id/identifiers/1234/visitor" }
 
     before do
-      stub_request(:get, url).to_return(status: 200, body: {
-        id: "fake_visitor_id_from_server",
-        assignment_registry: { time: "clownin_around" },
-        unsynced_splits: []
-      }.to_json)
+      stub_request(:get, url)
+        .with(basic_auth: %w(dummy fakepassword))
+        .to_return(status: 200, body: {
+          id: "fake_visitor_id_from_server",
+          assignment_registry: { time: "clownin_around" },
+          unsynced_splits: []
+        }.to_json)
     end
 
     it "raises when given a blank identifier_type" do

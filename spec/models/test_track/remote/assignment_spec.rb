@@ -7,7 +7,9 @@ RSpec.describe TestTrack::Remote::Assignment do
   subject { described_class.new(params) }
 
   before do
-    stub_request(:post, url).to_return(status: 204, body: "")
+    stub_request(:post, url)
+      .with(basic_auth: %w(dummy fakepassword))
+      .to_return(status: 204, body: "")
   end
 
   it "doesn't hit the remote in test mode" do

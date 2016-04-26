@@ -7,11 +7,13 @@ RSpec.describe TestTrack::Remote::Visitor do
     subject { described_class.find("fake_visitor_id_from_server") }
 
     before do
-      stub_request(:get, url).to_return(status: 200, body: {
-        id: "fake_visitor_id_from_server",
-        assignment_registry: { time: "clownin_around" },
-        unsynced_splits: %w(time)
-      }.to_json)
+      stub_request(:get, url)
+        .with(basic_auth: %w(dummy fakepassword))
+        .to_return(status: 200, body: {
+          id: "fake_visitor_id_from_server",
+          assignment_registry: { time: "clownin_around" },
+          unsynced_splits: %w(time)
+        }.to_json)
     end
 
     it "instantiates a Visitor with fake instance attributes" do
