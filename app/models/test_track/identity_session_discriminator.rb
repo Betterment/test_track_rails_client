@@ -20,7 +20,7 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def controller_has_authenticated_resource?
-    web_context? && controller.respond_to?(authenticated_resource_method_name)
+    web_context? && controller.respond_to?(authenticated_resource_method_name, true)
   end
 
   def web_context?
