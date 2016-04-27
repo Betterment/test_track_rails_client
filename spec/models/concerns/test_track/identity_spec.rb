@@ -235,5 +235,28 @@ RSpec.describe TestTrack::Identity do
         end
       end
     end
+
+    context "#test_track_visitor_id" do
+      context "in an offline session" do
+        it "returns the correct value" do
+          expect(subject.test_track_visitor_id).to eq 'fake_visitor_id'
+        end
+      end
+
+      context "in a web context" do
+        let(:visitor) { TestTrack::Visitor.new }
+        let(:visitor_dsl) { TestTrack::VisitorDSL.new(visitor) }
+
+        before do
+          allow(RequestStore).to receive(:exist?).and_return true
+          allow(RequestStore).to receive(:[]).with(:test_track_controller).and_return test_track_controller
+          allow(test_track_controller).to receive(:test_track_visitor).and_return visitor_dsl
+        end
+
+        it "returns the correct value" do
+          expect(subject.test_track_visitor_id).to eq 'fake_visitor_id'
+        end
+      end
+    end
   end
 end

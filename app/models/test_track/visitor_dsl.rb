@@ -3,7 +3,7 @@ class TestTrack::VisitorDSL
     @visitor = visitor
   end
 
-  delegate :vary, :ab, to: :visitor
+  delegate :vary, :ab, :id, to: :visitor
 
   private
 
