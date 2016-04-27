@@ -251,7 +251,6 @@ RSpec.describe TestTrack::Identity do
           allow(RequestStore).to receive(:exist?).and_return true
           allow(RequestStore).to receive(:[]).with(:test_track_controller).and_return test_track_controller
           allow(test_track_controller).to receive(:test_track_visitor).and_return visitor_dsl
-          allow(visitor).to receive(:id).and_call_original
         end
 
         it "returns the correct value" do
