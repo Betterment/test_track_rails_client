@@ -19,13 +19,12 @@ class TestTrack::OfflineSession
   def visitor
     @visitor ||= TestTrack::Visitor.new(
       id: remote_visitor.id,
-      assignment_registry: remote_visitor.assignment_registry,
-      unsynced_splits: remote_visitor.unsynced_splits
+      assignments: remote_visitor.assignments
     )
   end
 
   def remote_visitor
-    @remote_visitor ||= TestTrack::Remote::IdentifierVisitor.from_identifier(identifier_type, identifier_value)
+    @remote_visitor ||= TestTrack::Remote::Visitor.from_identifier(identifier_type, identifier_value)
   end
 
   def manage

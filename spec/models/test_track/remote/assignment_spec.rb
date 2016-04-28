@@ -1,10 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::Assignment do
-  let(:params) { { visitor_id: "fake_visitor_id", split: "button_color", variant: "blue", mixpanel_result: "success" } }
-  let(:url) { "http://testtrack.dev/api/assignment" }
+  let(:params) { { visitor_id: "fake_visitor_id", split_name: "button_color", variant: "blue", mixpanel_result: "success" } }
+  let(:url) { "http://testtrack.dev/api/v1/assignment" }
 
   subject { described_class.new(params) }
+
+  let(:existing_assignment) { described_class.find("fake_assignment_id") }
 
   before do
     stub_request(:post, url)
@@ -30,9 +32,9 @@ RSpec.describe TestTrack::Remote::Assignment do
     end
 
     it "validates split" do
-      assignment = described_class.new(params.except(:split))
+      assignment = described_class.new(params.except(:split_name))
       expect(assignment).not_to be_valid
-      expect(assignment.errors).to be_added(:split, "can't be blank")
+      expect(assignment.errors).to be_added(:split_name, "can't be blank")
     end
 
     it "validates variant" do
@@ -45,6 +47,20 @@ RSpec.describe TestTrack::Remote::Assignment do
       assignment = described_class.new(params.except(:mixpanel_result))
       expect(assignment).not_to be_valid
       expect(assignment.errors).to be_added(:mixpanel_result, "can't be blank")
+    end
+  end
+
+  describe "#unsynced?" do
+    before do
+      allow(described_class).to receive(:fake_instance_attributes) { { split_name: "split", variant: "variant", unsynced: false } }
+    end
+
+    it "returns true if the variant changed" do
+      expect(existing_assignment).not_to be_unsynced
+
+      existing_assignment.variant = "new_variant"
+
+      expect(existing_assignment).to be_unsynced
     end
   end
 end

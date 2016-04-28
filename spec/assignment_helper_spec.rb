@@ -6,7 +6,10 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
     it "overrides assignment registry to match" do
       stub_test_track_assignments(foo: :bar)
 
-      expect(TestTrack::Remote::Visitor.find(201).assignment_registry).to eq('foo' => 'bar')
+      TestTrack::Remote::Visitor.find(201).assignments.first.tap do |assignment|
+        expect(assignment.split_name).to eq('foo')
+        expect(assignment.variant).to eq('bar')
+      end
     end
 
     it "overrides split registry with a trivial split set" do

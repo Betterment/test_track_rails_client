@@ -1,4 +1,4 @@
-class Tt::Api::SplitConfigsController < Tt::Api::ApplicationController
+class Tt::Api::V1::SplitConfigsController < Tt::Api::V1::ApplicationController
   def create
     head :no_content
   end

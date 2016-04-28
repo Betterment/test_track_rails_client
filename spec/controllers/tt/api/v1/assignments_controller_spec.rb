@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Tt::Api::IdentifierTypesController do
+RSpec.describe Tt::Api::V1::AssignmentsController do
   describe '#create' do
     it 'returns no content' do
       post :create

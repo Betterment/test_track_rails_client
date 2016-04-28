@@ -2,13 +2,12 @@ class TestTrack::Visitor
   attr_reader :id
 
   def initialize(opts = {})
+    opts = opts.dup
     @id = opts.delete(:id)
-    @assignment_registry = opts.delete(:assignment_registry)
-    @unsynced_splits = opts.delete(:unsynced_splits)
+    @assignments = opts.delete(:assignments)
     unless id
       @id = SecureRandom.uuid
-      @assignment_registry ||= {} # If we're generating a visitor, we don't need to fetch the assignment_registry
-      @unsynced_splits ||= [] # If we're generating a visitor, we don't need to fetch the unsynced_splits
+      @assignments ||= [] # If we're generating a visitor, we don't need to fetch the assignments
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
@@ -17,11 +16,9 @@ class TestTrack::Visitor
     split_name = split_name.to_s
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-    v = TestTrack::VaryDSL.new(split_name: split_name, assigned_variant: assignment_for(split_name), split_registry: split_registry)
+    v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), split_registry: split_registry)
     yield v
-    result = v.send :run
-    assign_to(split_name, v.default_variant) if v.defaulted?
-    result
+    v.send :run
   end
 
   def ab(split_name, true_variant = nil)
@@ -40,27 +37,19 @@ class TestTrack::Visitor
   end
 
   def assignment_registry
-    @assignment_registry ||= remote_visitor && remote_visitor.assignment_registry
-  end
-
-  def unsynced_splits
-    @unsynced_splits ||= remote_visitor && remote_visitor.unsynced_splits
+    @assignment_registry ||= assignments.each_with_object({}) do |assignment, hsh|
+      hsh[assignment.split_name] = assignment
+    end
   end
 
   def unsynced_assignments
-    unless @unsynced_assignments
-      if assignment_registry
-        unsynced_assignments = assignment_registry.slice(*unsynced_splits)
-        @unsynced_assignments = new_assignments.merge(unsynced_assignments)
-      else
-        @unsynced_assignments = {}
-      end
-    end
-    @unsynced_assignments
+    @unsynced_assignments ||= assignment_registry.values.select(&:unsynced?)
   end
 
-  def new_assignments
-    @new_assignments ||= {}
+  def assignment_json
+    assignment_registry.values.each_with_object({}) do |assignment, hsh|
+      hsh[assignment.split_name] = assignment.variant
+    end
   end
 
   def split_registry
@@ -80,18 +69,25 @@ class TestTrack::Visitor
   end
 
   def self.backfill_identity(opts)
-    remote_identifier_visitor = TestTrack::Remote::IdentifierVisitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
+    remote_identifier_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
     visitor = new(
       id: remote_identifier_visitor.id,
-      assignment_registry: remote_identifier_visitor.assignment_registry,
-      unsynced_splits: remote_identifier_visitor.unsynced_splits
+      assignments: remote_identifier_visitor.assignments
     )
 
     TestTrack::CreateAliasJob.new(existing_mixpanel_id: opts[:existing_mixpanel_id], alias_id: visitor.id).perform
     visitor
   end
 
+  def offline?
+    @tt_offline
+  end
+
   private
+
+  def assignments
+    @assignments ||= (remote_visitor && remote_visitor.assignments) || []
+  end
 
   def remote_visitor
     @remote_visitor ||= TestTrack::Remote::Visitor.find(id) unless tt_offline?
@@ -102,9 +98,8 @@ class TestTrack::Visitor
 
   def merge!(other)
     @id = other.id
-    new_assignments.except!(*other.assignment_registry.keys)
-    assignment_registry.merge!(other.assignment_registry)
-    @unsynced_splits = unsynced_splits | other.unsynced_splits # merge other's unsynced splits into ours
+    @assignment_registry = assignment_registry.merge(other.assignment_registry)
+    @unsynced_assignments = nil
   end
 
   def tt_offline?
@@ -120,10 +115,6 @@ class TestTrack::Visitor
   end
 
   def generate_assignment_for(split_name)
-    assign_to(split_name, TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant)
-  end
-
-  def assign_to(split_name, variant)
-    new_assignments[split_name] = assignment_registry[split_name] = variant unless tt_offline?
+    assignment_registry[split_name] = TestTrack::Assignment.new(self, split_name)
   end
 end

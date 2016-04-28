@@ -3,6 +3,6 @@ class TestTrack::Remote::FakeServer
 
   def self.reset!(seed)
     raise('Cannot reset FakeServer if TestTrack is enabled.') if TestTrack.enabled?
-    put('api/reset', seed: seed)
+    put('api/v1/reset', seed: seed)
   end
 end

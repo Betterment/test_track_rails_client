@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Tt::Api::ResetsController do
+RSpec.describe Tt::Api::V1::ResetsController do
   describe '#update' do
     it 'sets TestTrack::FakeServer seed to provided seed' do
       put :update, seed: '1234321'

@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Tt::Api::IdentifiersController do
-  describe '#create' do
+RSpec.describe Tt::Api::V1::VisitorsController do
+  describe '#show' do
     it 'returns fake visitor' do
-      post :create, format: :json
+      get :show, id: 1, format: :json
       expect(assigns(:visitor)).to eq TestTrack::FakeServer.visitor
     end
   end

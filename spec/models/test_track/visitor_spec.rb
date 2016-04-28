@@ -4,8 +4,15 @@ RSpec.describe TestTrack::Visitor do
   let(:new_visitor) { described_class.new }
   let(:existing_visitor) { described_class.new(id: existing_visitor_id) }
   let(:existing_visitor_id) { "00000000-0000-0000-0000-000000000000" }
-  let(:assignment_registry) { { 'blue_button' => 'true', 'time' => 'waits_for_no_man' } }
-  let(:remote_visitor) { { id: existing_visitor_id, assignment_registry: assignment_registry, unsynced_splits: ['blue_button'] } }
+  let(:remote_visitor) do
+    {
+      id: existing_visitor_id,
+      assignments: [
+        { split_name: 'blue_button', variant: 'true', unsynced: true },
+        { split_name: 'time', variant: 'waits_for_no_man', unsynced: false }
+      ]
+    }
+  end
   let(:split_registry) do
     {
       'blue_button' => {
@@ -38,35 +45,50 @@ RSpec.describe TestTrack::Visitor do
     expect(new_visitor.id).to eq "fake uuid"
   end
 
-  describe "#unsynced_splits" do
-    it "preserves a passed unsynced_splits array" do
-      visitor = TestTrack::Visitor.new(unsynced_splits: %w(foo bar))
-      expect(visitor.unsynced_splits).to eq(%w(foo bar))
+  describe "#unsynced_assignments" do
+    it "returns the passed in unsynced assignments" do
+      visitor = TestTrack::Visitor.new(assignments:
+        [
+          instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: true),
+          instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
+        ]
+      )
+
+      expect(visitor.unsynced_assignments.count).to eq 1
+      expect(visitor.unsynced_assignments.first.split_name).to eq "foo"
       expect(TestTrack::Remote::Visitor).not_to have_received(:find)
     end
 
-    it "returns the server-provided assignments for an existing visitor" do
-      expect(existing_visitor.unsynced_splits).to eq %w(blue_button)
+    it "returns the server-provided unsynced assignments for an existing visitor" do
+      expect(existing_visitor.unsynced_assignments.count).to eq 1
+      expect(existing_visitor.unsynced_assignments.first.split_name).to eq "blue_button"
     end
 
-    it "doesn't get the assignment registry from the server for a newly-generated visitor" do
-      expect(new_visitor.unsynced_splits).to eq([])
+    it "doesn't get assignments from the server for a newly-generated visitor" do
+      expect(new_visitor.unsynced_assignments).to eq([])
       expect(TestTrack::Remote::Visitor).not_to have_received(:find)
     end
 
-    it "returns nil if fetching the visitor times out" do
+    it "returns an empty array if fetching the visitor times out" do
       allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
 
-      expect(existing_visitor.unsynced_splits).to eq nil
+      expect(existing_visitor.unsynced_assignments).to eq []
 
       expect(TestTrack::Remote::Visitor).to have_received(:find).with(existing_visitor_id)
     end
   end
 
   describe "#assignment_registry" do
-    it "preserves a passed assignment registry array" do
-      visitor = TestTrack::Visitor.new(assignment_registry: { foo: :bar })
-      expect(visitor.assignment_registry).to eq(foo: :bar)
+    it "return a hash generated from the passed in assignments" do
+      visitor = TestTrack::Visitor.new(assignments:
+        [
+          instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: false),
+          instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
+        ]
+      )
+
+      expect(visitor.assignment_registry["foo"].variant).to eq("baz")
+      expect(visitor.assignment_registry["bar"].variant).to eq("buz")
       expect(TestTrack::Remote::Visitor).not_to have_received(:find)
     end
 
@@ -76,52 +98,40 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "returns the server-provided assignments for an existing visitor" do
-      expect(existing_visitor.assignment_registry).to eq assignment_registry
+      expect(existing_visitor.assignment_registry['blue_button'].variant).to eq 'true'
+      expect(existing_visitor.assignment_registry['time'].variant).to eq 'waits_for_no_man'
     end
 
-    it "returns nil if fetching the visitor times out" do
+    it "returns an empty hash if fetching the visitor times out" do
       allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
 
-      expect(existing_visitor.assignment_registry).to eq nil
+      expect(existing_visitor.assignment_registry).to eq({})
 
       expect(TestTrack::Remote::Visitor).to have_received(:find).with(existing_visitor_id)
     end
   end
 
-  describe "#unsynced_assignments" do
-    subject { existing_visitor }
-
-    it "includes any new_assignments" do
-      subject.new_assignments['quagmire'] = 'manageable'
-      expect(subject.unsynced_assignments).to include('quagmire' => 'manageable')
-    end
-
-    it "includes any unsynced_splits" do
-      expect(subject.unsynced_assignments).to include('blue_button' => 'true')
-    end
-
-    context "tt_offline" do
-      before do
-        allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "Womp womp") }
-      end
-
-      it "is an empty hash" do
-        expect(subject.unsynced_assignments).to eq({})
-      end
+  describe "#assignment_json" do
+    it 'returns a json formatted hash of assignments' do
+      expect(existing_visitor.assignment_json).to eq("blue_button" => "true", "time" => "waits_for_no_man")
     end
   end
 
   describe "#vary" do
     let(:blue_block) { -> { '.blue' } }
     let(:red_block) { -> { '.red' } }
-
-    before do
-      allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'manageable'))
-    end
+    let(:split_name) { 'quagmire' }
 
     context "new_visitor" do
+      before do
+        allow(TestTrack::Assignment).to receive(:new).and_return(instance_double(TestTrack::Assignment,
+          split_name: split_name,
+          variant: "manageable",
+          unsynced?: true))
+      end
+
       def vary_quagmire_split
-        new_visitor.vary(:quagmire) do |v|
+        new_visitor.vary(split_name.to_sym) do |v|
           v.when :untenable do
             raise "this branch shouldn't be executed, buddy"
           end
@@ -131,18 +141,25 @@ RSpec.describe TestTrack::Visitor do
         end
       end
 
-      it "asks the VariantCalculator for an assignment" do
+      it "creates a new assignment" do
         expect(vary_quagmire_split).to eq "#winning"
-        expect(TestTrack::VariantCalculator).to have_received(:new).with(visitor: new_visitor, split_name: 'quagmire')
+        expect(TestTrack::Assignment).to have_received(:new).with(new_visitor, split_name)
       end
 
-      it "updates #new_assignments with assignment" do
+      it "updates #unsynced_assignments with assignment" do
         expect(vary_quagmire_split).to eq "#winning"
-        expect(new_visitor.new_assignments['quagmire']).to eq 'manageable'
+        new_visitor.unsynced_assignments.first.tap do |assignment|
+          expect(assignment.split_name).to eq 'quagmire'
+          expect(assignment.variant).to eq 'manageable'
+        end
       end
     end
 
     context "existing_visitor" do
+      before do
+        allow(TestTrack::Assignment).to receive(:new).and_call_original
+      end
+
       def vary_blue_button_split
         existing_visitor.vary :blue_button do |v|
           v.when :true, &blue_block
@@ -161,31 +178,30 @@ RSpec.describe TestTrack::Visitor do
         end
       end
 
-      it "pulls previous assignment from registry" do
+      it "does not create a new Assignment for an already assigned split" do
         expect(vary_blue_button_split).to eq ".blue"
-        expect(TestTrack::VariantCalculator).not_to have_received(:new)
-
-        expect(existing_visitor.new_assignments).not_to have_key('blue_button')
+        expect(TestTrack::Assignment).not_to have_received(:new)
       end
 
-      it "creates new assignment for unimplemented previous assignment" do
-        expect(existing_visitor.assignment_registry['time']).to eq 'waits_for_no_man'
+      it "marks previous assignment as unsynced for unimplemented variant" do
+        expect(existing_visitor.assignment_registry['time'].variant).to eq 'waits_for_no_man'
 
         expect(vary_time_split).to eq "can't touch this"
-        expect(TestTrack::VariantCalculator).not_to have_received(:new)
+        expect(TestTrack::Assignment).not_to have_received(:new)
 
-        expect(existing_visitor.new_assignments['time']).to eq 'hammertime'
+        expect(existing_visitor.assignment_registry['time'].variant).to eq 'hammertime'
+        expect(existing_visitor.assignment_registry['time']).to be_unsynced
       end
 
-      context "when TestTrack server is unavailable" do
+      context "when the visitor is unknown" do
         before do
           allow(TestTrack::Remote::Visitor).to receive(:find) { raise(Faraday::TimeoutError, "woopsie") }
         end
 
-        it "doesn't assign anything" do
+        it "assigns the default variant" do
           expect(vary_time_split).to eq "can't touch this"
-          expect(existing_visitor.new_assignments).to eq({})
-          expect(existing_visitor.assignment_registry).to eq nil
+          expect(existing_visitor.assignment_registry['time'].variant).to eq 'hammertime'
+          expect(existing_visitor.assignment_registry['time']).to be_unsynced
         end
       end
     end
@@ -310,12 +326,12 @@ RSpec.describe TestTrack::Visitor do
         TestTrack::Remote::Identifier.new(visitor:
         {
           id: "server_id",
-          assignment_registry: server_registry,
-          unsynced_splits: unsynced_splits
+          assignments: [
+            { split_name: "foo", variant: "definitely", unsynced: false },
+            { split_name: "bar", variant: "occasionally", unsynced: true }
+          ]
         })
       end
-      let(:server_registry) { { "foo" => "definitely", "bar" => "occasionally" } }
-      let(:unsynced_splits) { ['bar'] }
 
       before do
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
@@ -329,43 +345,63 @@ RSpec.describe TestTrack::Visitor do
       it "ingests a server-provided assignment as non-new" do
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.assignment_registry['foo']).to eq 'definitely'
-        expect(subject.new_assignments).not_to have_key 'foo'
+        subject.assignment_registry['foo'].tap do |assignment|
+          expect(assignment.variant).to eq 'definitely'
+          expect(assignment).not_to be_unsynced
+        end
       end
 
       it "preserves a local new assignment with no conflicting server-provided assignment as new" do
-        subject.new_assignments['baz'] = subject.assignment_registry['baz'] = 'never'
+        subject.assignment_registry['baz'] = instance_double(TestTrack::Assignment,
+          split_name: "baz",
+          variant: "never",
+          unsynced?: true)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.assignment_registry['baz']).to eq 'never'
-        expect(subject.new_assignments['baz']).to eq 'never'
+        subject.assignment_registry['baz'].tap do |assignment|
+          expect(assignment.variant).to eq 'never'
+          expect(assignment).to be_unsynced
+        end
       end
 
       it "removes and overrides a local new assignment with a conflicting server-provided assignment" do
-        subject.new_assignments['foo'] = subject.assignment_registry['foo'] = 'something_else'
+        subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
+          split_name: "foo",
+          variant: "something_else",
+          unsynced?: true)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.assignment_registry['foo']).to eq 'definitely'
-        expect(subject.new_assignments).not_to have_key 'foo'
+        subject.assignment_registry['foo'].tap do |assignment|
+          expect(assignment.variant).to eq 'definitely'
+          expect(assignment).not_to be_unsynced
+        end
       end
 
       it "overrides a local existing assignment with a conflicting server-provided assignment" do
-        subject.assignment_registry['foo'] = 'something_else'
+        subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
+          split_name: "foo",
+          variant: "something_else",
+          unsynced?: false)
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.assignment_registry['foo']).to eq 'definitely'
-        expect(subject.new_assignments).not_to have_key 'foo'
+        subject.assignment_registry['foo'].tap do |assignment|
+          expect(assignment.variant).to eq 'definitely'
+          expect(assignment).not_to be_unsynced
+        end
       end
 
-      it "merges server-provided unsynced_splits into local unsynced_splits" do
-        expect(subject.unsynced_splits).to eq(%w(blue_button))
+      it "merges server-provided unsynced assignments into local unsynced assignments" do
+        expect(subject.unsynced_assignments.count).to eq 1
+        expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
 
         subject.link_identifier!('bettermentdb_user_id', 444)
 
-        expect(subject.unsynced_splits).to eq(%w(blue_button bar))
+        expect(subject.unsynced_assignments.count).to eq 2
+        expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
+        expect(subject.unsynced_assignments.second.split_name).to eq 'bar'
       end
     end
   end
@@ -374,24 +410,24 @@ RSpec.describe TestTrack::Visitor do
     let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_mixpanel_id: "ABCDEFG" } }
     let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
     let(:remote_visitor) do
-      TestTrack::Remote::IdentifierVisitor.new(
+      TestTrack::Remote::Visitor.new(
         id: "remote_visitor_id",
-        assignment_registry: { "foo" => "bar" },
-        unsynced_splits: []
+        assignments: [
+          { split_name: "foo", variant: "bar", unsynced: false }
+        ]
       )
     end
 
     before do
-      allow(TestTrack::Remote::IdentifierVisitor).to receive(:from_identifier).and_return(remote_visitor)
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
       allow(TestTrack::CreateAliasJob).to receive(:new).and_return(create_alias_job)
     end
 
     it "returns a new visitor populated with data from the test track server" do
       visitor = described_class.backfill_identity(params)
       expect(visitor.id).to eq "remote_visitor_id"
-      expect(visitor.assignment_registry).to eq("foo" => "bar")
-      expect(visitor.unsynced_splits).to eq([])
-      expect(TestTrack::Remote::IdentifierVisitor).to have_received(:from_identifier).with("clown_id", "1234")
+      expect(visitor.assignment_registry["foo"].variant).to eq("bar")
+      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("clown_id", "1234")
     end
 
     it "performs a CreateAliasJob" do
