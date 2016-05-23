@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
-  let(:phaser_assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun") }
-  let(:alert_assignment) { instance_double(TestTrack::Assignment, split_name: "alert", variant: "yellow") }
+  let(:phaser_assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun", context: "the_context") }
+  let(:alert_assignment) { instance_double(TestTrack::Assignment, split_name: "alert", variant: "yellow", context: "the_context") }
   let(:params) do
     {
       mixpanel_distinct_id: "fake_mixpanel_id",

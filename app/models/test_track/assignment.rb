@@ -1,10 +1,14 @@
 class TestTrack::Assignment
+  include TestTrack::RequiredOptions
+
+  attr_accessor :context
   attr_reader :visitor, :split_name
   attr_writer :variant
 
-  def initialize(visitor, split_name)
-    @visitor = visitor
-    @split_name = split_name.to_s
+  def initialize(opts = {})
+    @visitor = require_option!(opts, :visitor)
+    @split_name = require_option!(opts, :split_name).to_s
+    raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 
   def variant

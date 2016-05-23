@@ -4,7 +4,8 @@ RSpec.describe TestTrack::VaryDSL do
   subject do
     described_class.new(
       assignment: assignment,
-      split_registry: split_registry
+      split_registry: split_registry,
+      context: "the_context"
     )
   end
   let(:assignment) do
@@ -28,6 +29,7 @@ RSpec.describe TestTrack::VaryDSL do
 
   before do
     allow(Airbrake).to receive(:notify_or_ignore).and_call_original
+    allow(assignment).to receive(:context=)
   end
 
   it "isn't defaulted by default" do
@@ -40,6 +42,7 @@ RSpec.describe TestTrack::VaryDSL do
         described_class.new(
           assignment: assignment,
           split_registry: split_registry,
+          context: "the_context",
           one_of_these_things_is_not_like_the_other: "hint: its me!"
         )
       end.to raise_error("unknown opts: one_of_these_things_is_not_like_the_other")
@@ -62,7 +65,8 @@ RSpec.describe TestTrack::VaryDSL do
         expect do
           described_class.new(
             assignment: assignment,
-            split_registry: split_registry
+            split_registry: split_registry,
+            context: "the_context"
           )
         end.to raise_error("unknown split: not_a_real_split")
       end

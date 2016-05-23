@@ -1,4 +1,6 @@
 class TestTrack::Visitor
+  include TestTrack::RequiredOptions
+
   attr_reader :id
 
   def initialize(opts = {})
@@ -12,21 +14,28 @@ class TestTrack::Visitor
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 
-  def vary(split_name)
+  def vary(split_name, opts = {})
+    opts = opts.dup
     split_name = split_name.to_s
+    context = require_option!(opts, :context)
+    raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-    v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), split_registry: split_registry)
+    v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), context: context, split_registry: split_registry)
     yield v
     v.send :run
   end
 
-  def ab(split_name, true_variant = nil)
+  def ab(split_name, opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    opts = opts.dup
     split_name = split_name.to_s
+    true_variant = opts.delete(:true_variant)
+    context = require_option!(opts, :context)
+    raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
 
-    vary(split_name) do |v|
+    vary(split_name, context: context) do |v|
       v.when ab_configuration.variants[:true] do
         true
       end
@@ -115,6 +124,6 @@ class TestTrack::Visitor
   end
 
   def generate_assignment_for(split_name)
-    assignment_registry[split_name] = TestTrack::Assignment.new(self, split_name)
+    assignment_registry[split_name] = TestTrack::Assignment.new(visitor: self, split_name: split_name)
   end
 end

@@ -7,7 +7,7 @@ RSpec.describe TestTrack::Remote::Visitor do
       .to_return(status: 200, body: {
         id: "fake_visitor_id_from_server",
         assignments: [
-          { split_name: "time", variant: "clownin_around", unsynced: true }
+          { split_name: "time", variant: "clownin_around", unsynced: true, context: "the_context" }
         ]
       }.to_json)
   end
@@ -22,6 +22,7 @@ RSpec.describe TestTrack::Remote::Visitor do
       subject.assignments.first.tap do |assignment|
         expect(assignment.split_name).to eq("split_1")
         expect(assignment.variant).to eq("true")
+        expect(assignment.context).to eq("context")
         expect(assignment).not_to be_unsynced
       end
     end
@@ -32,6 +33,7 @@ RSpec.describe TestTrack::Remote::Visitor do
         subject.assignments.first.tap do |assignment|
           expect(assignment.split_name).to eq("time")
           expect(assignment.variant).to eq("clownin_around")
+          expect(assignment.context).to eq("the_context")
           expect(assignment).to be_unsynced
         end
       end
@@ -57,6 +59,7 @@ RSpec.describe TestTrack::Remote::Visitor do
       subject.assignments.first.tap do |assignment|
         expect(assignment.split_name).to eq("split_1")
         expect(assignment.variant).to eq("true")
+        expect(assignment.context).to eq("context")
         expect(assignment.unsynced).to eq(false)
       end
     end
@@ -67,6 +70,7 @@ RSpec.describe TestTrack::Remote::Visitor do
         subject.assignments.first.tap do |assignment|
           expect(assignment.split_name).to eq("time")
           expect(assignment.variant).to eq("clownin_around")
+          expect(assignment.context).to eq("the_context")
           expect(assignment.unsynced).to eq(true)
         end
       end

@@ -13,8 +13,8 @@ RSpec.describe TestTrack::Remote::Identifier do
         visitor: {
           id: "fake_visitor_id_from_server",
           assignments: [
-            { split_name: "time", variant: "clownin_around", unsynced: false },
-            { split_name: "car_size", variant: "mini", unsynced: true }
+            { split_name: "time", variant: "clownin_around", unsynced: false, context: "context_a" },
+            { split_name: "car_size", variant: "mini", unsynced: true, context: "context_b" }
           ]
         }
       }.to_json)
@@ -37,11 +37,13 @@ RSpec.describe TestTrack::Remote::Identifier do
       subject.visitor.assignment_registry["time"].tap do |assignment|
         expect(assignment.split_name).to eq "time"
         expect(assignment.variant).to eq "clownin_around"
+        expect(assignment.context).to eq "context_a"
         expect(assignment.unsynced).to eq false
       end
       subject.visitor.assignment_registry["car_size"].tap do |assignment|
         expect(assignment.split_name).to eq "car_size"
         expect(assignment.variant).to eq "mini"
+        expect(assignment.context).to eq "context_b"
         expect(assignment.unsynced).to eq true
       end
     end

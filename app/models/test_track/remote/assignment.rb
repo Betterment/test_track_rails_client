@@ -5,7 +5,7 @@ class TestTrack::Remote::Assignment
 
   attributes :visitor_id, :split_name, :variant, :unsynced
 
-  validates :visitor_id, :split_name, :variant, :mixpanel_result, presence: true
+  validates :visitor_id, :split_name, :variant, :context, :mixpanel_result, presence: true
 
   def unsynced?
     unsynced || variant_changed?
@@ -19,6 +19,7 @@ class TestTrack::Remote::Assignment
     {
       split_name: "split_#{id}",
       variant: "true",
+      context: "context",
       unsynced: false
     }
   end

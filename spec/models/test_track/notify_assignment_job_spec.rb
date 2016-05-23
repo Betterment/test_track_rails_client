@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::NotifyAssignmentJob do
-  let(:assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun") }
+  let(:assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun", context: "the_context") }
   let(:params) do
     {
       mixpanel_distinct_id: "fake_mixpanel_id",
@@ -49,6 +49,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
         visitor_id: 'fake_visitor_id',
         split_name: 'phaser',
         variant: 'stun',
+        context: 'the_context',
         mixpanel_result: 'failure'
       )
     end
@@ -66,7 +67,8 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
         "SplitAssigned",
         "SplitName" => 'phaser',
         "SplitVariant" => 'stun',
-        "TTVisitorID" => "fake_visitor_id"
+        "SplitContext" => 'the_context',
+        "TTVisitorID" => 'fake_visitor_id'
       )
     end
 
@@ -77,6 +79,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
         visitor_id: 'fake_visitor_id',
         split_name: 'phaser',
         variant: 'stun',
+        context: 'the_context',
         mixpanel_result: 'success'
       )
     end
@@ -96,6 +99,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
           visitor_id: 'fake_visitor_id',
           split_name: 'phaser',
           variant: 'stun',
+          context: 'the_context',
           mixpanel_result: 'failure'
         )
       end
@@ -111,6 +115,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
           visitor_id: 'fake_visitor_id',
           split_name: 'phaser',
           variant: 'stun',
+          context: 'the_context',
           mixpanel_result: 'failure'
         )
       end
@@ -126,6 +131,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
           visitor_id: 'fake_visitor_id',
           split_name: 'phaser',
           variant: 'stun',
+          context: 'the_context',
           mixpanel_result: 'failure'
         )
       end
@@ -141,6 +147,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
           visitor_id: 'fake_visitor_id',
           split_name: 'phaser',
           variant: 'stun',
+          context: 'the_context',
           mixpanel_result: 'failure'
         )
       end

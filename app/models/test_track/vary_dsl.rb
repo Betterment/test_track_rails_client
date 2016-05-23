@@ -4,8 +4,9 @@ class TestTrack::VaryDSL
   attr_reader :defaulted, :default_variant
   alias defaulted? defaulted
 
-  def initialize(opts)
+  def initialize(opts = {})
     @assignment = require_option!(opts, :assignment)
+    @context = require_option!(opts, :context)
     @split_registry = require_option!(opts, :split_registry, allow_nil: true)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
     raise ArgumentError, "unknown split: #{split_name}" if @split_registry && !split
@@ -25,7 +26,7 @@ class TestTrack::VaryDSL
 
   private
 
-  attr_reader :split_registry, :assignment
+  attr_reader :split_registry, :assignment, :context
   delegate :split_name, to: :assignment
 
   def split
@@ -63,7 +64,7 @@ class TestTrack::VaryDSL
     variant_behaviors[default_variant]
   end
 
-  def run
+  def run # rubocop:disable Metrics/AbcSize
     validate!
 
     if variant_behaviors[assignment.variant]
@@ -73,6 +74,7 @@ class TestTrack::VaryDSL
       assignment.variant = default_variant
       @defaulted = true
     end
+    assignment.context = context
     chosen_proc.call
   end
 

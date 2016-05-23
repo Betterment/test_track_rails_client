@@ -1,15 +1,15 @@
 require 'digest'
 
 class TestTrack::VariantCalculator
+  include TestTrack::RequiredOptions
+
   attr_reader :visitor, :split_name
 
   delegate :split_registry, to: :visitor
 
   def initialize(opts = {})
-    @visitor = opts.delete(:visitor)
-    raise "Must provide visitor" unless visitor
-    @split_name = opts.delete(:split_name)
-    raise "Must provide split_name" unless split_name
+    @visitor = require_option!(opts, :visitor)
+    @split_name = require_option!(opts, :split_name)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end
 

@@ -8,8 +8,8 @@ RSpec.describe TestTrack::Visitor do
     {
       id: existing_visitor_id,
       assignments: [
-        { split_name: 'blue_button', variant: 'true', unsynced: true },
-        { split_name: 'time', variant: 'waits_for_no_man', unsynced: false }
+        { split_name: 'blue_button', variant: 'true', unsynced: true, context: 'original_context' },
+        { split_name: 'time', variant: 'waits_for_no_man', unsynced: false, context: 'original_context' }
       ]
     }
   end
@@ -121,17 +121,16 @@ RSpec.describe TestTrack::Visitor do
     let(:blue_block) { -> { '.blue' } }
     let(:red_block) { -> { '.red' } }
     let(:split_name) { 'quagmire' }
+    let(:assignment) { instance_double(TestTrack::Assignment, split_name: split_name, variant: "manageable", unsynced?: true) }
 
     context "new_visitor" do
       before do
-        allow(TestTrack::Assignment).to receive(:new).and_return(instance_double(TestTrack::Assignment,
-          split_name: split_name,
-          variant: "manageable",
-          unsynced?: true))
+        allow(TestTrack::Assignment).to receive(:new).and_return(assignment)
+        allow(assignment).to receive(:context=)
       end
 
       def vary_quagmire_split
-        new_visitor.vary(split_name.to_sym) do |v|
+        new_visitor.vary(split_name.to_sym, context: :spec) do |v|
           v.when :untenable do
             raise "this branch shouldn't be executed, buddy"
           end
@@ -143,7 +142,8 @@ RSpec.describe TestTrack::Visitor do
 
       it "creates a new assignment" do
         expect(vary_quagmire_split).to eq "#winning"
-        expect(TestTrack::Assignment).to have_received(:new).with(new_visitor, split_name)
+        expect(TestTrack::Assignment).to have_received(:new).with(visitor: new_visitor, split_name: split_name)
+        expect(assignment).to have_received(:context=).with(:spec)
       end
 
       it "updates #unsynced_assignments with assignment" do
@@ -161,14 +161,14 @@ RSpec.describe TestTrack::Visitor do
       end
 
       def vary_blue_button_split
-        existing_visitor.vary :blue_button do |v|
+        existing_visitor.vary :blue_button, context: :spec do |v|
           v.when :true, &blue_block
           v.default :false, &red_block
         end
       end
 
       def vary_time_split
-        existing_visitor.vary :time do |v|
+        existing_visitor.vary :time, context: :spec do |v|
           v.when :clobberin_time do
             "Fantastic Four IV: The Fantasticing"
           end
@@ -208,12 +208,16 @@ RSpec.describe TestTrack::Visitor do
 
     context "structure" do
       it "must be given a block" do
-        expect { new_visitor.vary(:blue_button) }.to raise_error("must provide block to `vary` for blue_button")
+        expect { new_visitor.vary(:blue_button, context: :spec) }.to raise_error("must provide block to `vary` for blue_button")
+      end
+
+      it "requires a context" do
+        expect { new_visitor.vary(:blue_button) }.to raise_error("Must provide context")
       end
 
       it "requires less than two defaults" do
         expect do
-          new_visitor.vary(:blue_button) do |v|
+          new_visitor.vary(:blue_button, context: :spec) do |v|
             v.when :true, &blue_block
             v.default :false, &red_block
             v.default :false, &red_block
@@ -222,12 +226,14 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "requires more than zero defaults" do
-        expect { new_visitor.vary(:blue_button) { |v| v.when(:true, &blue_block) } }.to raise_error("must provide exactly one `default`")
+        expect do
+          new_visitor.vary(:blue_button, context: :spec) { |v| v.when(:true, &blue_block) }
+        end.to raise_error("must provide exactly one `default`")
       end
 
       it "requires at least one when" do
         expect do
-          new_visitor.vary(:blue_button) do |v|
+          new_visitor.vary(:blue_button, context: :spec) do |v|
             v.default :true, &red_block
           end
         end.to raise_error("must provide at least one `when`")
@@ -236,37 +242,41 @@ RSpec.describe TestTrack::Visitor do
   end
 
   describe "#ab" do
+    it "requires a context" do
+      expect { new_visitor.ab("blue_button") }.to raise_error("Must provide context")
+    end
+
     it "leverages vary to configure the split" do
       allow(new_visitor).to receive(:vary).and_call_original
-      new_visitor.ab "quagmire", "manageable"
-      expect(new_visitor).to have_received(:vary).with("quagmire").exactly(:once)
+      new_visitor.ab "quagmire", true_variant: "manageable", context: :spec
+      expect(new_visitor).to have_received(:vary).with("quagmire", context: :spec).exactly(:once)
     end
 
     context "with an explicit true_variant" do
       it "returns true when assigned to the true_variant" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'manageable'))
-        expect(new_visitor.ab("quagmire", "manageable")).to eq true
+        expect(new_visitor.ab("quagmire", true_variant: "manageable", context: :spec)).to eq true
       end
 
       it "returns false when not assigned to the true_variant" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'untenable'))
-        expect(new_visitor.ab("quagmire", "manageable")).to eq false
+        expect(new_visitor.ab("quagmire", true_variant: "manageable", context: :spec)).to eq false
       end
     end
 
     context "with an implicit true_variant" do
       it "returns true when variant is true" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'true'))
-        expect(new_visitor.ab("blue_button")).to eq true
+        expect(new_visitor.ab("blue_button", context: :spec)).to eq true
       end
 
       it "returns false when variant is false" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'false'))
-        expect(new_visitor.ab("blue_button")).to eq false
+        expect(new_visitor.ab("blue_button", context: :spec)).to eq false
       end
 
       it "returns false when split variants are not true and false" do
-        expect(new_visitor.ab("time")).to eq false
+        expect(new_visitor.ab("time", context: :spec)).to eq false
       end
     end
   end
