@@ -101,8 +101,10 @@ You must provide at least one call to `when` and only one call to `default`. `wh
 
 If the user is assigned to a variant that is not represented in your vary configuration, Test Track will execute the `default` handler and re-assign the user to the variant specified in the `default` call. You should not rely on this defaulting behavior, it is merely provided to ensure we don't break the customer experience. You should instead make sure that you represent all variants of the split and if variants are added to the split on the backend, update your code to reflect the new variants. Because `default` re-assigns the user to the default variant, no data will be recorded for the variant that is not represented. This will impede our abiltiy to collect meaningful data for the split.
 
+You must also provide a `context` at each `vary` and `ab` call. Context is a string value which represents the high-level user action in which the assignment takes place. For example, if a split can be assigned when viewing the home page and when going through sign up, the assignment calls in each of those paths should tagged with 'home_page' and 'signup' respectively. This will allow the test results to be filtered by what the user was doing when the split was assigned.
+
 ```ruby
-test_track_visitor.vary :name_of_split do |v|
+test_track_visitor.vary :name_of_split, context: 'home_page' do |v|
   v.when :variant_1, :variant_2 do
     # Do something
   end
@@ -119,7 +121,7 @@ The `test_track_visitor`'s `ab` method provides a convenient way to do two-way s
 
 ```ruby
 # "button_color" split with "blue" and "red" variants
-if test_track_visitor.ab :button_color, :blue
+if test_track_visitor.ab :button_color, true_variant: :blue, context: 'signup'
   # Color the button blue
 else
   # Color the button red
@@ -128,7 +130,7 @@ end
 
 ```ruby
 # "dark_deployed_feature" split with "true" and "false" variants
-if test_track_visitor.ab :dark_deployed_feature
+if test_track_visitor.ab :dark_deployed_feature, context: 'signup'
   # Show the dark deployed feature
 end
 ```
@@ -139,7 +141,7 @@ The `OfflineSession` class can be used to load a test track visitor when there i
 
 ```ruby
 OfflineSession.with_visitor_for(:myapp_user_id, 1234) do |test_track_visitor|
-  test_track_visitor.vary :name_of_split do |v|
+  test_track_visitor.vary :name_of_split, context: 'background_job' do |v|
     v.when :variant_1, :variant_2 do
       # Do something
     end
