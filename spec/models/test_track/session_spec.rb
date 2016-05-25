@@ -40,6 +40,18 @@ RSpec.describe TestTrack::Session do
         allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
       end
 
+      it "provides the current visitor id when requesting an identifier" do
+        subject.manage do
+          subject.log_in!("identifier_type", "value")
+
+          expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
+            identifier_type: "identifier_type",
+            visitor_id: "fake_visitor_id",
+            value: "value"
+          )
+        end
+      end
+
       it "sets correct tt_visitor_id" do
         subject.manage do
           subject.log_in!("identifier_type", "value")
@@ -52,6 +64,20 @@ RSpec.describe TestTrack::Session do
           subject.log_in!("identifier_type", "value")
         end
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: "real_visitor_id", OtherProperty: "bar" }.to_json)
+      end
+
+      context "forget current visitor" do
+        it "creates a temporary visitor when creating the identifier" do
+          subject.manage do
+            subject.log_in!("identifier_type", "value", forget_current_visitor: true)
+          end
+
+          expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
+            identifier_type: "identifier_type",
+            visitor_id: /\A[a-f0-9\-]{36}\z/,
+            value: "value"
+          )
+        end
       end
     end
 
