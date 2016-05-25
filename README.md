@@ -179,6 +179,12 @@ The `test_track_visitor.log_in!` is used to ensure a consistent experience acros
 test_track_visitor.log_in!(:myapp_user_id, 1234)
 ```
 
+When we call `log_in!` we merge assignments between the visitor prior to login (i.e. the current visitor) and the visitor we retrieve from the test track server (i.e. the canonical visitor). This means that any assignments for splits that the current visitor has which the canonical visitor does not have are copied from the prior visitor to the canonical visitor. While this merging behavior is preferrable there may be a case where we do not want to merge. In that case, we can pass the `forget_current_visitor` option to forget the current visitor before retrieving the canonical visitor.
+
+```ruby
+test_track_visitor.log_in!(:myapp_user_id, 1234, forget_current_visitor: true)
+```
+
 ## Tracking signups
 
 The `test_track_visitor.sign_up!` method tells TestTrack when a new identifier has been created and assigned to a visitor.  It works a lot like the `log_in!` method, but should only be used once per customer signup.

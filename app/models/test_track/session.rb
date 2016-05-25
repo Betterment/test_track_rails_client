@@ -29,7 +29,8 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(identifier_type, identifier_value)
+  def log_in!(identifier_type, identifier_value, opts = {})
+    @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
     visitor.link_identifier!(identifier_type, identifier_value)
     self.mixpanel_distinct_id = visitor.id
     true
