@@ -51,12 +51,6 @@ RSpec.describe TestTrack::Remote::Assignment do
       expect(assignment.errors).to be_added(:variant, "can't be blank")
     end
 
-    it "validates context" do
-      assignment = described_class.new(params.except(:context))
-      expect(assignment).not_to be_valid
-      expect(assignment.errors).to be_added(:context, "can't be blank")
-    end
-
     it "validates mixpanel_result" do
       assignment = described_class.new(params.except(:mixpanel_result))
       expect(assignment).not_to be_valid
