@@ -10,3 +10,4 @@ spec/dummy/.sass-cache
 spec/examples.txt
 /coverage
 Gemfile.lock
+bower_components
