@@ -79,7 +79,7 @@ end
 
 ### Cleaning Up Old Splits
 
-In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be dropped. This will remove the split from the split registry, dropping it from Test Track clients' perspectives. Thus, like any destructive migration (e.g. `DROP COLUMN`), it should be released in a subsequent deployment, after all code paths referencing the split have been removed. Otherwise those code paths will raise and potentially break the user experience.
+In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be dropped. This will remove the split from the split registry, dropping it from Test Track clients' perspectives. Thus, like a non-additive DDL migration (e.g. `DROP COLUMN`, `RENAME COLUMN`), it should be released in a subsequent deployment, after all code paths referencing the split have been removed. Otherwise those code paths will raise and potentially break the user experience.
 
 ```ruby
 class RemoveMyOldSplit < ActiveRecord::Migration
