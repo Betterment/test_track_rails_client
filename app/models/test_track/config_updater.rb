@@ -13,13 +13,14 @@ class TestTrack::ConfigUpdater
     persist_schema!
   end
 
-  def finish_split(name)
+  def drop_split(name)
     TestTrack::Remote::SplitConfig.destroy_existing(name)
 
     splits.except!(name.to_s)
 
     persist_schema!
   end
+  alias finish_split drop_split # to support older migrations written with `finish_split`
 
   def identifier_type(name)
     create_identifier_type(name)

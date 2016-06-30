@@ -10,10 +10,10 @@ RSpec.describe TestTrack::ConfigUpdater do
     File.delete(schema_file_path) if File.exist?(schema_file_path)
   end
 
-  describe "#finish_split" do
+  describe "#drop_split" do
     it "destroys the split config" do
       allow(TestTrack::Remote::SplitConfig).to receive(:destroy_existing).and_call_original
-      expect(subject.finish_split(:old_split)).to be_truthy
+      expect(subject.drop_split(:old_split)).to be_truthy
       expect(TestTrack::Remote::SplitConfig).to have_received(:destroy_existing).with(:old_split)
     end
 
@@ -28,13 +28,21 @@ splits:
     'true': 50
         YML
 
-        subject.finish_split(:old_split)
+        subject.drop_split(:old_split)
 
         expect_schema <<-YML
 ---
 identifier_types: []
 splits: {}
         YML
+      end
+    end
+
+    context "aliased as #finish_split" do
+      it "destroys the split config" do
+        allow(TestTrack::Remote::SplitConfig).to receive(:destroy_existing).and_call_original
+        expect(subject.finish_split(:old_split)).to be_truthy
+        expect(TestTrack::Remote::SplitConfig).to have_received(:destroy_existing).with(:old_split)
       end
     end
   end
