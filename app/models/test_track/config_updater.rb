@@ -20,6 +20,7 @@ class TestTrack::ConfigUpdater
 
     persist_schema!
   end
+  alias drop_split finish_split
 
   def identifier_type(name)
     create_identifier_type(name)

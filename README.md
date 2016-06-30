@@ -77,15 +77,15 @@ class ConfigureMySplit < ActiveRecord::Migration
 end
 ```
 
-### Finishing splits
+### Cleaning Up Old Splits
 
-In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be finished. This will remove the split from the Test Track clients' perspective. Thus, like any destructive migration (e.g. `DROP COLUMN`), it should be released in a subsequent deployment, after all code paths referencing the split have been removed. Otherwise those code paths will raise and potentially break the user experience.
+In order to avoid clutter in the Test Track server's split registry as well as the Test Track Chrome Extension, a split can be finished. This will remove the split from the split registry, dropping it from Test Track clients' perspectives. Thus, like any destructive migration (e.g. `DROP COLUMN`), it should be released in a subsequent deployment, after all code paths referencing the split have been removed. Otherwise those code paths will raise and potentially break the user experience.
 
 ```ruby
-class FinishMySplit < ActiveRecord::Migration
+class RemoveMyOldSplit < ActiveRecord::Migration
   def change
     TestTrack.update_config do |c|
-      c.finish_split :signup_button_color
+      c.drop_split :signup_button_color
     end
   end
 end
