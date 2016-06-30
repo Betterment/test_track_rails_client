@@ -20,7 +20,7 @@ class TestTrack::ConfigUpdater
 
     persist_schema!
   end
-  alias finish_split drop_split
+  alias finish_split drop_split # to support older migrations written with `finish_split`
 
   def identifier_type(name)
     create_identifier_type(name)
