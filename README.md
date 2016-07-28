@@ -39,6 +39,13 @@ class MyController < ApplicationController
 end
 ```
 
+And, if you'd like to be able to use the TestTrack Chrome Extension, include `testTrack.bundle.min` in your `application.js` file after your reference to jQuery:
+
+```js
+//= require jquery
+//= require testTrack.bundle.min
+```
+
 # Concepts
 
 * **Visitor** - a person using your application.  `test_track_rails_client` manages visitors for you and ensures that `test_track_visitor` is available in any controller that mixes in `TestTrack::Controller`
