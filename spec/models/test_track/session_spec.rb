@@ -136,6 +136,17 @@ RSpec.describe TestTrack::Session do
         expect(cookies['tt_visitor_id'][:domain]).to eq ".boom.com"
       end
 
+      context "when fully qualified domain names are enabled" do
+        before do
+          ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] = '1'
+        end
+        it "uses the fully qualified domain name" do
+          allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
+          subject.manage {}
+          expect(cookies['tt_visitor_id'][:domain]).to eq "foo.bar.baz.boom.com"
+        end
+      end
+
       it "doesn't munge an IPv4 hostname" do
         allow(request).to receive(:host).and_return("127.0.0.1")
         subject.manage {}
