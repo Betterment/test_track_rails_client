@@ -32,4 +32,8 @@ module TestTrack
   def enabled?
     enabled_override.nil? ? !Rails.env.test? : enabled_override
   end
+
+  def fully_qualified_domain_name_enabled?
+    ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] == '1'
+  end
 end

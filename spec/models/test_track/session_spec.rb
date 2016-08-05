@@ -137,9 +137,12 @@ RSpec.describe TestTrack::Session do
       end
 
       context "when fully qualified domain names are enabled" do
-        before do
+        around do |example|
           ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] = '1'
+          example.run
+          ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] = '0'
         end
+
         it "uses the fully qualified domain name" do
           allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
           subject.manage {}

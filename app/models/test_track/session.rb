@@ -65,7 +65,7 @@ class TestTrack::Session
   end
 
   def _cookie_domain
-    if fully_qualified_domain_name_enabled? || request.host.match(Resolv::AddressRegex)
+    if TestTrack.fully_qualified_domain_name_enabled? || request.host.match(Resolv::AddressRegex)
       request.host
     else
       "." + PublicSuffix.parse(request.host).domain
@@ -145,9 +145,5 @@ class TestTrack::Session
 
   def mixpanel_cookie_name
     "mp_#{mixpanel_token}_mixpanel"
-  end
-
-  def fully_qualified_domain_name_enabled?
-    ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] == '1'
   end
 end
