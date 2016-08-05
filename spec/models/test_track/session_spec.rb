@@ -136,14 +136,8 @@ RSpec.describe TestTrack::Session do
         expect(cookies['tt_visitor_id'][:domain]).to eq ".boom.com"
       end
 
-      context "when fully qualified domain names are enabled" do
-        around do |example|
-          ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] = '1'
-          example.run
-          ENV['TEST_TRACK_FULLY_QUALIFIED_DOMAIN_NAME_ENABLED'] = '0'
-        end
-
-        it "uses the fully qualified domain name" do
+      it "uses the fully qualified cookie domain when enabled" do
+        with_env TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED: 1 do
           allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
           subject.manage {}
           expect(cookies['tt_visitor_id'][:domain]).to eq "foo.bar.baz.boom.com"
