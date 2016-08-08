@@ -68,9 +68,9 @@ class TestTrack::Session
     if bare_ip_address?
       request.host
     elsif TestTrack.fully_qualified_cookie_domain_enabled?
-      fully_qualified_cookie_domain
+      fully_qualified_domain
     else
-      wildcard_cookie_domain
+      wildcard_domain
     end
   end
 
@@ -78,11 +78,11 @@ class TestTrack::Session
     request.host.match(Resolv::AddressRegex)
   end
 
-  def fully_qualified_cookie_domain
+  def fully_qualified_domain
     public_suffix_domain.subdomain
   end
 
-  def wildcard_cookie_domain
+  def wildcard_domain
     "." + public_suffix_domain.domain
   end
 
