@@ -65,8 +65,10 @@ class TestTrack::Session
   end
 
   def _cookie_domain
-    if TestTrack.fully_qualified_cookie_domain_enabled? || request.host.match(Resolv::AddressRegex)
+    if request.host.match(Resolv::AddressRegex)
       request.host
+    elsif TestTrack.fully_qualified_cookie_domain_enabled?
+      PublicSuffix.parse(request.host).subdomain
     else
       "." + PublicSuffix.parse(request.host).domain
     end
