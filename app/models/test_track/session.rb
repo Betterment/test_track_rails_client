@@ -65,11 +65,29 @@ class TestTrack::Session
   end
 
   def _cookie_domain
-    if request.host.match(Resolv::AddressRegex)
+    if bare_ip_address?
       request.host
+    elsif TestTrack.fully_qualified_cookie_domain_enabled?
+      fully_qualified_domain
     else
-      "." + PublicSuffix.parse(request.host).domain
+      wildcard_domain
     end
+  end
+
+  def bare_ip_address?
+    request.host.match(Resolv::AddressRegex)
+  end
+
+  def fully_qualified_domain
+    public_suffix_host.subdomain
+  end
+
+  def wildcard_domain
+    "." + public_suffix_host.domain
+  end
+
+  def public_suffix_host
+    @public_suffix_host ||= PublicSuffix.parse(request.host)
   end
 
   def manage_cookies!
