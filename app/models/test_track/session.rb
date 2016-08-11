@@ -79,7 +79,7 @@ class TestTrack::Session
   end
 
   def fully_qualified_domain
-    public_suffix_host.subdomain
+    public_suffix_host.name
   end
 
   def wildcard_domain
