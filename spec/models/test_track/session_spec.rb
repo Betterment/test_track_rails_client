@@ -136,7 +136,15 @@ RSpec.describe TestTrack::Session do
         expect(cookies['tt_visitor_id'][:domain]).to eq ".boom.com"
       end
 
-      it "uses the fully qualified cookie domain when enabled" do
+      it "uses the fully qualified cookie domain when enabled and there is no subdomain" do
+        with_env TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED: 1 do
+          allow(request).to receive(:host).and_return("foo.com")
+          subject.manage {}
+          expect(cookies['tt_visitor_id'][:domain]).to eq "foo.com"
+        end
+      end
+
+      it "uses the fully qualified cookie domain when enabled and there is a subdomain" do
         with_env TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED: 1 do
           allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
           subject.manage {}
