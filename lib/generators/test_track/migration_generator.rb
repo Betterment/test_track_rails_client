@@ -3,9 +3,7 @@ require 'rails/generators/named_base'
 module TestTrack
   module Generators
     class MigrationGenerator < Rails::Generators::NamedBase
-      desc "Creates a test track migration file. " \
-        "Files that start with retire or finish will create migrations" \
-        "that finish a split"
+      desc "Creates a test track migration file. Files that start with retire or finish will create migrations that finish a split."
 
       def create_test_track_migration_file
         create_file "db/migrate/#{formatted_time_stamp}_#{file_name}.rb", <<-FILE.strip_heredoc
