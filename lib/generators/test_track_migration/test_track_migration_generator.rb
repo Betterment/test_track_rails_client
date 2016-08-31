@@ -25,7 +25,7 @@ class TestTrackMigrationGenerator < Rails::Generators::NamedBase
   end
 
   def finish_split?
-    file_name.start_with?('retire') || file_name.start_with?('finish')
+    file_name.start_with?('retire', 'finish')
   end
 
   def split_name
