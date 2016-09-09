@@ -6,7 +6,7 @@ class TestTrack::NotifyAssignmentJob
     @visitor_id = opts.delete(:visitor_id)
     @assignment = opts.delete(:assignment)
 
-    %w(mixpanel_distinct_id visitor_id assignment).each do |param_name|
+    %w(visitor_id assignment).each do |param_name|
       raise "#{param_name} must be present" unless send(param_name).present?
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
@@ -18,31 +18,29 @@ class TestTrack::NotifyAssignmentJob
       split_name: assignment.split_name,
       variant: assignment.variant,
       context: assignment.context,
-      mixpanel_result: mixpanel_track
+      mixpanel_result: track
     )
   end
 
   private
 
-  def mixpanel_track
+  def track
     return "failure" unless TestTrack.enabled?
-    mixpanel.track(mixpanel_distinct_id, "SplitAssigned", mixpanel_track_properties)
-    "success"
-  rescue *TestTrack::MIXPANEL_ERRORS
-    "failure"
+    result = TestTrack.analytics.track(distinct_id, "SplitAssigned", track_properties)
+    result ? "success" : "failure"
   end
 
-  def mixpanel_track_properties
+  def distinct_id
+    # mixpanel_distinct_id is deprecated but supported
+    mixpanel_distinct_id || visitor_id
+  end
+
+  def track_properties
     {
       "SplitName" => assignment.split_name,
       "SplitVariant" => assignment.variant,
       "SplitContext" => assignment.context,
       "TTVisitorID" => visitor_id
     }
-  end
-
-  def mixpanel
-    raise "ENV['MIXPANEL_TOKEN'] must be set" unless ENV['MIXPANEL_TOKEN']
-    @mixpanel ||= Mixpanel::Tracker.new(ENV['MIXPANEL_TOKEN'])
   end
 end

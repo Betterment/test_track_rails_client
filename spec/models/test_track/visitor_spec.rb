@@ -417,7 +417,7 @@ RSpec.describe TestTrack::Visitor do
   end
 
   describe ".backfill_identity" do
-    let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_mixpanel_id: "ABCDEFG" } }
+    let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_id: "ABCDEFG" } }
     let(:create_alias_job) { instance_double(TestTrack::CreateAliasJob, perform: true) }
     let(:remote_visitor) do
       TestTrack::Remote::Visitor.new(
@@ -443,7 +443,7 @@ RSpec.describe TestTrack::Visitor do
     it "performs a CreateAliasJob" do
       described_class.backfill_identity(params)
       expect(TestTrack::CreateAliasJob).to have_received(:new).with(
-        existing_mixpanel_id: 'ABCDEFG',
+        existing_id: 'ABCDEFG',
         alias_id: 'remote_visitor_id'
       )
       expect(create_alias_job).to have_received(:perform)

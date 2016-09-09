@@ -298,7 +298,7 @@ RSpec.describe TestTrack::Session do
 
       it "enqueues an alias job if there was a signup" do
         expect(TestTrack::CreateAliasJob).to receive(:new).with(
-          existing_mixpanel_id: 'fake_distinct_id',
+          existing_id: 'fake_distinct_id',
           alias_id: 'fake_visitor_id'
         )
 

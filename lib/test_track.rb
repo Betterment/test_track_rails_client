@@ -9,9 +9,28 @@ module TestTrack
   module_function
 
   SERVER_ERRORS = [Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
-  MIXPANEL_ERRORS = [Mixpanel::ConnectionError, Timeout::Error, OpenSSL::OpenSSLError].freeze
 
   mattr_accessor :enabled_override
+
+  class << self
+    def analytics
+      @analytics ||= wrapper(mixpanel)
+    end
+
+    def analytics=(client)
+      @analytics = client.is_a?(Analytics::SafeWrapper) ? client : wrapper(client)
+    end
+
+    private
+
+    def wrapper(client)
+      Analytics::SafeWrapper.new(client)
+    end
+
+    def mixpanel
+      Analytics::MixpanelClient.new
+    end
+  end
 
   def update_config
     yield(ConfigUpdater.new)

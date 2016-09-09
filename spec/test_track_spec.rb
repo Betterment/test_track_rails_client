@@ -46,6 +46,26 @@ RSpec.describe TestTrack do
     end
   end
 
+  describe "analytics" do
+    it "wraps default client in SafeWrapper" do
+      expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper
+      expect(TestTrack.analytics.underlying.class).to eq TestTrack::Analytics::MixpanelClient
+    end
+
+    it "wraps custom client in SafeWrapper" do
+      begin
+        default_client = TestTrack.analytics
+        fake_client = double
+        TestTrack.analytics = fake_client
+
+        expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper
+        expect(TestTrack.analytics.underlying).to eq fake_client
+      ensure
+        TestTrack.analytics = default_client
+      end
+    end
+  end
+
   describe ".fully_qualified_cookie_domain_enabled?" do
     it "is not enabled by default" do
       expect(TestTrack.fully_qualified_cookie_domain_enabled?).to eq false

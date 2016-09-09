@@ -84,7 +84,7 @@ class TestTrack::Visitor
       assignments: remote_identifier_visitor.assignments
     )
 
-    TestTrack::CreateAliasJob.new(existing_mixpanel_id: opts[:existing_mixpanel_id], alias_id: visitor.id).perform
+    TestTrack::CreateAliasJob.new(existing_id: opts[:existing_id], alias_id: visitor.id).perform
     visitor
   end
 
