@@ -18,17 +18,17 @@ module TestTrack
     end
 
     def analytics=(client)
-      @analytics = client.is_a?(Analytics::SafeWrapper) ? client : wrapper(client)
+      @analytics = client.is_a?(TestTrack::Analytics::SafeWrapper) ? client : wrapper(client)
     end
 
     private
 
     def wrapper(client)
-      Analytics::SafeWrapper.new(client)
+      TestTrack::Analytics::SafeWrapper.new(client)
     end
 
     def mixpanel
-      Analytics::MixpanelClient.new
+      TestTrack::Analytics::MixpanelClient.new
     end
   end
 
