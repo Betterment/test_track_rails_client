@@ -71,7 +71,6 @@ RSpec.describe TestTrack::OfflineSession do
         end
 
         expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-          expect(args[:mixpanel_distinct_id]).to eq('remote_visitor_id')
           expect(args[:visitor_id]).to eq('remote_visitor_id')
           args[:assignments].first.tap do |assignment|
             expect(assignment.split_name).to eq('has_button')

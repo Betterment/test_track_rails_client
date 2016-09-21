@@ -1,14 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Analytics::SafeWrapper do
-  let(:underlying) { double("Client", track: true, alias: false) }
+  let(:underlying) { double("Client", track_assignment: true, alias: false) }
 
   subject { TestTrack::Analytics::SafeWrapper.new(underlying) }
-
-  before do
-    allow(underlying).to receive(:track)
-    allow(underlying).to receive(:alias)
-  end
 
   describe '#alias' do
     it 'calls underlying' do
@@ -26,18 +21,18 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
     end
   end
 
-  describe '#track' do
+  describe '#track_assignment' do
     it 'calls underlying' do
-      expect(subject.track(123, 'Metric')).to eq true
-      expect(underlying).to have_received(:track).with(123, 'Metric', {})
+      expect(subject.track_assignment(123, foo: "bar")).to eq true
+      expect(underlying).to have_received(:track_assignment).with(123, { foo: "bar" }, {})
     end
 
     context 'underlying raises' do
       it 'returns false' do
-        allow(underlying).to receive(:track).and_raise StandardError
+        allow(underlying).to receive(:track_assignment).and_raise StandardError
 
-        expect(subject.track(123, 'Metric')).to eq false
-        expect(underlying).to have_received(:track).with(123, 'Metric', {})
+        expect(subject.track_assignment(123, {})).to eq false
+        expect(underlying).to have_received(:track_assignment).with(123, {}, {})
       end
     end
   end
@@ -46,7 +41,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
     let(:error) { StandardError.new("Something went wrong") }
 
     before do
-      allow(underlying).to receive(:track).and_raise error
+      allow(underlying).to receive(:track_assignment).and_raise error
     end
 
     context 'when Airbrake is loaded' do
@@ -56,7 +51,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
       end
 
       it 'calls Airbrake.notify' do
-        subject.track(123, 'Metric')
+        subject.track_assignment(123, {})
 
         expect(Airbrake).to have_received(:notify).with(error)
       end
@@ -70,7 +65,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
       end
 
       it 'logs error to Rails.logger' do
-        subject.track(123, 'Metric')
+        subject.track_assignment(123, {})
 
         expect(Rails.logger).to have_received(:error).with(error)
       end
@@ -86,7 +81,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
       end
 
       it 'uses custom lambda' do
-        subject.track(123, 'Metric')
+        subject.track_assignment(123, {})
 
         expect(handler).to have_received(:call).with(error)
       end

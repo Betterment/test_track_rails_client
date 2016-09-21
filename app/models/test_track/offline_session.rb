@@ -39,7 +39,6 @@ class TestTrack::OfflineSession
 
   def notify_unsynced_assignments!
     TestTrack::UnsyncedAssignmentsNotifier.new(
-      mixpanel_distinct_id: visitor.id,
       visitor_id: visitor.id,
       assignments: visitor.unsynced_assignments
     ).notify

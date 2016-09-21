@@ -2,7 +2,7 @@ require 'delayed_job'
 require 'delayed_job_active_record'
 
 class TestTrack::Session
-  COOKIE_LIFESPAN = 1.year # Used for mixpanel cookie and tt_visitor_id cookie
+  COOKIE_LIFESPAN = 1.year # Used for tt_visitor_id cookie
 
   def initialize(controller)
     @controller = controller

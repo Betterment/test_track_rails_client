@@ -29,7 +29,7 @@ RSpec.describe TestTrack::Remote::Assignment do
 
   it "hits the server when enabled" do
     with_test_track_enabled { subject.save }
-    expect(WebMock).to have_requested(:post, url).with(body: params.to_json)
+    expect(WebMock).to have_requested(:post, url).with(body: params.except(:mixpanel_result).merge(mixpanel_result: "success").as_json)
   end
 
   describe "validation" do

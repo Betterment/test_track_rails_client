@@ -2,11 +2,11 @@ class TestTrack::UnsyncedAssignmentsNotifier
   attr_reader :mixpanel_distinct_id, :visitor_id, :assignments
 
   def initialize(opts)
-    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id)
     @visitor_id = opts.delete(:visitor_id)
+    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id) || visitor_id
     @assignments = opts.delete(:assignments)
 
-    %w(mixpanel_distinct_id visitor_id assignments).each do |param_name|
+    %w(visitor_id assignments).each do |param_name|
       raise "#{param_name} must be present" unless send(param_name).present?
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?

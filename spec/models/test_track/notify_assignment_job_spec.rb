@@ -30,40 +30,34 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     let(:remote_assignment) { instance_double(TestTrack::Remote::Assignment) }
     before do
       allow(TestTrack::Remote::Assignment).to receive(:create!).and_return(remote_assignment)
-      allow(TestTrack.analytics).to receive(:track).and_return(true)
+      allow(TestTrack.analytics).to receive(:track_assignment).and_return(true)
     end
 
     it "does not send analytics events when test track is not enabled" do
       subject.perform
-      expect(TestTrack.analytics).to_not have_received(:track)
+      expect(TestTrack.analytics).to_not have_received(:track_assignment)
     end
 
     it "sends analytics event" do
       with_test_track_enabled { subject.perform }
 
-      expect(TestTrack.analytics).to have_received(:track).with(
+      expect(TestTrack.analytics).to have_received(:track_assignment).with(
         "fake_visitor_id",
-        "SplitAssigned",
-        "SplitName" => 'phaser',
-        "SplitVariant" => 'stun',
-        "SplitContext" => 'the_context',
-        "TTVisitorID" => 'fake_visitor_id'
+        assignment,
+        mixpanel_distinct_id: nil
       )
     end
 
     context "mixpanel_distinct_id supplied" do
       let(:subject) { described_class.new(params.merge(mixpanel_distinct_id: "fake_mixpanel_id")) }
 
-      it "uses mixpanel_distinct_id" do
+      it "passes along the mixpanel_distinct_id" do
         with_test_track_enabled { subject.perform }
 
-        expect(TestTrack.analytics).to have_received(:track).with(
-          "fake_mixpanel_id",
-          "SplitAssigned",
-          "SplitName" => 'phaser',
-          "SplitVariant" => 'stun',
-          "SplitContext" => 'the_context',
-          "TTVisitorID" => 'fake_visitor_id'
+        expect(TestTrack.analytics).to have_received(:track_assignment).with(
+          "fake_visitor_id",
+          assignment,
+          mixpanel_distinct_id: 'fake_mixpanel_id'
         )
       end
     end
@@ -82,7 +76,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
 
     context "analytics client fails" do
       before do
-        allow(TestTrack.analytics).to receive(:track).and_return(false)
+        allow(TestTrack.analytics).to receive(:track_assignment).and_return(false)
       end
 
       it "sends test_track assignment with mixpanel_result set to failure" do

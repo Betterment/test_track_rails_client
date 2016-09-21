@@ -12,8 +12,8 @@ module TestTrack::Analytics
       @error_handler = handler
     end
 
-    def track(visitor_id, metric_name, properties = {})
-      safe_action { underlying.track(visitor_id, metric_name, properties) }
+    def track_assignment(visitor_id, assignment, params = {})
+      safe_action { underlying.track_assignment(visitor_id, assignment, params) }
     end
 
     def alias(visitor_id, existing_id)

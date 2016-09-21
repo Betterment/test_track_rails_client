@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["john@betterment.com"]
   s.homepage    = "https://github.com/Betterment"
   s.summary     = "Rails client for TestTrack"
-  s.description = "Easy split testing and feature flagging for Rails with TestTrack server and Mixpanel"
+  s.description = "Easy split testing and feature flagging for Rails with TestTrack server"
   s.license     = "All Rights Reserved"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]

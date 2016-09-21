@@ -135,7 +135,6 @@ RSpec.describe TestTrack::Identity do
         it "sends notifications inline" do
           subject.test_track_ab :blue_button, context: :spec
           expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-            expect(args[:mixpanel_distinct_id]).to eq("fake_visitor_id")
             expect(args[:visitor_id]).to eq("fake_visitor_id")
             args[:assignments].first.tap do |assignment|
               expect(assignment.split_name).to eq("blue_button")
@@ -237,7 +236,6 @@ RSpec.describe TestTrack::Identity do
         it "sends notifications inline" do
           vary_side_dish
           expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-            expect(args[:mixpanel_distinct_id]).to eq("fake_visitor_id")
             expect(args[:visitor_id]).to eq("fake_visitor_id")
             args[:assignments].first.tap do |assignment|
               expect(assignment.split_name).to eq("side_dish")
