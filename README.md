@@ -22,7 +22,7 @@ In every environment (local included) cut an App record via the TestTrack rails 
 
 Set up ENV vars in every environment:
 
-* `MIXPANEL_TOKEN` - Set this to your mixpanel key
+* `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#custom-analytics) you can omit this.
 * `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@testtrack.dev/`
 
 Add find or create to `seeds.rb` in the test_track app
@@ -218,4 +218,29 @@ it "shows the right info" do
   stub_test_track_assignments(button_color: :red)
   # All `vary` calls for `button_color` will  run the `red` codepath until the mocks are reset (after each `it` block)
 end
+```
+
+## Custom Analytics
+By default, TestTrack will use Mixpanel as an analytics backend. If you wish to use another provider, you can set the `analytics` attribute on `TestTrack` with your custom client. You should do this in a Rails initializer.
+
+```ruby
+# config/initializers/test_track.rb
+TestTrack.analytics = MyCustomAnalyticsClient.new
+```
+
+Your client must implement the following methods:
+
+```ruby
+# Called when a new Split has been Assigned
+#
+# @param visitor_id [String] TestTrack's unique visitor identification key
+# @param assignment [TestTrack::Assignment] The assignment model itself
+# @param properties [String] Any additional properties, currently only utilized for Mixpanel's UniqueId
+def track_assignment(visitor_id, assignment, properties)
+
+# Called after TestTrack.sign_up!
+#
+# @param visitor_id [String] TestTrack's unique visitor identification key
+# @param existing_id [String] Any existing identifier for the visitor(defaults to Mixpanel's UniqueId)
+def alias(visitor_id, existing_id)
 ```
