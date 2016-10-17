@@ -7,6 +7,7 @@ gem 'simplecov', require: false
 gem 'shoulda-matchers', '~> 2.8', require: false
 gem 'jbuilder', '~> 2.0'
 gem 'mime-types', '< 3'
+gem 'selenium-webdriver', '~> 2.5'
 
 #### FOR EVERYDAY USE
 gem 'ruby_spec_helpers', git: 'https://betterment-deploy:de4372bdef0377c76679aabdcea71a92fbf467ab@github.com/Betterment/ruby_spec_helpers'
