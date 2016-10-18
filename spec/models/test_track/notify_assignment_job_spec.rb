@@ -27,9 +27,9 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
   end
 
   describe "#perform" do
-    let(:remote_assignment) { instance_double(TestTrack::Remote::Assignment) }
+    let(:remote_assignment) { instance_double(TestTrack::Remote::AssignmentEvent) }
     before do
-      allow(TestTrack::Remote::Assignment).to receive(:create!).and_return(remote_assignment)
+      allow(TestTrack::Remote::AssignmentEvent).to receive(:create!).and_return(remote_assignment)
       allow(TestTrack.analytics).to receive(:track_assignment).and_return(true)
     end
 
@@ -65,10 +65,9 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     it "sends test_track assignment" do
       with_test_track_enabled { subject.perform }
 
-      expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
+      expect(TestTrack::Remote::AssignmentEvent).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
         split_name: 'phaser',
-        variant: 'stun',
         context: 'the_context',
         mixpanel_result: 'success'
       )
@@ -82,10 +81,9 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       it "sends test_track assignment with mixpanel_result set to failure" do
         with_test_track_enabled { subject.perform }
 
-        expect(TestTrack::Remote::Assignment).to have_received(:create!).with(
+        expect(TestTrack::Remote::AssignmentEvent).to have_received(:create!).with(
           visitor_id: 'fake_visitor_id',
           split_name: 'phaser',
-          variant: 'stun',
           context: 'the_context',
           mixpanel_result: 'failure'
         )
