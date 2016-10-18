@@ -10,8 +10,6 @@ gem 'mime-types', '< 3'
 gem 'selenium-webdriver', '~> 2.5'
 
 gem 'ruby_spec_helpers', path: 'vendor/gems/ruby_spec_helpers'
-gem 'her', path: 'vendor/gems/her'
-gem 'fakeable_her', path: 'vendor/gems/fakeable_her'
 
 gem 'public_suffix', git: 'https://github.com/Betterment/publicsuffix-ruby'
 
