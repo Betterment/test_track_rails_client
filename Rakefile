@@ -30,7 +30,7 @@ desc "Pull the latest versions of all dependencies into the gem for distribution
 task :vendor_deps do
   # Bundle minified JS client
   sh 'bower install'
-  sh 'mv', 'bower_components/test_track_js_client/dist/testTrack.bundle.min.js', 'vendor/assets/javascripts'
+  sh 'cp', 'bower_components/test_track_js_client/dist/testTrack.bundle.min.js', 'app/assets/javascripts'
 
   # Gems
   FileUtils.module_eval do
