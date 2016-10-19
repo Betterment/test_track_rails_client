@@ -11,7 +11,6 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Her for testing locally"
   spec.description   = "Her for testing locally"
-  spec.homepage      = "https://github.com/betterment/better-core"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
