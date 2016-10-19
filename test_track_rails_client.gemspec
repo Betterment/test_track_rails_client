@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.name        = "test_track_rails_client"
   s.version     = TestTrackRailsClient::VERSION
   s.authors     = ["Ryan O'Neill", "Alex Burgel", "Adam Langsner", "John Mileham", "Alan Norton", "Sam Moore"]
-  s.email       = ["ryan@betterment.com"]
+  s.email       = ["ryan.oneill@betterment.com"]
   s.homepage    = "https://github.com/Betterment"
   s.summary     = "Rails client for TestTrack"
   s.description = "Easy split testing and feature flagging for Rails with TestTrack server"
