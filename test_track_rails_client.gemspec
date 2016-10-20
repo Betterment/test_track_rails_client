@@ -7,17 +7,17 @@ require "test_track_rails_client/version"
 Gem::Specification.new do |s|
   s.name        = "test_track_rails_client"
   s.version     = TestTrackRailsClient::VERSION
-  s.authors     = ["John Mileham", "Alan Norton"]
-  s.email       = ["john@betterment.com"]
+  s.authors     = ["Ryan O'Neill", "Alex Burgel", "Adam Langsner", "John Mileham", "Alan Norton", "Sam Moore"]
+  s.email       = ["ryan.oneill@betterment.com"]
   s.homepage    = "https://github.com/Betterment"
   s.summary     = "Rails client for TestTrack"
   s.description = "Easy split testing and feature flagging for Rails with TestTrack server"
-  s.license     = "All Rights Reserved"
+  s.license     = "MIT"
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.md"]
 
   s.add_dependency 'rails', '~> 4.1'
-  s.add_dependency 'fakeable_her'
+  s.add_dependency "faraday", ">= 0.8", "< 1.0"
   s.add_dependency 'faraday_middleware'
   s.add_dependency 'public_suffix', '~> 1.4.6'
   s.add_dependency 'mixpanel-ruby', '~> 1.4'

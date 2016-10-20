@@ -1,8 +1,14 @@
+# Source vendored gems the hard way in all environments
+%w(her fakeable_her).each do |gem_name|
+  lib = File.expand_path("../../vendor/gems/#{gem_name}/lib", __FILE__)
+  $LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
+  require gem_name
+end
+
 require 'public_suffix'
 require 'mixpanel-ruby'
 require 'resolv'
 require 'faraday_middleware'
-require 'her'
 require 'request_store'
 
 module TestTrack
