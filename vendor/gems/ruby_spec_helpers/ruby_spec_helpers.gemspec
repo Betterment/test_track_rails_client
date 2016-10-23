@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
   s.files = Dir["lib/**/*", "README.md"]
 
   s.add_dependency "capybara"
-  s.add_dependency "capybara-webkit", '~> 1.3.1'
   s.add_dependency "selenium-webdriver"
   s.add_dependency "site_prism"
   s.add_dependency "rspec-rails"
