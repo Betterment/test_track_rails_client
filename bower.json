@@ -12,6 +12,6 @@
     "tests"
   ],
   "dependencies": {
-      "test_track_js_client": "https://betterment-deploy:de4372bdef0377c76679aabdcea71a92fbf467ab@github.com/Betterment/test_track_js_client.git#v1.3.2"
+      "test_track_js_client": "https://betterment-deploy:de4372bdef0377c76679aabdcea71a92fbf467ab@github.com/Betterment/test_track_js_client.git#v1.3.3"
   }
 }
