@@ -1,6 +1,6 @@
 # TestTrack Rails Client
 
-[![Build Status](https://travis-ci.com/Betterment/test_track_rails_client.svg?token=6b6DErRMUHX47kEoBZ3t&branch=master)](https://travis-ci.com/Betterment/test_track_rails_client)
+[![Build Status](https://travis-ci.org/Betterment/test_track_rails_client.svg?branch=master)](https://travis-ci.com/Betterment/test_track_rails_client)
 
 This is the Rails client library for the [TestTrack](https://github.com/Betterment/test_track) system.
 
