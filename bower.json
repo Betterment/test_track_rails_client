@@ -12,6 +12,6 @@
     "tests"
   ],
   "dependencies": {
-      "test_track_js_client": "https://github.com/Betterment/test_track_js_client.git#v1.3.3"
+      "test_track_js_client": "https://github.com/Betterment/test_track_js_client.git#v1.3.6"
   }
 }
