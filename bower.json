@@ -1,0 +1,17 @@
+{
+  "name": "test_track_rails_client",
+  "homepage": "https://github.com/Betterment/test_track_rails_client",
+  "description": "rails client for TestTrack split-testing framework",
+  "main": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+      "test_track_js_client": "https://github.com/Betterment/test_track_js_client.git#v1.3.3"
+  }
+}
