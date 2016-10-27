@@ -24,6 +24,11 @@ In every environment (local included) cut an App record via the **TestTrack serv
 => "[your new app password]"
 ```
 
+*Note: [see the TestTrack
+README](https://github.com/Betterment/test_track/blob/master/README.md#user-content-seeding-apps-for-local-development)*
+for additional information on configuring seed apps for local
+development.
+
 Set up ENV vars in every environment:
 
 * `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#custom-analytics) you can omit this.
