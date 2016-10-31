@@ -5,7 +5,8 @@ module TestTrack
     class MigrationGenerator < Rails::Generators::Base
       IncompatibleOptionsError = Class.new(Thor::Error)
 
-      desc "Creates a test track migration file. Files that start with retire or finish will create migrations that finish a split."
+      desc "Creates a test track migration file." \
+        "Files that start with 'retire' or 'finish' will create migrations that finish a split."
 
       class_option :experiment, aliases: 'e', type: :boolean, desc: 'Set up the split as an experiment'
       class_option :gate, aliases: 'g', type: :boolean, desc: 'Set up the split as a gate/feature flag'
@@ -20,7 +21,7 @@ module TestTrack
       private
 
       def create_migration_file
-        create_file "db/migrate/#{formatted_time_stamp}_#{file_name}.rb", <<-FILE.strip_heredoc
+        create_file full_file_path, <<-FILE.strip_heredoc
           class #{file_name.camelize} < ActiveRecord::Migration
             def change
               TestTrack.update_config do |c|
@@ -29,6 +30,10 @@ module TestTrack
             end
           end
         FILE
+      end
+
+      def full_file_path
+        "db/migrate/#{formatted_time_stamp}_#{file_name}.rb"
       end
 
       def split_command_line
@@ -48,13 +53,21 @@ module TestTrack
       end
 
       def split_name
-        name = file_name.split('_').slice(1, file_name.length).join('_')
+        strip_leading_verb_from_filename + add_suffix_for_split_type
+      end
+
+      def strip_leading_verb_from_filename
+        file_name.split('_').slice(1, file_name.length).join('_')
+      end
+
+      def suffix_for_split_type
         if gate?
-          name += '_enabled'
+          '_enabled'
         elsif experiment?
-          name += '_experiment'
+          '_experiment'
+        else
+          ''
         end
-        name
       end
 
       def split_variants
@@ -68,9 +81,11 @@ module TestTrack
       end
 
       def validate_options!
-        raise IncompatibleOptionsError, <<-ERROR.strip_heredoc
-          --gate and --experiment cannot be used together. Please choose one or the other.
-        ERROR
+        if gate? && experiment?
+          raise IncompatibleOptionsError, <<-ERROR.strip_heredoc
+            --gate and --experiment cannot be used together. Please choose one or the other.
+          ERROR
+        end
       end
 
       def gate?
