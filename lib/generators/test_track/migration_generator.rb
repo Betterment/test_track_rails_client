@@ -3,6 +3,8 @@ require 'rails/generators/base'
 module TestTrack
   module Generators
     class MigrationGenerator < Rails::Generators::Base
+      IncompatibleOptionsError = Class.new(Thor::Error)
+
       desc "Creates a test track migration file. Files that start with retire or finish will create migrations that finish a split."
 
       class_option :experiment, aliases: 'e', type: :boolean, desc: 'Set up the split as an experiment'
@@ -12,6 +14,12 @@ module TestTrack
 
       def create_test_track_migration_file
         validate_options!
+        create_migration_file
+      end
+
+      private
+
+      def create_migration_file
         create_file "db/migrate/#{formatted_time_stamp}_#{file_name}.rb", <<-FILE.strip_heredoc
           class #{file_name.camelize} < ActiveRecord::Migration
             def change
@@ -22,8 +30,6 @@ module TestTrack
           end
         FILE
       end
-
-      private
 
       def split_command_line
         "#{split_command} :#{split_name}, #{split_variants}"
@@ -62,7 +68,9 @@ module TestTrack
       end
 
       def validate_options!
-        raise 'Cannot use both --gate and --experiment. Please choose one' if gate? && experiment?
+        raise IncompatibleOptionsError, <<-ERROR.strip_heredoc
+          --gate and --experiment cannot be used together. Please choose one or the other.
+        ERROR
       end
 
       def gate?
