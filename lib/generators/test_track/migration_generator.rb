@@ -51,7 +51,7 @@ module TestTrack
       end
 
       def formatted_time_stamp
-        Time.now.strftime('%Y%m%d%H%M%S')
+        Time.zone.now.strftime('%Y%m%d%H%M%S')
       end
 
       def split_command
