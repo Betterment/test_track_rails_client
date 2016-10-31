@@ -5,11 +5,9 @@ module TestTrack
     class MigrationGenerator < Rails::Generators::Base
       IncompatibleOptionsError = Class.new(Thor::Error)
 
-      desc "Creates a test track migration file." \
-        "Files that start with 'retire' or 'finish' will create migrations that finish a split."
+      desc "Creates a test track migration file."
 
-      class_option :experiment, aliases: 'e', type: :boolean, desc: 'Set up the split as an experiment'
-      class_option :gate, aliases: 'g', type: :boolean, desc: 'Set up the split as a gate/feature flag'
+      class_option :type, aliases: 't', type: :string, desc: 'Set up the split as an experiment, gate (feature flag), or drop (finish a split)'
 
       argument :file_name, required: true
 
@@ -22,7 +20,7 @@ module TestTrack
 
       def create_migration_file
         create_file full_file_path, <<-FILE.strip_heredoc
-          class #{file_name.camelize} < ActiveRecord::Migration
+          class #{split_class_name} < ActiveRecord::Migration
             def change
               TestTrack.update_config do |c|
                 #{split_command_line}
@@ -32,12 +30,24 @@ module TestTrack
         FILE
       end
 
+      def split_class_name
+        name = file_name.camelize
+
+        if gate?
+          name += 'Enabled'
+        elsif experiment?
+          name += 'Experiment'
+        end
+
+        name
+      end
+
       def full_file_path
         "db/migrate/#{formatted_time_stamp}_#{file_name}.rb"
       end
 
       def split_command_line
-        "#{split_command} :#{split_name}, #{split_variants}"
+        "#{split_command} :#{split_name}#{split_variants}"
       end
 
       def formatted_time_stamp
@@ -45,15 +55,11 @@ module TestTrack
       end
 
       def split_command
-        @split_command ||= finish_split? ? 'c.finish_split' : 'c.split'
-      end
-
-      def finish_split?
-        file_name.start_with?('retire', 'finish')
+        @split_command ||= finish_split? ? 'c.drop_split' : 'c.split'
       end
 
       def split_name
-        strip_leading_verb_from_filename + add_suffix_for_split_type
+        strip_leading_verb_from_filename + suffix_for_split_type
       end
 
       def strip_leading_verb_from_filename
@@ -71,29 +77,39 @@ module TestTrack
       end
 
       def split_variants
-        if gate?
-          'true: 0, false: 100'
+        if finish_split?
+          ''
+        elsif gate?
+          ', true: 0, false: 100'
         elsif experiment?
-          'control: 50, treatment: 50'
+          ', control: 50, treatment: 50'
         else
-          'control: 100, treatment: 0'
+          ', control: 100, treatment: 0'
         end
       end
 
       def validate_options!
-        if gate? && experiment?
+        unless %w(experiment gate drop unnamed).include?(split_type)
           raise IncompatibleOptionsError, <<-ERROR.strip_heredoc
-            --gate and --experiment cannot be used together. Please choose one or the other.
+            #{split_type} is not a valid split type
           ERROR
         end
       end
 
       def gate?
-        options[:gate].present?
+        split_type == 'gate'
       end
 
       def experiment?
-        options[:experiment].present?
+        split_type == 'experiment'
+      end
+
+      def finish_split?
+        split_type == 'drop'
+      end
+
+      def split_type
+        @split_type ||= options[:type] || 'unnamed'
       end
     end
   end
