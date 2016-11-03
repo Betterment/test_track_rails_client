@@ -24,11 +24,7 @@ module TestTrack::Analytics
 
     def error_handler
       @error_handler || ->(e) do
-        if Object.const_defined?(:Airbrake)
-          Airbrake.notify e
-        else
-          Rails.logger.error e
-        end
+        Rails.logger.error e
       end
     end
 
