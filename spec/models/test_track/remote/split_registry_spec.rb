@@ -6,7 +6,12 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
   before do
     allow(described_class).to receive(:instance).and_call_original
     allow(described_class).to receive(:fake_instance_attributes).and_return(split_registry)
-    Rails.cache.clear
+
+    begin
+      Rails.cache.clear
+    rescue Errno::ENOENT # rubocop:disable Lint/HandleExceptions
+      # This is fine
+    end
   end
 
   describe "#to_hash" do
