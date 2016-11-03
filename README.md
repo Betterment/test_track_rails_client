@@ -133,7 +133,7 @@ test_track_visitor.vary :name_of_split, context: 'home_page' do |v|
 end
 ```
 
-The `test_track_visitor`'s `ab` method provides a convenient way to do two-way splits. The optional second argument is used to tell `ab` which variant is the "true" variant. If no second argument is provided, the "true" variant is assumed to be `true`, which is convient for splits that have variants of `true` and `false`. `ab` can be easily used in an if statement.
+The `test_track_visitor`'s `ab` method provides a convenient way to do two-way splits. The `true_variant` option is used to tell `ab` which variant is the "true" variant. If no `true_variant` option is provided, the "true" variant is assumed to be `true`, which is convient for splits that have variants of `true` and `false`. `ab` can be easily used in an if statement.
 
 ```ruby
 # "button_color" split with "blue" and "red" variants
