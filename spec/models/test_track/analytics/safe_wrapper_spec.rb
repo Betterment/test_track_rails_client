@@ -42,33 +42,13 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
 
     before do
       allow(underlying).to receive(:track_assignment).and_raise error
+      allow(Rails.logger).to receive(:error)
     end
 
-    context 'when Airbrake is loaded' do
-      before do
-        stub_const('Airbrake', double('Airbrake', notify: true))
-        allow(Airbrake).to receive(:notify)
-      end
+    it 'logs error to Rails.logger' do
+      subject.track_assignment(123, {})
 
-      it 'calls Airbrake.notify' do
-        subject.track_assignment(123, {})
-
-        expect(Airbrake).to have_received(:notify).with(error)
-      end
-    end
-
-    context 'when Airbrake is not loaded' do
-      before do
-        allow(Object).to receive(:const_defined?).and_call_original
-        allow(Object).to receive(:const_defined?).with(:Airbrake).and_return false
-        allow(Rails.logger).to receive(:error)
-      end
-
-      it 'logs error to Rails.logger' do
-        subject.track_assignment(123, {})
-
-        expect(Rails.logger).to have_received(:error).with(error)
-      end
+      expect(Rails.logger).to have_received(:error).with(error)
     end
 
     context 'when custom lambda provided' do
