@@ -2,7 +2,7 @@ require 'delayed_job'
 require 'delayed_job_active_record'
 
 class TestTrack::Session
-  COOKIE_LIFESPAN = 1.year # Used for tt_visitor_id cookie
+  COOKIE_LIFESPAN = 1.year # Used for visitor cookie
 
   def initialize(controller)
     @controller = controller
@@ -24,6 +24,7 @@ class TestTrack::Session
     {
       url: TestTrack.url,
       cookieDomain: cookie_domain,
+      cookieName: visitor_cookie_name,
       registry: visitor.split_registry,
       assignments: visitor.assignment_json
     }
@@ -47,7 +48,7 @@ class TestTrack::Session
   alias signed_up? signed_up
 
   def visitor
-    @visitor ||= TestTrack::Visitor.new(id: cookies[:tt_visitor_id])
+    @visitor ||= TestTrack::Visitor.new(id: cookies[visitor_cookie_name])
   end
 
   def set_cookie(name, value)
@@ -67,7 +68,7 @@ class TestTrack::Session
   def _cookie_domain
     if bare_ip_address?
       request.host
-    elsif TestTrack.fully_qualified_cookie_domain_enabled?
+    elsif fully_qualified_cookie_domain_enabled?
       fully_qualified_domain
     else
       wildcard_domain
@@ -92,7 +93,7 @@ class TestTrack::Session
 
   def manage_cookies!
     set_cookie(mixpanel_cookie_name, mixpanel_cookie.to_json)
-    set_cookie(:tt_visitor_id, visitor.id)
+    set_cookie(visitor_cookie_name, visitor.id)
   end
 
   def request
@@ -163,5 +164,13 @@ class TestTrack::Session
 
   def mixpanel_cookie_name
     "mp_#{mixpanel_token}_mixpanel"
+  end
+
+  def visitor_cookie_name
+    ENV['TEST_TRACK_VISITOR_COOKIE_NAME'] || 'tt_visitor_id'
+  end
+
+  def fully_qualified_cookie_domain_enabled?
+    ENV['TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED'] == '1'
   end
 end

@@ -65,16 +65,4 @@ RSpec.describe TestTrack do
       end
     end
   end
-
-  describe ".fully_qualified_cookie_domain_enabled?" do
-    it "is not enabled by default" do
-      expect(TestTrack.fully_qualified_cookie_domain_enabled?).to eq false
-    end
-
-    it "can be enabled" do
-      with_env TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED: 1 do
-        expect(TestTrack.fully_qualified_cookie_domain_enabled?).to eq true
-      end
-    end
-  end
 end

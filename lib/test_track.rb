@@ -57,8 +57,4 @@ module TestTrack
   def enabled?
     enabled_override.nil? ? !Rails.env.test? : enabled_override
   end
-
-  def fully_qualified_cookie_domain_enabled?
-    ENV['TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED'] == '1'
-  end
 end

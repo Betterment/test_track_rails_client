@@ -118,6 +118,18 @@ RSpec.describe TestTrack::Session do
     end
 
     context "cookies" do
+      it "uses the default cookie name when not configured" do
+        subject.manage {}
+        expect(cookies).to include 'tt_visitor_id'
+      end
+
+      it "uses the custom cookie name when configured" do
+        with_env TEST_TRACK_VISITOR_COOKIE_NAME: 'custom_cookie_name' do
+          subject.manage {}
+          expect(cookies).to include 'custom_cookie_name'
+        end
+      end
+
       it "sets secure cookies if the request is ssl" do
         allow(request).to receive(:ssl?).and_return(true)
         subject.manage {}
@@ -362,6 +374,10 @@ RSpec.describe TestTrack::Session do
     it "includes the cookie_domain" do
       allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
       expect(subject.state_hash[:cookieDomain]).to eq(".boom.com")
+    end
+
+    it "includes the cookie_name" do
+      expect(subject.state_hash[:cookieName]).to eq("tt_visitor_id")
     end
 
     it "includes the split registry" do
