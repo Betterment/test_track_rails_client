@@ -118,12 +118,12 @@ RSpec.describe TestTrack::Session do
     end
 
     context "cookies" do
-      it "uses the default cookie name if not configured" do
+      it "uses the default cookie name when not configured" do
         subject.manage {}
         expect(cookies).to include 'tt_visitor_id'
       end
 
-      it "uses the configured cookie name when enabled" do
+      it "uses the custom cookie name when configured" do
         with_env TEST_TRACK_VISITOR_COOKIE_NAME: 'custom_cookie_name' do
           subject.manage {}
           expect(cookies).to include 'custom_cookie_name'
