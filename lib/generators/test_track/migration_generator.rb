@@ -25,20 +25,8 @@ module TestTrack
         FILE
       end
 
-      def split_class_name
-        split_file_name.camelize
-      end
-
-      def full_file_path
-        "db/migrate/#{formatted_time_stamp}_#{split_file_name}.rb"
-      end
-
       def split_command_line
         "#{split_command} :#{split_name}#{split_variants}"
-      end
-
-      def formatted_time_stamp
-        Time.zone.now.strftime('%Y%m%d%H%M%S')
       end
 
       def split_command
@@ -70,8 +58,21 @@ module TestTrack
         end
       end
 
+      def full_file_path
+        "db/migrate/#{formatted_time_stamp}_#{split_file_name}.rb"
+      end
+
+      def formatted_time_stamp
+        Time.zone.now.strftime('%Y%m%d%H%M%S')
+      end
+
+      def split_class_name
+        split_file_name.camelize
+      end
+
       def split_name
-        split_file_name.gsub(/finish_|create_|update_|drop_/, '').gsub('feature_flag', 'enabled')
+        noise_words = /finish_|create_|update_|drop_/
+        split_file_name.gsub(noise_words, '')
       end
 
       def split_file_name
