@@ -26,15 +26,15 @@ module TestTrack
       end
 
       def split_class_name
-        split_name.camelize
+        split_file_name.camelize
       end
 
       def full_file_path
-        "db/migrate/#{formatted_time_stamp}_#{split_name}.rb"
+        "db/migrate/#{formatted_time_stamp}_#{split_file_name}.rb"
       end
 
       def split_command_line
-        "#{split_command} :#{split_name.gsub('finish_', '')}#{split_variants}"
+        "#{split_command} :#{split_name}#{split_variants}"
       end
 
       def formatted_time_stamp
@@ -59,11 +59,11 @@ module TestTrack
       end
 
       def split_type
-        if split_name.start_with? 'finish', 'retire', 'drop'
+        if split_file_name.start_with? 'drop'
           :finish
-        elsif split_name.end_with? 'enabled', 'feature_flag'
+        elsif split_file_name.end_with? 'enabled', 'feature_flag'
           :gate
-        elsif split_name.end_with? 'experiment'
+        elsif split_file_name.end_with? 'experiment'
           :experiment
         else
           :default
@@ -71,6 +71,10 @@ module TestTrack
       end
 
       def split_name
+        split_file_name.gsub(/finish_|create_|update_|drop_/, '').gsub('feature_flag', 'enabled')
+      end
+
+      def split_file_name
         raw_split_name.underscore
       end
     end
