@@ -107,6 +107,70 @@ end
 
 _Note: `drop_split` (a.k.a. `finish_split`) does not physically delete split data from mixpanel or Test Track's database._
 
+### Generating Split Migrations
+
+Split configuration changes can be generated using Rails generators that are included with the TestTrack Rails client.
+
+```
+rails generate test_track:migration add_name_of_split
+```
+
+will generate a timestamped migration file with the content
+
+```ruby
+class AddNameOfSplit < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.split :name_of_split, control: 100, treatment: 0
+    end
+  end
+end
+```
+
+Different types of splits can be generated using the `--type/-t` flag with the options of `experiment`, `gate` (a feature flag), or `drop` (ending a split)
+
+```
+rails generate test_track:migration name_of_split -t drop
+```
+
+```ruby
+class NameOfSplit < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.drop_split :name_of_split
+    end
+  end
+end
+```
+
+```
+rails generate test_track:migration add_name_of_split -t gate
+```
+
+```ruby
+class AddNameOfSplitEnabled < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.split :name_of_split_enabled, true: 0, false: 100
+    end
+  end
+end
+```
+
+```
+rails generate test_track:migration add_name_of_split -t experiment
+```
+
+```ruby
+class AddNameOfSplitExperiment < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.split :name_of_split_experiment, control: 50, treatment: 50
+    end
+  end
+end
+```
+
 ## Varying app behavior based on assigned variant
 
 ### Varying app behavior in a web context
