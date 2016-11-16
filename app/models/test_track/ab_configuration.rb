@@ -9,7 +9,10 @@ class TestTrack::ABConfiguration
 
     @true_variant = true_variant.to_s if true_variant
 
-    raise ArgumentError, "unknown split: #{split_name}. You may need to run 'rake test_track:schema:load'" if @split_registry && !split
+    if @split_registry && !split
+      raise ArgumentError, "unknown split: #{split_name}. " \
+        "#{'You may need to run rake test_track:schema:load' unless Rails.env.production?}"
+    end
   end
 
   def variants

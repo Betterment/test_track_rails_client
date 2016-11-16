@@ -70,7 +70,7 @@ RSpec.describe TestTrack::VaryDSL do
             split_registry: split_registry,
             context: "the_context"
           )
-        end.to raise_error("unknown split: not_a_real_split. You may need to run 'rake test_track:schema:load'")
+        end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
       end
     end
   end
