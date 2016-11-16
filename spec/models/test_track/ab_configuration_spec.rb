@@ -68,7 +68,16 @@ RSpec.describe TestTrack::ABConfiguration do
     it "raises a descriptive error when the split is not in the split_registry" do
       expect do
         described_class.new initialize_options.merge(split_name: :not_a_real_split)
-      end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
+      end.to raise_error("unknown split: not_a_real_split.")
+    end
+
+    context 'when in the development environment' do
+      it 'gives a suggested fix' do
+        allow(Rails.env).to receive(:development?).and_return true
+        expect do
+          described_class.new initialize_options.merge(split_name: :not_a_real_split)
+        end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
+      end
     end
   end
 

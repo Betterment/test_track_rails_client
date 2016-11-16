@@ -11,8 +11,8 @@ class TestTrack::VaryDSL
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     if @split_registry && !split
-      raise ArgumentError, "unknown split: #{split_name}. " \
-        "#{'You may need to run rake test_track:schema:load' unless Rails.env.production?}"
+      raise ArgumentError, "unknown split: #{split_name}." \
+        "#{' You may need to run rake test_track:schema:load.' if Rails.env.development?}"
     end
   end
 
