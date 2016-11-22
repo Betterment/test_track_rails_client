@@ -202,25 +202,15 @@ RSpec.describe TestTrack::Session do
     end
 
     context "assignments notifications with threading disabled" do
-      let(:remote_visitor_attributes) do
-        {
-          id: "fake_visitor_id",
-          assignment_registry: { 'switched_split' => 'not_what_i_thought' },
-          unsynced_splits: %w(switched_split)
-        }
-      end
-
       before do
         allow(Thread).to receive(:new) do |&block|
           block.call
         end
+
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 }, 'switched_split' => { 'not_what_i_thought' => 100, 'other' => 0 })
       end
 
       context "new assignments" do
-        before do
-          allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 })
-        end
-
         it "notifies unsynced assignments" do
           subject.manage do
             subject.visitor_dsl.ab('bar', true_variant: 'baz', context: :spec)
@@ -262,20 +252,36 @@ RSpec.describe TestTrack::Session do
         context "with an unsynced split" do
           let(:unsynced) { true }
 
-          it "notifies unsynced assignments" do
-            subject.manage {}
+          context 'when the test track visitor is not yet loaded' do
+            it 'does not trigger a load of the assignments' do
+              subject.manage {}
 
-            expect(Thread).to have_received(:new)
-            expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-              expect(args[:mixpanel_distinct_id]).to eq("fake_distinct_id")
-              expect(args[:visitor_id]).to eq("fake_visitor_id")
-              args[:assignments].first.tap do |assignment|
-                expect(assignment.split_name).to eq("switched_split")
-                expect(assignment.variant).to eq("not_what_i_thought")
-              end
+              expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
             end
+          end
 
-            expect(unsynced_assignments_notifier).to have_received(:notify)
+          context 'when the test track visitor is loaded' do
+            it "notifies unsynced assignments" do
+              subject.manage do
+                subject.visitor_dsl.ab('bar', true_variant: 'baz', context: :spec)
+              end
+
+              expect(Thread).to have_received(:new)
+              expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+                expect(args[:mixpanel_distinct_id]).to eq("fake_distinct_id")
+                expect(args[:visitor_id]).to eq("fake_visitor_id")
+                args[:assignments].first.tap do |assignment|
+                  expect(assignment.split_name).to eq("switched_split")
+                  expect(assignment.variant).to eq("not_what_i_thought")
+                end
+                args[:assignments].second.tap do |assignment|
+                  expect(assignment.split_name).to eq("bar")
+                  expect(assignment.variant).to eq("baz")
+                end
+              end
+
+              expect(unsynced_assignments_notifier).to have_received(:notify)
+            end
           end
 
           context "when the visitor is unknown" do
@@ -284,7 +290,9 @@ RSpec.describe TestTrack::Session do
             end
 
             it "does not notify unsynced assignments" do
-              subject.manage {}
+              subject.manage do
+                subject.visitor_dsl.ab('bar', true_variant: 'baz', context: :spec)
+              end
 
               expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
             end
@@ -295,7 +303,9 @@ RSpec.describe TestTrack::Session do
           let(:unsynced) { false }
 
           it "does not notify unsynced assignments" do
-            subject.manage {}
+            subject.manage do
+              subject.visitor_dsl.ab('switched_split', true_variant: 'baz', context: :spec)
+            end
 
             expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
           end
