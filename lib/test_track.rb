@@ -14,7 +14,7 @@ require 'request_store'
 module TestTrack
   module_function
 
-  SERVER_ERRORS = [Faraday::ConnectionError, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
+  SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
 
   mattr_accessor :enabled_override
 
