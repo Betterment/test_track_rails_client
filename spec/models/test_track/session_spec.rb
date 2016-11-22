@@ -202,12 +202,19 @@ RSpec.describe TestTrack::Session do
     end
 
     context "assignments notifications with threading disabled" do
+      let(:registry) do
+        {
+          'bar' => { 'foo' => 0, 'baz' => 100 },
+          'switched_split' => { 'not_what_i_thought' => 100, 'originally_me' => 0 }
+        }
+      end
+
       before do
         allow(Thread).to receive(:new) do |&block|
           block.call
         end
 
-        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return('bar' => { 'foo' => 0, 'baz' => 100 }, 'switched_split' => { 'not_what_i_thought' => 100, 'other' => 0 })
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(registry)
       end
 
       context "new assignments" do
@@ -304,7 +311,7 @@ RSpec.describe TestTrack::Session do
 
           it "does not notify unsynced assignments" do
             subject.manage do
-              subject.visitor_dsl.ab('switched_split', true_variant: 'baz', context: :spec)
+              subject.visitor_dsl.ab('switched_split', true_variant: 'not_what_i_thought', context: :spec)
             end
 
             expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
