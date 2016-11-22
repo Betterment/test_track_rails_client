@@ -94,6 +94,10 @@ class TestTrack::Visitor
     @tt_offline
   end
 
+  def loaded?
+    !offline? && @remote_visitor.present?
+  end
+
   private
 
   def assignments

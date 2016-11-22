@@ -129,7 +129,7 @@ class TestTrack::Session
   end
 
   def sync_assignments?
-    !visitor.offline? && visitor.unsynced_assignments.present?
+    visitor.loaded? && visitor.unsynced_assignments.present?
   end
 
   def mixpanel_distinct_id
