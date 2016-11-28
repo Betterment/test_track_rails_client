@@ -70,7 +70,9 @@ class TestTrack::Visitor
     begin
       identifier = TestTrack::Remote::Identifier.create!(identifier_opts)
       merge!(identifier.visitor)
-    rescue *TestTrack::SERVER_ERRORS
+    rescue *TestTrack::SERVER_ERRORS => e
+      Rails.logger.error "TestTrack failed to link identifier, retrying. #{e}"
+
       # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
       # but subsequent requests will be better off
       TestTrack::Remote::Identifier.delay.create!(identifier_opts)
@@ -92,6 +94,10 @@ class TestTrack::Visitor
     @tt_offline
   end
 
+  def loaded?
+    !offline? && @remote_visitor.present?
+  end
+
   private
 
   def assignments
@@ -100,7 +106,8 @@ class TestTrack::Visitor
 
   def remote_visitor
     @remote_visitor ||= TestTrack::Remote::Visitor.find(id) unless tt_offline?
-  rescue *TestTrack::SERVER_ERRORS
+  rescue *TestTrack::SERVER_ERRORS => e
+    Rails.logger.error "TestTrack failed to load remote visitor. #{e}"
     @tt_offline = true
     nil
   end

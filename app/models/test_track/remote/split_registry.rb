@@ -30,7 +30,8 @@ class TestTrack::Remote::SplitRegistry
         instance.attributes
       end.freeze
     end
-  rescue *TestTrack::SERVER_ERRORS
+  rescue *TestTrack::SERVER_ERRORS => e
+    Rails.logger.error "TestTrack failed to load split registry. #{e}"
     nil # if we can't get a split registry
   end
 end

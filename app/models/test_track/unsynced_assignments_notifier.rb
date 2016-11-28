@@ -17,7 +17,8 @@ class TestTrack::UnsyncedAssignmentsNotifier
       build_notify_assignment_job(assignment).tap do |job|
         begin
           job.perform
-        rescue *TestTrack::SERVER_ERRORS
+        rescue *TestTrack::SERVER_ERRORS => e
+          Rails.logger.error "TestTrack failed to notify unsynced assignments, retrying. #{e}"
           Delayed::Job.enqueue(build_notify_assignment_job(assignment))
         end
       end
