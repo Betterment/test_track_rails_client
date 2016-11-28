@@ -1,38 +1,82 @@
-require 'rails/generators/named_base'
+require 'rails/generators/base'
 
 module TestTrack
   module Generators
-    class MigrationGenerator < Rails::Generators::NamedBase
-      desc "Creates a test track migration file. Files that start with retire or finish will create migrations that finish a split."
+    class MigrationGenerator < Rails::Generators::Base
+      desc "Creates a test track migration file."
+
+      argument :raw_split_name, required: true
 
       def create_test_track_migration_file
-        create_file "db/migrate/#{formatted_time_stamp}_#{file_name}.rb", <<-FILE.strip_heredoc
-          class #{file_name.camelize} < ActiveRecord::Migration
+        create_migration_file
+      end
+
+      private
+
+      def create_migration_file
+        create_file full_file_path, <<-FILE.strip_heredoc
+          class #{split_class_name} < ActiveRecord::Migration
             def change
               TestTrack.update_config do |c|
-                #{split_command} :#{split_name}
+                #{split_command_line}
               end
             end
           end
         FILE
       end
 
-      private
+      def split_command_line
+        "#{split_command} :#{split_name}#{split_variants}"
+      end
+
+      def split_command
+        @split_command ||= split_type == :finish ? 'c.drop_split' : 'c.split'
+      end
+
+      def split_variants
+        case split_type
+          when :finish
+            ''
+          when :gate
+            ', true: 0, false: 100'
+          when :experiment
+            ', control: 100, treatment: 50'
+          else
+            ', control: 50, treatment: 50'
+        end
+      end
+
+      def split_type
+        if split_file_name.start_with? 'drop'
+          :finish
+        elsif split_file_name.end_with? 'enabled', 'feature_flag'
+          :gate
+        elsif split_file_name.end_with? 'experiment'
+          :experiment
+        else
+          :default
+        end
+      end
+
+      def full_file_path
+        "db/migrate/#{formatted_time_stamp}_#{split_file_name}.rb"
+      end
 
       def formatted_time_stamp
         Time.zone.now.strftime('%Y%m%d%H%M%S')
       end
 
-      def split_command
-        @split_command ||= finish_split? ? 'c.finish_split' : 'c.split'
-      end
-
-      def finish_split?
-        file_name.start_with?('retire', 'finish')
+      def split_class_name
+        split_file_name.camelize
       end
 
       def split_name
-        file_name.split('_').slice(1, file_name.length).join('_')
+        noise_words = /finish_|create_|update_|drop_/
+        split_file_name.gsub(noise_words, '')
+      end
+
+      def split_file_name
+        raw_split_name.underscore
       end
     end
   end
