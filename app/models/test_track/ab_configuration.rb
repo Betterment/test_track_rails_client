@@ -9,7 +9,7 @@ class TestTrack::ABConfiguration
 
     @true_variant = true_variant.to_s if true_variant
 
-    raise ArgumentError, "unknown split: #{split_name}" if @split_registry && !split
+    raise ArgumentError, unknown_split_error_message if @split_registry && !split
   end
 
   def variants
@@ -32,6 +32,12 @@ class TestTrack::ABConfiguration
   end
 
   attr_reader :split_name, :split_registry
+
+  def unknown_split_error_message
+    error_message = "unknown split: #{split_name}."
+    error_message << " You may need to run rake test_track:schema:load" if Rails.env.development?
+    error_message
+  end
 
   def split
     split_registry && split_registry[split_name]

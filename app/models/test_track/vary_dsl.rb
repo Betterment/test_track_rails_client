@@ -9,7 +9,11 @@ class TestTrack::VaryDSL
     @context = require_option!(opts, :context)
     @split_registry = require_option!(opts, :split_registry, allow_nil: true)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
-    raise ArgumentError, "unknown split: #{split_name}" if @split_registry && !split
+
+    if @split_registry && !split
+      raise ArgumentError, "unknown split: #{split_name}." \
+        "#{' You may need to run rake test_track:schema:load.' if Rails.env.development?}"
+    end
   end
 
   def when(*variants, &block)
