@@ -30,12 +30,12 @@ module TestTrack
       end
 
       def split_command
-        @split_command ||= split_type == :finish ? 'c.drop_split' : 'c.split'
+        @split_command ||= split_type == :drop ? 'c.drop_split' : 'c.split'
       end
 
       def split_variants
         case split_type
-          when :finish
+          when :drop
             ''
           when :gate
             ', true: 0, false: 100'
@@ -48,7 +48,7 @@ module TestTrack
 
       def split_type
         if split_file_name.start_with? 'drop'
-          :finish
+          :drop
         elsif split_file_name.end_with? 'enabled', 'feature_flag'
           :gate
         elsif split_file_name.end_with? 'experiment'
