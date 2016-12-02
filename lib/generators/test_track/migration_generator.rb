@@ -71,7 +71,7 @@ module TestTrack
       end
 
       def split_name
-        noise_words = /^create_|^update_|^drop_/
+        noise_words = /^create_|^update_|^drop_|^add_/
         split_file_name.gsub(noise_words, '')
       end
 
