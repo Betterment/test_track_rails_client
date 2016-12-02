@@ -121,23 +121,57 @@ will generate a timestamped migration file with the content
 class AddNameOfSplit < ActiveRecord::Migration
   def change
     TestTrack.update_config do |c|
-      c.split :name_of_split, control: 100, treatment: 0
+      c.split :name_of_split, control: 50, treatment: 50
     end
   end
 end
 ```
 
-The generator infers the type of split from the split name. For instance, adding `Drop` to the beginning of a split name will generate a migration to drop a split.
+The generator infers the type of split from the migration name.
+
+Adding `Drop` to the migration name will create a migration to drop a split.
 
 ```
 rails generate test_track:migration DropNameOfSplit
 ```
 
 ```ruby
-class NameOfSplit < ActiveRecord::Migration
+class DropNameOfSplit < ActiveRecord::Migration
   def change
     TestTrack.update_config do |c|
       c.drop_split :name_of_split
+    end
+  end
+end
+```
+
+Adding `Enabled` or `FeatureFlag` to the end of the migration name will create sensible defaults for a feature flag split.
+
+```
+rails generate test_track:migration AddNameOfSplitEnabled
+```
+
+```ruby
+class AddNameOfSplitEnabled < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.split :name_of_split_enabled, true: 0, false: 100
+    end
+  end
+end
+```
+
+Adding `Experiment` to the end of the migration name will create sensible defaults for an experiment.
+
+```
+rails generate test_track:migration AddNameOfSplitExperiment
+```
+
+```ruby
+class AddNameOfSplitExperiment < ActiveRecord::Migration
+  def change
+    TestTrack.update_config do |c|
+      c.split :name_of_split_experiment, control: 100, treatment: 0
     end
   end
 end
