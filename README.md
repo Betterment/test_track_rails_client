@@ -127,10 +127,10 @@ class AddNameOfSplit < ActiveRecord::Migration
 end
 ```
 
-Different types of splits can be generated using the `--type/-t` flag with the options of `experiment`, `gate` (a feature flag), or `drop` (ending a split)
+The generator infers the type of split from the split name. For instance, adding `Drop` to the beginning of a split name will generate a migration to drop a split.
 
 ```
-rails generate test_track:migration name_of_split -t drop
+rails generate test_track:migration DropNameOfSplit
 ```
 
 ```ruby
@@ -138,34 +138,6 @@ class NameOfSplit < ActiveRecord::Migration
   def change
     TestTrack.update_config do |c|
       c.drop_split :name_of_split
-    end
-  end
-end
-```
-
-```
-rails generate test_track:migration add_name_of_split -t gate
-```
-
-```ruby
-class AddNameOfSplitEnabled < ActiveRecord::Migration
-  def change
-    TestTrack.update_config do |c|
-      c.split :name_of_split_enabled, true: 0, false: 100
-    end
-  end
-end
-```
-
-```
-rails generate test_track:migration add_name_of_split -t experiment
-```
-
-```ruby
-class AddNameOfSplitExperiment < ActiveRecord::Migration
-  def change
-    TestTrack.update_config do |c|
-      c.split :name_of_split_experiment, control: 50, treatment: 50
     end
   end
 end
