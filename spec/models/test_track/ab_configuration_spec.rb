@@ -73,10 +73,21 @@ RSpec.describe TestTrack::ABConfiguration do
 
     context 'when in the development environment' do
       it 'gives a suggested fix' do
-        allow(Rails.env).to receive(:development?).and_return true
-        expect do
-          described_class.new initialize_options.merge(split_name: :not_a_real_split)
-        end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
+        with_rails_env 'development' do
+          expect do
+            described_class.new initialize_options.merge(split_name: :not_a_real_split)
+          end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
+        end
+      end
+    end
+
+    context 'when in production' do
+      it 'does not give a suggested fix' do
+        with_rails_env 'production' do
+          expect do
+            described_class.new initialize_options.merge(split_name: :not_a_real_split)
+          end.not_to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
+        end
       end
     end
   end
