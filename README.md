@@ -121,7 +121,7 @@ will generate a timestamped migration file with the content
 class AddNameOfSplit < ActiveRecord::Migration
   def change
     TestTrack.update_config do |c|
-      c.split :name_of_split, control: 100, treatment: 0
+      c.split :name_of_split, control: 50, treatment: 50
     end
   end
 end

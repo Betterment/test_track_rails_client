@@ -39,10 +39,8 @@ module TestTrack
             ''
           when :gate
             ', true: 0, false: 100'
-          when :experiment
-            ', control: 50, treatment: 50'
           else
-            ', control: 100, treatment: 0'
+            ', control: 50, treatment: 50'
         end
       end
 
