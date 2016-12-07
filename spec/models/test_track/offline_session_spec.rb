@@ -1,20 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::OfflineSession do
+  let(:remote_visitor) do
+    TestTrack::Remote::Visitor.new(
+      id: "remote_visitor_id",
+      assignments: [
+        { split_name: "foo", variant: "bar", unsynced: false }
+      ]
+    )
+  end
+
+  before do
+    allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
+  end
+
   describe ".with_visitor_for" do
-    let(:remote_visitor) do
-      TestTrack::Remote::Visitor.new(
-        id: "remote_visitor_id",
-        assignments: [
-          { split_name: "foo", variant: "bar", unsynced: false }
-        ]
-      )
-    end
-
-    before do
-      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
-    end
-
     it "blows up when a block is not provided" do
       expect { described_class.with_visitor_for("clown_id", "1234") }
         .to raise_error("must provide block to `with_visitor_for`")
@@ -85,6 +85,22 @@ RSpec.describe TestTrack::OfflineSession do
         described_class.with_visitor_for("clown_id", 1234) {}
 
         expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+      end
+    end
+  end
+
+  describe ".create_visitor_for" do
+    it "creates a visitor with the properties of the remote visitor" do
+      allow(TestTrack::Visitor).to receive(:new).and_call_original
+
+      described_class.create_visitor_for("clown_id", 1234)  
+
+      expect(TestTrack::Visitor).to have_received(:new) do |args|
+        expect(args[:id]).to eq("remote_visitor_id")
+        args[:assignments].first.tap do |assignment|
+          expect(assignment.split_name).to eq("foo")
+          expect(assignment.variant).to eq("bar")
+        end
       end
     end
   end

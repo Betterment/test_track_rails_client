@@ -46,6 +46,17 @@ module TestTrack::Identity
             end
           end
         end
+
+        define_method :test_track_sign_up! do
+          discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
+          identifier_value = send(identifier_value_method)
+
+          if discriminator.participate_in_unauthenticated_session?
+            discriminator.controller.send(:test_track_session).sign_up! identifier_type, identifier_value
+          else
+            TestTrack::OfflineSession.create_visitor_for(identifier_type, identifier_value)
+          end
+        end
       end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

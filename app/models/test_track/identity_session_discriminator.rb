@@ -13,6 +13,10 @@ class TestTrack::IdentitySessionDiscriminator
     authenticated_resource_matches_identity?
   end
 
+  def participate_in_unauthenticated_session?
+    web_context? && !controller.respond_to?(authenticated_resource_method_name, true)
+  end
+
   private
 
   def authenticated_resource_matches_identity?
