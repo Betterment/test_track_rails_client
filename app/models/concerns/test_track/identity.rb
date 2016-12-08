@@ -49,12 +49,23 @@ module TestTrack::Identity
 
         define_method :test_track_sign_up! do
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
-          identifier_value = send(identifier_value_method)
 
-          if discriminator.participate_in_unauthenticated_session?
+          if discriminator.web_context?
+            identifier_value = send(identifier_value_method)
             discriminator.controller.send(:test_track_session).sign_up! identifier_type, identifier_value
           else
-            TestTrack::OfflineSession.create_visitor_for(identifier_type, identifier_value)
+            raise "test_track_sign_up! called outside of a web context"
+          end
+        end
+
+        define_method :test_track_log_in! do |opts = {}|
+          discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
+
+          if discriminator.web_context?
+            identifier_value = send(identifier_value_method)
+            discriminator.controller.send(:test_track_session).log_in! identifier_type, identifier_value, opts
+          else
+            raise "test_track_log_in! called outside of a web context"
           end
         end
       end

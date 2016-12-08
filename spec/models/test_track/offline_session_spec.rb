@@ -88,20 +88,4 @@ RSpec.describe TestTrack::OfflineSession do
       end
     end
   end
-
-  describe ".create_visitor_for" do
-    it "creates a visitor with the properties of the remote visitor" do
-      allow(TestTrack::Visitor).to receive(:new).and_call_original
-
-      described_class.create_visitor_for("clown_id", 1234)  
-
-      expect(TestTrack::Visitor).to have_received(:new) do |args|
-        expect(args[:id]).to eq("remote_visitor_id")
-        args[:assignments].first.tap do |assignment|
-          expect(assignment.split_name).to eq("foo")
-          expect(assignment.variant).to eq("bar")
-        end
-      end
-    end
-  end
 end

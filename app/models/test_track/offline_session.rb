@@ -12,10 +12,6 @@ class TestTrack::OfflineSession
     end
   end
 
-  def self.create_visitor_for(identifier_type, identifier_value)
-    new(identifier_type, identifier_value).send :notify_unsynced_assignments!
-  end
-
   private
 
   attr_reader :identifier_type, :identifier_value
