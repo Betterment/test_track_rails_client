@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "timecop"
   s.add_development_dependency "rubocop", ">= 0.36"
   s.add_development_dependency "webmock", "~> 2.1.0"
+  s.add_development_dependency "rake", "~> 11.0"
 
   s.required_ruby_version = '>= 1.9.3'
 end
