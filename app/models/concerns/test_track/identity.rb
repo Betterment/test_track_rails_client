@@ -11,7 +11,7 @@ module TestTrack::Identity
         define_method :test_track_ab do |*args|
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
 
-          if discriminator.participate_in_online_session?
+          if discriminator.authenticated_resource_matches_identity?
             discriminator.controller.send(:test_track_visitor).ab(*args)
           else
             identifier_value = send(identifier_value_method)
@@ -24,7 +24,7 @@ module TestTrack::Identity
         define_method :test_track_vary do |*args, &block|
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
 
-          if discriminator.participate_in_online_session?
+          if discriminator.authenticated_resource_matches_identity?
             discriminator.controller.send(:test_track_visitor).vary(*args, &block)
           else
             identifier_value = send(identifier_value_method)
@@ -37,7 +37,7 @@ module TestTrack::Identity
         define_method :test_track_visitor_id do
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
 
-          if discriminator.participate_in_online_session?
+          if discriminator.authenticated_resource_matches_identity?
             discriminator.controller.send(:test_track_visitor).id
           else
             identifier_value = send(identifier_value_method)

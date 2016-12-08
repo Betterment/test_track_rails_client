@@ -9,8 +9,8 @@ class TestTrack::IdentitySessionDiscriminator
     @controller ||= RequestStore[:test_track_controller]
   end
 
-  def participate_in_online_session?
-    authenticated_resource_matches_identity?
+  def authenticated_resource_matches_identity?
+    controller_has_authenticated_resource? && controller.send(authenticated_resource_method_name) == identity
   end
 
   def web_context?
@@ -18,10 +18,6 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   private
-
-  def authenticated_resource_matches_identity?
-    controller_has_authenticated_resource? && controller.send(authenticated_resource_method_name) == identity
-  end
 
   def controller_has_authenticated_resource?
     # pass true to `respond_to?` to include private methods
