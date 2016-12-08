@@ -1,20 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::OfflineSession do
+  let(:remote_visitor) do
+    TestTrack::Remote::Visitor.new(
+      id: "remote_visitor_id",
+      assignments: [
+        { split_name: "foo", variant: "bar", unsynced: false }
+      ]
+    )
+  end
+
+  before do
+    allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
+  end
+
   describe ".with_visitor_for" do
-    let(:remote_visitor) do
-      TestTrack::Remote::Visitor.new(
-        id: "remote_visitor_id",
-        assignments: [
-          { split_name: "foo", variant: "bar", unsynced: false }
-        ]
-      )
-    end
-
-    before do
-      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
-    end
-
     it "blows up when a block is not provided" do
       expect { described_class.with_visitor_for("clown_id", "1234") }
         .to raise_error("must provide block to `with_visitor_for`")

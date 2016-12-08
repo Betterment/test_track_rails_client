@@ -30,7 +30,7 @@ class TestTrack::OfflineSession
   def manage
     yield TestTrack::VisitorDSL.new(visitor)
   ensure
-    notify_unsynced_assignments! if unsynced_assignments?
+    notify_unsynced_assignments!
   end
 
   def unsynced_assignments?
@@ -41,6 +41,6 @@ class TestTrack::OfflineSession
     TestTrack::UnsyncedAssignmentsNotifier.new(
       visitor_id: visitor.id,
       assignments: visitor.unsynced_assignments
-    ).notify
+    ).notify if unsynced_assignments?
   end
 end
