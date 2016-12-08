@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency "site_prism"
   s.add_dependency "rspec-rails"
   s.add_dependency "yarjuf"
-  s.add_dependency "webmock"
+  s.add_dependency "webmock", '~> 2.1' #avoid ruby 2.0 dependency
   s.add_dependency "rubocop", '< 0.42' #avoid ruby 2.0 dependency
   s.add_dependency "rspec-retry", "~> 0.4.5"
 end
