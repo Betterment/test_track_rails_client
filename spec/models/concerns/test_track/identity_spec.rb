@@ -284,7 +284,7 @@ RSpec.describe TestTrack::Identity do
           allow(RequestStore).to receive(:[]).with(:test_track_controller).and_return test_track_controller
           allow(session).to receive(:sign_up!)
           allow(test_track_controller).to receive(:test_track_session).and_return(session)
-          
+
           subject.test_track_sign_up!
 
           expect(test_track_controller).to have_received(:test_track_session)
@@ -308,7 +308,7 @@ RSpec.describe TestTrack::Identity do
           allow(RequestStore).to receive(:[]).with(:test_track_controller).and_return test_track_controller
           allow(session).to receive(:log_in!)
           allow(test_track_controller).to receive(:test_track_session).and_return(session)
-          
+
           subject.test_track_log_in!
 
           expect(test_track_controller).to have_received(:test_track_session)
