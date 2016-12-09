@@ -81,6 +81,9 @@ Style/ClassAndModuleChildren:
 Style/AlignParameters:
   Enabled: false
 
+Style/IndentArray:
+  EnforcedStyle: consistent
+
 Style/ClosingParenthesisIndentation:
   Enabled: false
 
