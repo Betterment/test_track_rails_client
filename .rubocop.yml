@@ -84,6 +84,9 @@ Style/AlignParameters:
 Style/IndentArray:
   EnforcedStyle: consistent
 
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
 Style/ClosingParenthesisIndentation:
   Enabled: false
 
