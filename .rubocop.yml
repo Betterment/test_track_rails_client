@@ -81,6 +81,12 @@ Style/ClassAndModuleChildren:
 Style/AlignParameters:
   Enabled: false
 
+Style/IndentArray:
+  EnforcedStyle: consistent
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
 Style/ClosingParenthesisIndentation:
   Enabled: false
 

@@ -47,12 +47,10 @@ RSpec.describe TestTrack::Visitor do
 
   describe "#unsynced_assignments" do
     it "returns the passed in unsynced assignments" do
-      visitor = TestTrack::Visitor.new(assignments:
-        [
-          instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: true),
-          instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
-        ]
-      )
+      visitor = TestTrack::Visitor.new(assignments: [
+        instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: true),
+        instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
+      ])
 
       expect(visitor.unsynced_assignments.count).to eq 1
       expect(visitor.unsynced_assignments.first.split_name).to eq "foo"
@@ -80,12 +78,10 @@ RSpec.describe TestTrack::Visitor do
 
   describe "#assignment_registry" do
     it "return a hash generated from the passed in assignments" do
-      visitor = TestTrack::Visitor.new(assignments:
-        [
-          instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: false),
-          instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
-        ]
-      )
+      visitor = TestTrack::Visitor.new(assignments: [
+        instance_double(TestTrack::Assignment, split_name: 'foo', variant: 'baz', unsynced?: false),
+        instance_double(TestTrack::Assignment, split_name: 'bar', variant: 'buz', unsynced?: false)
+      ])
 
       expect(visitor.assignment_registry["foo"].variant).to eq("baz")
       expect(visitor.assignment_registry["bar"].variant).to eq("buz")
