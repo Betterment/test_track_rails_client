@@ -1,5 +1,7 @@
 class TestTrack::MisconfigurationNotifier
   def notify(msg)
+    raise msg if Rails.env.development? || Rails.env.test?
+
     Rails.logger.error(msg)
 
     if Airbrake.respond_to?(:notify_or_ignore)
