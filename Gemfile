@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem 'rubocop', '< 0.38', require: false
+gem 'rubocop', '< 0.42', require: false
 gem 'simplecov', require: false
 gem 'shoulda-matchers', '~> 2.8', require: false
 gem 'jbuilder', '~> 2.0'
@@ -17,3 +17,4 @@ gem 'sqlite3', platforms: :ruby
 gem 'activerecord-jdbcsqlite3-adapter', platforms: :jruby
 
 gem 'nokogiri', '~> 1.6.8'
+gem 'webmock', '~> 2.2.0'

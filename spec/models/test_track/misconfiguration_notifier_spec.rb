@@ -51,7 +51,9 @@ RSpec.describe TestTrack::MisconfigurationNotifier do
 
         it "calls Airbrake.notify_or_ignore" do
           subject.notify("something is misconfigured")
-          expect(Airbrake).to have_received(:notify_or_ignore).with(kind_of(StandardError), error_message: "something is misconfigured").exactly(:once)
+          expect(Airbrake).to have_received(:notify_or_ignore)
+            .with(kind_of(StandardError), error_message: "something is misconfigured")
+            .exactly(:once)
         end
 
         it "does not call Airbrake.notify" do
@@ -67,7 +69,9 @@ RSpec.describe TestTrack::MisconfigurationNotifier do
 
         it "calls Airbrake.notify" do
           subject.notify("something is misconfigured")
-          expect(Airbrake).to have_received(:notify).with(kind_of(StandardError), error_message: "something is misconfigured").exactly(:once)
+          expect(Airbrake).to have_received(:notify)
+            .with(kind_of(StandardError), error_message: "something is misconfigured")
+            .exactly(:once)
         end
       end
     end
