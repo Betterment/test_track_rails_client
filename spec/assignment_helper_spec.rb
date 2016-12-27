@@ -23,5 +23,21 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
         expect { stub_test_track_assignments(foo: :bar) }.to raise_error(/Cannot stub test track assignments/)
       end
     end
+
+    it 'works correctly with a vary call' do
+      stub_test_track_assignments(foo: :bar)
+
+      visitor = TestTrack::Visitor.new
+      expect do
+        visitor.vary(:foo, context: :spec) do |v|
+          v.when :bar do
+            # noop
+          end
+          v.default :baz do
+            raise "this branch shouldn't be executed"
+          end
+        end
+      end.not_to raise_error
+    end
   end
 end
