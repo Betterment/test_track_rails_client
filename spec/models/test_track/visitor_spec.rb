@@ -271,8 +271,14 @@ RSpec.describe TestTrack::Visitor do
         expect(new_visitor.ab("blue_button", context: :spec)).to eq false
       end
 
-      it "returns false when split variants are not true and false" do
-        expect(new_visitor.ab("time", context: :spec)).to eq false
+      it "returns false in production when split variants are not true and false" do
+        with_rails_env "production" do
+          expect(new_visitor.ab("time", context: :spec)).to eq false
+        end
+      end
+
+      it "raises in test environment when split variants are not true and false" do
+        expect { new_visitor.ab("time", context: :spec) }.to raise_exception "vary for \"time\" configures unknown variant \"true\""
       end
     end
   end
