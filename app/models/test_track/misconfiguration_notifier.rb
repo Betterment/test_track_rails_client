@@ -1,6 +1,6 @@
 class TestTrack::MisconfigurationNotifier
   def notify(msg)
-    raise msg if Rails.env.development? || Rails.env.test?
+    raise msg if Rails.env.development?
 
     Rails.logger.error(msg)
 
