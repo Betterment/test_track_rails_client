@@ -7,7 +7,7 @@ RSpec.describe TestTrack::MisconfigurationNotifier do
     context "in development environment" do
       it "raises" do
         with_rails_env "development" do
-          expect { subject.notify("something is misconfigured") }.to raise_exception 'something is misconfigured'
+          expect { subject.notify("something is misconfigured") }.to raise_error 'something is misconfigured'
         end
       end
     end
@@ -15,7 +15,7 @@ RSpec.describe TestTrack::MisconfigurationNotifier do
     context "in test environment" do
       it "does not raise" do
         with_rails_env "test" do
-          expect { subject.notify("something is misconfigured") }.not_to raise_exception
+          expect { subject.notify("something is misconfigured") }.not_to raise_error
         end
       end
     end

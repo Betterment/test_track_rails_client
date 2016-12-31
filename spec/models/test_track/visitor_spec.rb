@@ -279,7 +279,7 @@ RSpec.describe TestTrack::Visitor do
 
       it "raises in development environment when split variants are not true and false" do
         with_rails_env "development" do
-          expect { new_visitor.ab("time", context: :spec) }.to raise_exception "vary for \"time\" configures unknown variant \"true\""
+          expect { new_visitor.ab("time", context: :spec) }.to raise_error "vary for \"time\" configures unknown variant \"true\""
         end
       end
     end
