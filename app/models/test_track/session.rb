@@ -114,8 +114,16 @@ class TestTrack::Session
       ##
       # This block creates an unbounded number of threads up to 1 per request.
       # This can potentially cause issues under high load, in which case we should move to a thread pool/work queue.
+      original_store = RequestStore.store
       Thread.new do
-        TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
+        begin
+          RequestStore.begin!
+          RequestStore.store.merge!(original_store)
+          TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
+        ensure
+          RequestStore.end!
+          RequestStore.clear!
+        end
       end
     end
   end
