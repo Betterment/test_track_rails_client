@@ -210,8 +210,8 @@ RSpec.describe TestTrack::Session do
       end
 
       before do
-        allow(Thread).to receive(:new) do |&block|
-          block.call
+        allow(Thread).to receive(:new) do |*args, &block|
+          block.call(*args)
         end
 
         allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(registry)
@@ -362,6 +362,25 @@ RSpec.describe TestTrack::Session do
       end
 
       expect(unsynced_assignments_notifier).to have_received(:notify)
+    end
+
+    let(:notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier) }
+
+    it "passes along RequestStore contents to the background thread" do
+      RequestStore[:stashed_object] = 'stashed object'
+      found_object = nil
+
+      allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(notifier)
+      allow(notifier).to receive(:notify) do
+        found_object = RequestStore[:stashed_object]
+      end
+
+      notifier_thread = subject.send(:notify_unsynced_assignments!)
+
+      # block until thread completes
+      notifier_thread.join
+
+      expect(found_object).to eq 'stashed object'
     end
   end
 
