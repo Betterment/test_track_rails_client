@@ -174,12 +174,12 @@ class TestTrack::Session
     ENV['TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED'] == '1'
   end
 
-  def new_thread_with_request_store(&block)
+  def new_thread_with_request_store
     Thread.new(RequestStore.store) do |original_store|
       begin
         RequestStore.begin!
         RequestStore.store.merge!(original_store)
-        block.call
+        yield
       ensure
         RequestStore.end!
         RequestStore.clear!
