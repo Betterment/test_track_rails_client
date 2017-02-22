@@ -210,8 +210,8 @@ RSpec.describe TestTrack::Session do
       end
 
       before do
-        allow(Thread).to receive(:new) do |&block|
-          block.call
+        allow(Thread).to receive(:new) do |*args, &block|
+          block.call(*args)
         end
 
         allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(registry)

@@ -114,16 +114,8 @@ class TestTrack::Session
       ##
       # This block creates an unbounded number of threads up to 1 per request.
       # This can potentially cause issues under high load, in which case we should move to a thread pool/work queue.
-      original_store = RequestStore.store
-      Thread.new do
-        begin
-          RequestStore.begin!
-          RequestStore.store.merge!(original_store)
-          TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
-        ensure
-          RequestStore.end!
-          RequestStore.clear!
-        end
+      new_thread_with_request_store do
+        TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
       end
     end
   end
@@ -180,5 +172,18 @@ class TestTrack::Session
 
   def fully_qualified_cookie_domain_enabled?
     ENV['TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED'] == '1'
+  end
+
+  def new_thread_with_request_store(&block)
+    Thread.new(RequestStore.store) do |original_store|
+      begin
+        RequestStore.begin!
+        RequestStore.store.merge!(original_store)
+        block.call
+      ensure
+        RequestStore.end!
+        RequestStore.clear!
+      end
+    end
   end
 end
