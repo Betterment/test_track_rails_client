@@ -5,17 +5,17 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
 
   context 'when test_track_schema.yml exists' do
     describe '#to_h' do
-      it 'returns a hash containing all splits' do
+      it 'returns a hash containing all splits with deterministic weights' do
         expect(subject.to_h).to eq(
           {
             buy_one_get_one_promotion_enabled: {
-              false: 50,
-              true: 50
+              false: 100,
+              true: 0
             },
             banner_color: {
-              blue: 34,
-              white: 33,
-              red: 33
+              blue: 100,
+              white: 0,
+              red: 0
             }
           }.with_indifferent_access
         )
@@ -23,10 +23,10 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
     end
 
     describe '#splits' do
-      it 'returns an array of splits' do
+      it 'returns an array of splits with deterministic weights' do
         expect(subject.splits).to eq [
-          TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 50, 'true' => 50),
-          TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 34, 'white' => 33, 'red' => 33)
+          TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 100, 'true' => 0),
+          TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 100, 'white' => 0, 'red' => 0)
         ]
       end
     end
