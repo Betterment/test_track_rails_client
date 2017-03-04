@@ -1,13 +1,12 @@
 module TestTrackRailsClient::AssignmentHelper
-  def stub_test_track_assignments(assignment_registry) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def stub_test_track_assignments(assignment_registry) # rubocop:disable Metrics/AbcSize
     raise "Cannot stub test track assignments when TestTrack is enabled" if TestTrack.enabled?
 
-    split_registry = {}
+    split_registry = TestTrack::Fake::SplitRegistry.instance.to_h.dup
     assignments = []
 
     assignment_registry.each do |split_name, variant|
-      assignment_registry[split_name] = variant.to_s
-      split_registry[split_name] = { variant => 100 }
+      split_registry[split_name] = { variant => 100 } unless split_registry[split_name]
       assignments << { split_name: split_name.to_s, variant: variant.to_s, unsynced: false }
     end
 

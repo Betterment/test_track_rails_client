@@ -1,5 +1,3 @@
-require 'digest'
-
 class TestTrack::Fake::Visitor
   attr_reader :id
 
@@ -21,21 +19,16 @@ class TestTrack::Fake::Visitor
     @assignments ||= _assignments
   end
 
+  def split_registry
+    TestTrack::Fake::SplitRegistry.instance.to_h
+  end
+
   private
 
   def _assignments
-    TestTrack::Fake::SplitRegistry.instance.splits.map do |split|
-      index = hash_fixnum(split.name) % split.registry.keys.size
-      variant = split.registry.keys[index]
-      Assignment.new(split.name, variant, false, "the_context")
+    split_registry.keys.map do |split_name|
+      variant = TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant
+      Assignment.new(split_name, variant, false, "the_context")
     end
-  end
-
-  def hash_fixnum(split_name)
-    split_visitor_hash(split_name).slice(0, 8).to_i(16)
-  end
-
-  def split_visitor_hash(split_name)
-    Digest::MD5.new.update(split_name.to_s + id.to_s).hexdigest
   end
 end
