@@ -5,6 +5,18 @@ module TestTrack::Controller
     helper_method :test_track_session, :test_track_visitor
     helper TestTrack::ApplicationHelper
     around_action :manage_test_track_session
+
+    class_attribute :test_track_web_context_disabled
+  end
+
+  module ClassMethods
+    def disable_test_track_web_context
+      self.test_track_web_context_disabled = true
+    end
+  end
+
+  def test_track_web_context_disabled?
+    self.class.test_track_web_context_disabled
   end
 
   private
