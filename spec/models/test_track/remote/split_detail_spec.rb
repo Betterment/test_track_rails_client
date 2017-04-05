@@ -36,12 +36,12 @@ RSpec.describe TestTrack::Remote::SplitDetail do
     end
   end
 
-  describe ".from_identifier" do
-    subject { described_class.from_identifier("clown_id") }
+  describe ".from_name" do
+    subject { described_class.from_name("clown_id") }
     let(:url) { "http://testtrack.dev/api/v1/split_details/clown_id" }
 
     it "raises when given a blank identifier_value" do
-      expect { TestTrack::Remote::SplitDetail.from_identifier("") }
+      expect { TestTrack::Remote::SplitDetail.from_name("") }
         .to raise_error("must provide an identifier_value")
     end
 
