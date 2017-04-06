@@ -42,7 +42,7 @@ RSpec.describe TestTrack::Remote::SplitDetail do
 
     it "raises when given a blank identifier_value" do
       expect { TestTrack::Remote::SplitDetail.from_name("") }
-        .to raise_error("must provide an identifier_value")
+        .to raise_error("must provide a name")
     end
 
     it "loads split details with instance attributes" do
