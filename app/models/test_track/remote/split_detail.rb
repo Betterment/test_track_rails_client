@@ -6,8 +6,6 @@ class TestTrack::Remote::SplitDetail
   attributes :name
 
   def self.from_name(name)
-    raise "must provide a name" unless name.present?
-
     # TODO: FakeableHer needs to make this faking a feature of `get`
     if faked?
       new(fake_instance_attributes(nil))
@@ -18,13 +16,13 @@ class TestTrack::Remote::SplitDetail
 
   def self.fake_instance_attributes(_)
     {
-      split_name: "fake_visitor_id",
-      hypothesis: "fake_hypothesis",
-      assignment_criteria: "fake_criteria",
-      description: "fake_description",
-      owner: "fake_retail",
-      location: "fake_activity",
-      platform: "fake_mobile"
+      split_name: "fake_split_name",
+      hypothesis: "fake hypothesis",
+      assignment_criteria: "fake criteria for everyone",
+      description: "fake but still good description",
+      owner: "fake owner",
+      location: "fake activity",
+      platform: "mobile"
     }
   end
 end

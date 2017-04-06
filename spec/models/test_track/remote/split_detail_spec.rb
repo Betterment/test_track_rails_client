@@ -6,11 +6,11 @@ RSpec.describe TestTrack::Remote::SplitDetail do
       .with(basic_auth: %w(dummy fakepassword))
       .to_return(status: 200, body: {
         split_name: "fake_split_name_from_server",
-        hypothesis: "hypothesis",
-        assignment_criteria: "criteria",
-        description: "description",
-        owner: "retail",
-        location: "activity",
+        hypothesis: "hypothesis from a real server",
+        assignment_criteria: "criteria about real not fake users",
+        description: "description about a very real test",
+        owner: "best owner ever",
+        location: "the homepage above the fold",
         platform: "mobile"
       }.to_json)
   end
@@ -20,18 +20,24 @@ RSpec.describe TestTrack::Remote::SplitDetail do
     subject { described_class.find("fake_split_name_from_server") }
 
     it "loads split details with fake instance attributes" do
-      expect(subject.split_name).to eq("fake_visitor_id")
-      expect(subject.hypothesis).to eq("fake_hypothesis")
-      expect(subject.assignment_criteria).to eq("fake_criteria")
-      expect(subject.description).to eq("fake_description")
-      expect(subject.owner).to eq("fake_retail")
-      expect(subject.location).to eq("fake_activity")
-      expect(subject.platform).to eq("fake_mobile")
+      expect(subject.split_name).to eq("fake_split_name")
+      expect(subject.hypothesis).to eq("fake hypothesis")
+      expect(subject.assignment_criteria).to eq("fake criteria for everyone")
+      expect(subject.description).to eq("fake but still good description")
+      expect(subject.owner).to eq("fake owner")
+      expect(subject.location).to eq("fake activity")
+      expect(subject.platform).to eq("mobile")
     end
 
     it "fetches attributes from the test track server when enabled" do
       with_test_track_enabled do
         expect(subject.split_name).to eq("fake_split_name_from_server")
+        expect(subject.hypothesis).to eq("hypothesis from a real server")
+        expect(subject.assignment_criteria).to eq("criteria about real not fake users")
+        expect(subject.description).to eq("description about a very real test")
+        expect(subject.owner).to eq("best owner ever")
+        expect(subject.location).to eq("the homepage above the fold")
+        expect(subject.platform).to eq("mobile")
       end
     end
   end
@@ -40,13 +46,8 @@ RSpec.describe TestTrack::Remote::SplitDetail do
     subject { described_class.from_name("clown_id") }
     let(:url) { "http://testtrack.dev/api/v1/split_details/clown_id" }
 
-    it "raises when given a blank identifier_value" do
-      expect { TestTrack::Remote::SplitDetail.from_name("") }
-        .to raise_error("must provide a name")
-    end
-
     it "loads split details with instance attributes" do
-      expect(subject.split_name).to eq("fake_visitor_id")
+      expect(subject.split_name).to eq("fake_split_name")
     end
 
     it "fetches attributes from the test track server when enabled" do
