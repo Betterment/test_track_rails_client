@@ -3,7 +3,7 @@ class TestTrack::Remote::SplitDetail
 
   collection_path '/api/v1/split_details'
 
-  attributes :name
+  attributes :name, :hypothesis, :assignment_criteria, :description, :owner, :location, :platform
 
   def self.from_name(name)
     # TODO: FakeableHer needs to make this faking a feature of `get`
@@ -16,7 +16,7 @@ class TestTrack::Remote::SplitDetail
 
   def self.fake_instance_attributes(_)
     {
-      split_name: "fake_split_name",
+      name: "fake_split_name",
       hypothesis: "fake hypothesis",
       assignment_criteria: "fake criteria for everyone",
       description: "fake but still good description",
