@@ -1,9 +1,23 @@
 ---
 splits:
   buy_one_get_one_promotion_enabled:
-    'false': 50
-    'true': 50
+    weights:
+      'false': 50
+      'true': 50
+    hypothesis: "user will buy more hats with promotion"
+    location: "hat store"
+    platform: "desktop"
+    owner: "hat makers"
+    assignment_criteria: "user has bought one hat"
+    description: "promotion test to see if users will buy more hats"
   banner_color:
-    blue: 34
-    red: 33
-    white: 33
+    weights:
+      blue: 34
+      red: 33
+      white: 33
+    hypothesis: "user will interact more with blue banner"
+    location: "home screen"
+    platform: "mobile"
+    owner: "mobile team"
+    assignment_criteria: "user has mobile app"
+    description: "banner test to see if users will interact more"

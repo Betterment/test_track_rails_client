@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
           resources :visitors, only: :show
 
-          resources :split_details, only: :show
+          resource :split_detail, only: :show
 
           resources :identifier_types, only: [], param: :name do
             resources :identifiers, only: [], param: :value do
