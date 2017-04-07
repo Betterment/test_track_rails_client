@@ -4,7 +4,6 @@ class TestTrack::Remote::Visitor
   collection_path '/api/v1/visitors'
 
   has_many :assignments
-  has_many :assignment_details
 
   def self.from_identifier(identifier_type, identifier_value)
     raise "must provide an identifier_type" unless identifier_type.present?
