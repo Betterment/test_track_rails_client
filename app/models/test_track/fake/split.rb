@@ -1,7 +1,5 @@
 class TestTrack::Fake::Split
-  def self.instance
-    @instance ||= new
-  end
+  include Singleton
 
   def split_details
     @split_details ||= _split_details
@@ -10,11 +8,7 @@ class TestTrack::Fake::Split
   private
 
   def _split_details
-    split_hash = TestTrack::Fake::Schema.split_hash
-    split_hash.each_with_object({}) do |(split_name, details), split_details|
-      details_without_weight = details.except!("weights")
-      split_details["name"] = split_name
-      split_details.merge!(details_without_weight)
-    end
+    split_hash = TestTrack::Fake::Schema.instance.split_hash
+    { "name" => "banner_color" }.merge(split_hash["banner_color"].except("weights"))
   end
 end

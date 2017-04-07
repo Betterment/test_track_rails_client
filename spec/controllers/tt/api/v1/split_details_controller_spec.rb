@@ -6,15 +6,16 @@ RSpec.describe Tt::Api::V1::SplitDetailsController do
   describe '#show' do
     it 'returns fake split details' do
       get :show, format: :json
-      expected_response = ({
+
+      expected_response = {
         name: "banner_color",
         hypothesis: "user will interact more with blue banner",
         location: "home screen",
         platform: "mobile",
         owner: "mobile team",
         assignment_criteria: "user has mobile app",
-        description: "banner test to see if users will interact more",
-      })
+        description: "banner test to see if users will interact more"
+      }
 
       expect(response_json).to eq expected_response
     end
