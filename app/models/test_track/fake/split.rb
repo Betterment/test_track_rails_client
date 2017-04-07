@@ -10,7 +10,7 @@ class TestTrack::Fake::Split
   private
 
   def _split_details
-    split_hash = TestTrack::Fake::SchemaLoading.new.split_hash
+    split_hash = TestTrack::Fake::Schema.split_hash
     split_hash.each_with_object({}) do |(split_name, details), split_details|
       details_without_weight = details.except!("weights")
       split_details["name"] = split_name

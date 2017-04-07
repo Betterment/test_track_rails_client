@@ -18,7 +18,7 @@ class TestTrack::Fake::SplitRegistry
   private
 
   def splits_with_deterministic_weights
-    split_hash = TestTrack::Fake::SchemaLoading.new.split_hash
+    split_hash = TestTrack::Fake::Schema.split_hash
     split_hash.each_with_object({}) do |(split_name, weighting_registry), split_registry|
       default_variant = weighting_registry["weights"].keys.sort.first
 
