@@ -4,8 +4,8 @@ class TestTrack::FakeServer
       TestTrack::Fake::SplitRegistry.instance.splits
     end
 
-    def split_details
-      TestTrack::Fake::SplitDetail.instance.details
+    def split_details(name)
+      TestTrack::Fake::SplitDetail.new(name).details
     end
 
     def visitor

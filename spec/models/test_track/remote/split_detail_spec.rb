@@ -20,7 +20,7 @@ RSpec.describe TestTrack::Remote::SplitDetail do
     subject { described_class.find("fake_split_name_from_server") }
 
     it "loads split details with fake instance attributes" do
-      expect(subject.name).to eq("fake_split_name")
+      expect(subject.name).to eq("fake_split_name_from_server")
       expect(subject.hypothesis).to eq("fake hypothesis")
       expect(subject.assignment_criteria).to eq("fake criteria for everyone")
       expect(subject.description).to eq("fake but still good description")
@@ -47,7 +47,7 @@ RSpec.describe TestTrack::Remote::SplitDetail do
     let(:url) { "http://testtrack.dev/api/v1/split_details/clown_id" }
 
     it "loads split details with instance attributes" do
-      expect(subject.name).to eq("fake_split_name")
+      expect(subject.name).to eq("clown_id")
     end
 
     it "fetches attributes from the test track server when enabled" do

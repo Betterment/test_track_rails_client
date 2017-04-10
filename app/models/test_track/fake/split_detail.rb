@@ -1,5 +1,9 @@
 class TestTrack::Fake::SplitDetail
-  include Singleton
+  attr_reader :name
+
+  def initialize(name)
+    @name = name
+  end
 
   def details
     @details ||= _details
@@ -9,7 +13,7 @@ class TestTrack::Fake::SplitDetail
 
   def _details
     {
-      name: "banner_color",
+      name: name,
       hypothesis: "user will interact more with blue banner",
       location: "home screen",
       platform: "mobile",

@@ -5,10 +5,10 @@ RSpec.describe Tt::Api::V1::SplitDetailsController do
 
   describe '#show' do
     it 'returns fake split details' do
-      get :show, format: :json
+      get :show, id: "great_split", format: :json
 
       expected_response = {
-        name: "banner_color",
+        name: "great_split",
         hypothesis: "user will interact more with blue banner",
         location: "home screen",
         platform: "mobile",
