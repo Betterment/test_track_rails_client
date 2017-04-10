@@ -5,7 +5,7 @@ class TestTrack::FakeServer
     end
 
     def split_details
-      TestTrack::Fake::Split.instance.split_details
+      TestTrack::Fake::SplitDetail.instance.details
     end
 
     def visitor
