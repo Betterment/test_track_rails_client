@@ -8,7 +8,7 @@ class TestTrack::Remote::AssignmentDetail
     if original.blank? || !original.respond_to?(:in_time_zone)
       nil
     else
-      original.in_time_zone rescue nil
+      original.in_time_zone rescue nil # rubocop:disable Style/RescueModifier
     end
   end
 

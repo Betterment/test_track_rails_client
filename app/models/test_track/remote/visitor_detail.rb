@@ -14,7 +14,7 @@ class TestTrack::Remote::VisitorDetail
 
   def self.fake_instance_attributes(_)
     {
-      assignments: [
+      assignment_details: [
         TestTrack::Remote::AssignmentDetail.fake_instance_attributes(nil)
       ]
     }
