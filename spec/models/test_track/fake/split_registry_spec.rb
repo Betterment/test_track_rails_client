@@ -35,7 +35,6 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
   context 'when test_track_schema.yml does not exist' do
     before do
       allow(YAML).to receive(:load_file).with("#{Rails.root}/db/test_track_schema.yml").and_return(nil)
-      allow(TestTrack::Fake::Schema.instance).to receive(:split_hash).and_return({})
     end
 
     describe '#to_h' do

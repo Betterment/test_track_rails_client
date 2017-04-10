@@ -17,14 +17,37 @@ class TestTrack::Fake::SplitRegistry
 
   private
 
-  def splits_with_deterministic_weights
-    split_hash = TestTrack::Fake::Schema.instance.split_hash
+  def split_hash
+    if test_track_schema_yml.present?
+      test_track_schema_yml[:splits]
+    else
+      {}
+    end
+  end
 
+  def test_track_schema_yml
+    unless instance_variable_defined?(:@test_track_schema_yml)
+      @test_track_schema_yml = _test_track_schema_yml
+    end
+    @test_track_schema_yml
+  end
+
+  def _test_track_schema_yml
+    YAML.load_file(test_track_schema_yml_path).with_indifferent_access
+  rescue
+    nil
+  end
+
+  def test_track_schema_yml_path
+    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || "#{Rails.root}/db/test_track_schema.yml"
+  end
+
+  def splits_with_deterministic_weights
     split_hash.each_with_object({}) do |(split_name, weighting_registry), split_registry|
-      default_variant = weighting_registry["weights"].keys.sort.first
+      default_variant = weighting_registry.keys.sort.first
 
       adjusted_weights = { default_variant => 100 }
-      weighting_registry["weights"].except(default_variant).keys.each do |variant|
+      weighting_registry.except(default_variant).keys.each do |variant|
         adjusted_weights[variant] = 0
       end
 
