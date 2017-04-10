@@ -4,6 +4,10 @@ class TestTrack::FakeServer
       TestTrack::Fake::SplitRegistry.instance.splits
     end
 
+    def split_details(name)
+      TestTrack::Fake::SplitDetail.new(name).details
+    end
+
     def visitor
       TestTrack::Fake::Visitor.instance
     end
