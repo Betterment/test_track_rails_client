@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::SplitDetail do
-  let(:fake_details) {
+  let(:fake_details) do
     {
       name: "great_name",
       hypothesis: "fake hypothesis",
@@ -21,7 +21,7 @@ RSpec.describe TestTrack::Remote::SplitDetail do
         }
       ]
     }
-  }
+  end
 
   before do
     stub_request(:get, url)
