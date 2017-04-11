@@ -8,6 +8,10 @@ class TestTrack::FakeServer
       TestTrack::Fake::Visitor.instance
     end
 
+    def visitor_details
+      TestTrack::Fake::VisitorDetail.instance
+    end
+
     def assignments
       TestTrack::Fake::Visitor.instance.assignments
     end
