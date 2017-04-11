@@ -11,7 +11,17 @@ RSpec.describe TestTrack::Remote::SplitDetail do
         description: "description about a very real test",
         owner: "best owner ever",
         location: "the homepage above the fold",
-        platform: "mobile"
+        platform: "mobile",
+        variant_details: [
+          {
+            name: "variant detail a",
+            description: "blue banner on homepage"
+          },
+          {
+            name: "variant detail b",
+            description: "no banner on homepage"
+          }
+        ]
       }.to_json)
   end
 
@@ -27,6 +37,12 @@ RSpec.describe TestTrack::Remote::SplitDetail do
       expect(subject.owner).to eq("fake owner")
       expect(subject.location).to eq("fake activity")
       expect(subject.platform).to eq("mobile")
+
+      expect(subject.variant_details.size).to eq 2
+      expect(subject.variant_details.first[:name]).to eq("fake first variant detail")
+      expect(subject.variant_details.first[:description]).to eq("There are FAQ links in a sidebar")
+      expect(subject.variant_details.last[:name]).to eq("fake second variant detail")
+      expect(subject.variant_details.last[:description]).to eq("There are FAQ links in the default footer")
     end
 
     it "fetches attributes from the test track server when enabled" do
@@ -38,6 +54,12 @@ RSpec.describe TestTrack::Remote::SplitDetail do
         expect(subject.owner).to eq("best owner ever")
         expect(subject.location).to eq("the homepage above the fold")
         expect(subject.platform).to eq("mobile")
+
+        expect(subject.variant_details.size).to eq 2
+        expect(subject.variant_details.first[:name]).to eq("variant detail a")
+        expect(subject.variant_details.first[:description]).to eq("blue banner on homepage")
+        expect(subject.variant_details.last[:name]).to eq("variant detail b")
+        expect(subject.variant_details.last[:description]).to eq("no banner on homepage")
       end
     end
   end
