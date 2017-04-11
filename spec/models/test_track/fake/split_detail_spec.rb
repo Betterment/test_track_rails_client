@@ -11,7 +11,10 @@ RSpec.describe TestTrack::Fake::SplitDetail do
         expect(subject[:platform]).to eq "mobile"
         expect(subject[:location]).to eq "home screen"
         expect(subject[:assignment_criteria]).to eq "user has mobile app"
-        expect(subject[:hypothesis]).to eq "user will interact more with blue banner"
+        expect(subject[:variant_details].first[:name]).to eq "first variant detail"
+        expect(subject[:variant_details].first[:description]).to eq "red banner on homepage"
+        expect(subject[:variant_details].last[:name]).to eq "second variant detail"
+        expect(subject[:variant_details].last[:description]).to eq "yellow banner on homepage"
       end
     end
   end

@@ -19,7 +19,21 @@ class TestTrack::Fake::SplitDetail
       platform: "mobile",
       owner: "mobile team",
       assignment_criteria: "user has mobile app",
-      description: "banner test to see if users will interact more"
+      description: "banner test to see if users will interact more",
+      variant_details: variant_details
     }
+  end
+
+  def variant_details
+    [
+      {
+        name: "first variant detail",
+        description: "red banner on homepage"
+      },
+      {
+        name: "second variant detail",
+        description: "yellow banner on homepage"
+      }
+    ]
   end
 end
