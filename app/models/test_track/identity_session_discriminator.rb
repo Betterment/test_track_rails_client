@@ -14,7 +14,7 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def web_context?
-    controller.present?
+    controller.present? && !controller.test_track_web_context_disabled?
   end
 
   private
