@@ -1,10 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Session do
-  let(:controller) { instance_double(ApplicationController, cookies: cookies, request: request) }
+  let(:controller) { instance_double(ApplicationController, cookies: cookies, request: request, response: response) }
   let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
+  let(:headers) { {} }
   let(:mixpanel_cookie) { { distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json }
-  let(:request) { double(:request, host: "www.foo.com", ssl?: true) }
+  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers) }
+  let(:response) { double(:response, headers: {}) }
   let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
   subject { described_class.new(controller) }
@@ -59,6 +61,38 @@ RSpec.describe TestTrack::Session do
         expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
       end
 
+      context 'test track visitor id is the same as existing visitor id' do
+        before do
+          real_visitor = instance_double(TestTrack::Visitor, id: "fake_visitor_id", assignment_registry: {})
+          identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
+          allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
+        end
+
+        it "does not return the visitor id in the reponse header" do
+          subject.manage do
+            subject.log_in!("identifier_type", "value")
+          end
+
+          expect(controller.response.headers).not_to have_key('X-Set-TT-Visitor-ID')
+        end
+      end
+
+      context 'test track visitor id differs from existing visitor id' do
+        before do
+          real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
+          identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
+          allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
+        end
+
+        it "returns the existing visitor id in the reponse header" do
+          subject.manage do
+            subject.log_in!("identifier_type", "value")
+          end
+
+          expect(controller.response.headers['X-Set-TT-Visitor-ID']).to eq('real_visitor_id')
+        end
+      end
+
       it "changes the distinct_id in the mixpanel cookie" do
         subject.manage do
           subject.log_in!("identifier_type", "value")
@@ -77,6 +111,45 @@ RSpec.describe TestTrack::Session do
             visitor_id: /\A[a-f0-9\-]{36}\z/,
             value: "value"
           )
+        end
+      end
+    end
+
+    context "current visitor id is passed via the header" do
+      let(:cookies) { {} }
+      let(:headers) { { 'X-TT-Visitor-ID' => 'fake_visitor_id' } }
+
+      before do
+        real_visitor = instance_double(TestTrack::Visitor, id: "real_visitor_id", assignment_registry: {})
+        identifier = instance_double(TestTrack::Remote::Identifier, visitor: real_visitor)
+        allow(TestTrack::Remote::Identifier).to receive(:create!).and_return(identifier)
+      end
+
+      describe '#sign_up!' do
+        it "provides the current visitor id when requesting an identifier" do
+          subject.manage do
+            subject.sign_up!("identifier_type", "value")
+
+            expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
+              identifier_type: "identifier_type",
+              visitor_id: "fake_visitor_id",
+              value: "value"
+            )
+          end
+        end
+      end
+
+      describe '#log_in!' do
+        it "provides the current visitor id when requesting an identifier" do
+          subject.manage do
+            subject.log_in!("identifier_type", "value")
+
+            expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
+              identifier_type: "identifier_type",
+              visitor_id: "fake_visitor_id",
+              value: "value"
+            )
+          end
         end
       end
     end

@@ -98,6 +98,10 @@ class TestTrack::Visitor
     !offline? && @remote_visitor.present?
   end
 
+  def id_overridden_by_existing_visitor?
+    @id_overridden_by_existing_visitor || false
+  end
+
   private
 
   def assignments
@@ -113,6 +117,7 @@ class TestTrack::Visitor
   end
 
   def merge!(other)
+    @id_overridden_by_existing_visitor = id != other.id
     @id = other.id
     @assignment_registry = assignment_registry.merge(other.assignment_registry)
     @unsynced_assignments = nil

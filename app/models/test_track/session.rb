@@ -12,6 +12,7 @@ class TestTrack::Session
     yield
   ensure
     manage_cookies!
+    manage_response_headers!
     notify_unsynced_assignments! if sync_assignments?
     create_alias! if signed_up?
   end
@@ -48,7 +49,11 @@ class TestTrack::Session
   alias signed_up? signed_up
 
   def visitor
-    @visitor ||= TestTrack::Visitor.new(id: cookies[visitor_cookie_name])
+    @visitor ||= TestTrack::Visitor.new(id: visitor_id)
+  end
+
+  def visitor_id
+    cookies[visitor_cookie_name] || request_headers[visitor_request_header_name]
   end
 
   def set_cookie(name, value)
@@ -100,8 +105,24 @@ class TestTrack::Session
     controller.request
   end
 
+  def response
+    controller.response
+  end
+
   def cookies
     controller.send(:cookies)
+  end
+
+  def request_headers
+    request.headers
+  end
+
+  def response_headers
+    response.headers
+  end
+
+  def manage_response_headers!
+    response_headers[visitor_response_header_name] = visitor.id if visitor.id_overridden_by_existing_visitor?
   end
 
   def notify_unsynced_assignments!
@@ -168,6 +189,14 @@ class TestTrack::Session
 
   def visitor_cookie_name
     ENV['TEST_TRACK_VISITOR_COOKIE_NAME'] || 'tt_visitor_id'
+  end
+
+  def visitor_request_header_name
+    ENV['TEST_TRACK_VISITOR_REQUEST_HEADER_NAME'] || 'X-TT-Visitor-ID'
+  end
+
+  def visitor_response_header_name
+    ENV['TEST_TRACK_VISITOR_RESPONSE_HEADER_NAME'] || 'X-Set-TT-Visitor-ID'
   end
 
   def fully_qualified_cookie_domain_enabled?
