@@ -32,7 +32,14 @@ development.
 Set up ENV vars in every environment:
 
 * `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#custom-analytics) you can omit this.
-* `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@testtrack.dev/`
+* `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@[your-app-domain]/`
+
+  [your-app-domain] can be 
+  * `testtrack.dev` ([Pow](pow.cx))
+  * `localhost:PORT`
+  * `example.org`
+  * etc
+
 
 Mix `TestTrack::Controller` into any controllers needing access to TestTrack:
 
