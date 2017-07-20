@@ -10,5 +10,6 @@
 /spec/examples.txt
 /coverage
 Gemfile.lock
+/gemfiles/*.gemfile.lock
 /bower_components
 !.keep
