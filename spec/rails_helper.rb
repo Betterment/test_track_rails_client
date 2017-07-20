@@ -62,6 +62,7 @@ RSpec.configure do |config|
   config.include EnvironmentSpecHelper
   config.include EnabledSpecHelper
   config.include DelayedJobSpecHelper
+  config.include RailsCompatibilitySpecHelper, type: :controller
 end
 
 ENV['MIXPANEL_TOKEN'] = 'fakemixpaneltoken'
