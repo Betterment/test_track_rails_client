@@ -33,3 +33,5 @@ matrix:
       rvm: jruby-19mode
     - gemfile: gemfiles/rails_5_1.gemfile
       rvm: 2.0.0
+    - gemfile: gemfiles/rails_5_1.gemfile
+      rvm: jruby-9.1.5.0
