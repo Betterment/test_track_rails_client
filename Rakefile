@@ -69,4 +69,10 @@ task :vendor_deps do
 end
 
 task(:default).clear
-task default: [:rubocop, :spec]
+if ENV['APPRAISAL_INITIALIZED'] || ENV['TRAVIS']
+  task default: [:rubocop, :spec]
+else
+  require 'appraisal'
+  Appraisal::Task.new
+  task default: :appraisal
+end
