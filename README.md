@@ -251,7 +251,7 @@ OfflineSession.with_visitor_for(:myapp_user_id, 1234) do |test_track_visitor|
 end
 ```
 
-2. with a TestTrack `visitor_id`:
+2. with a `TestTrack::Visitor#id`:
 ```ruby
 OfflineSession.with_visitor_id(1234) do |test_track_visitor|
   test_track_visitor.vary :name_of_split, context: 'background_job' do |v|
