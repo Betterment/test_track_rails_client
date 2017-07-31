@@ -34,7 +34,7 @@ Set up ENV vars in every environment:
 * `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#custom-analytics) you can omit this.
 * `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@[your-app-domain]/`
 
-  [your-app-domain] can be 
+  [your-app-domain] can be
   * `testtrack.dev` ([Pow](pow.cx))
   * `localhost:PORT`
   * `example.org`
@@ -232,8 +232,28 @@ end
 
 The `OfflineSession` class can be used to load a test track visitor when there is no access to browser cookies. It is perfect for use in a process being run from either a job queue or a scheduler. The visitor object that is yielded to the block is the same as the visitor in a controller context; it has both the `vary` and `ab` methods.
 
+An `OfflineSession` can be established in one of two ways:
+
+1. with an `identifier_type`:
 ```ruby
 OfflineSession.with_visitor_for(:myapp_user_id, 1234) do |test_track_visitor|
+  test_track_visitor.vary :name_of_split, context: 'background_job' do |v|
+    v.when :variant_1, :variant_2 do
+      # Do something
+    end
+    v.when :variant_3 do
+      # Do another thing
+    end
+    v.default :variant_4 do
+      # Do something else
+    end
+  end
+end
+```
+
+2. with a `TestTrack::Visitor#id`:
+```ruby
+OfflineSession.with_visitor_id(1234) do |test_track_visitor|
   test_track_visitor.vary :name_of_split, context: 'background_job' do |v|
     v.when :variant_1, :variant_2 do
       # Do something
