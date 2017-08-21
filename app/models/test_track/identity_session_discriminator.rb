@@ -5,26 +5,35 @@ class TestTrack::IdentitySessionDiscriminator
     @identity = identity
   end
 
-  def controller
-    @controller ||= RequestStore[:test_track_controller]
+  def test_track_visitor
+    if authenticated_resource_matches_identity?
+      yield controller.send(:test_track_visitor)
+    else
+      TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
+        yield v
+      end
+    end
   end
 
-  def authenticated_resource_matches_identity?
-    controller_has_authenticated_resource? && controller.send(authenticated_resource_method_name) == identity
-  end
-
-  def web_context?
-    controller.present?
+  def test_track_session
+    if web_context?
+      controller.send(:test_track_session)
+    else
+      raise "test_track_session called outside of a web context"
+    end
   end
 
   private
 
-  def controller_has_authenticated_resource?
-    # pass true to `respond_to?` to include private methods
-    web_context? && controller.respond_to?(authenticated_resource_method_name, true)
+  def authenticated_resource_matches_identity?
+    web_session.authenticated_resource_matches_identity?(identity)
   end
 
-  def authenticated_resource_method_name
-    @authenticated_resource_method_name ||= "current_#{identity.class.model_name.element}"
+  def web_context?
+    web_session.present?
+  end
+
+  def web_session
+    @web_session ||= RequestStore[:test_track_web_session]
   end
 end

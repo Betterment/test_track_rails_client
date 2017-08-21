@@ -40,7 +40,20 @@ class TestTrack::Session
 
   def sign_up!(identifier_type, identifier_value)
     visitor.link_identifier!(identifier_type, identifier_value)
+    @signed_up_identifier_type = identifier_type
+    @signed_up_identifier_value = identifier_value
     @signed_up = true
+  end
+
+  def authenticated_resource_matches_identity?(identity)
+    if signed_up?
+      signed_up_identifier_type == identity.test_track_identifier_type && signed_up_identifier_value == identity.test_track_identifier_value
+    else
+      authenticated_resource_method_name = "current_#{identity.class.model_name.element}"
+
+      # pass true to `respond_to?` to include private methods
+      controller.respond_to?(authenticated_resource_method_name, true) && controller.send(authenticated_resource_method_name) == identity
+    end
   end
 
   private
