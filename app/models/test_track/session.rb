@@ -45,7 +45,7 @@ class TestTrack::Session
     @signed_up = true
   end
 
-  def authenticated_resource_matches_identity?(identity)
+  def authenticated_resource_matches_identity?(identity) # rubocop:disable Metrics/AbcSize
     if signed_up?
       signed_up_identifier_type == identity.test_track_identifier_type && signed_up_identifier_value == identity.test_track_identifier_value
     else

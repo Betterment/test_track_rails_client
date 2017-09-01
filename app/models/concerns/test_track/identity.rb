@@ -2,7 +2,7 @@ module TestTrack::Identity
   extend ActiveSupport::Concern
 
   module ClassMethods
-    def test_track_identifier(identifier_type, identifier_value_method) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/PerceivedComplexity
+    def test_track_identifier(identifier_type, identifier_value_method) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       instance_methods = Module.new
       include instance_methods
 
