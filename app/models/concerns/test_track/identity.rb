@@ -17,37 +17,39 @@ module TestTrack::Identity
 
         define_method :test_track_ab do |*args|
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
-          discriminator.test_track_visitor do |v|
+          discriminator.with_visitor do |v|
             v.ab(*args)
           end
         end
 
         define_method :test_track_vary do |*args, &block|
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
-          discriminator.test_track_visitor do |v|
+          discriminator.with_visitor do |v|
             v.vary(*args, &block)
           end
         end
 
         define_method :test_track_visitor_id do
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
-          discriminator.test_track_visitor do |v|
+          discriminator.with_visitor do |v|
             v.id
           end
         end
 
         define_method :test_track_sign_up! do
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
-
-          identifier_value = send(identifier_value_method)
-          discriminator.test_track_session.sign_up! identifier_type, identifier_value
+          discriminator.with_session do |session|
+            identifier_value = send(identifier_value_method)
+            session.sign_up! identifier_type, identifier_value
+          end
         end
 
         define_method :test_track_log_in! do |opts = {}|
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
-
-          identifier_value = send(identifier_value_method)
-          discriminator.test_track_session.log_in! identifier_type, identifier_value, opts
+          discriminator.with_session do |session|
+            identifier_value = send(identifier_value_method)
+            session.log_in! identifier_type, identifier_value
+          end
         end
       end
     end

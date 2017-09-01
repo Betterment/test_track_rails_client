@@ -5,7 +5,7 @@ class TestTrack::IdentitySessionDiscriminator
     @identity = identity
   end
 
-  def test_track_visitor
+  def with_visitor
     if authenticated_resource_matches_identity?
       yield controller.send(:test_track_visitor)
     else
@@ -15,11 +15,11 @@ class TestTrack::IdentitySessionDiscriminator
     end
   end
 
-  def test_track_session
+  def with_session
     if web_context?
-      controller.send(:test_track_session)
+      yield controller.send(:test_track_session)
     else
-      raise "test_track_session called outside of a web context"
+      raise "with_session called outside of a web context"
     end
   end
 
