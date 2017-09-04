@@ -39,16 +39,14 @@ module TestTrack::Identity
         define_method :test_track_sign_up! do
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
           discriminator.with_session do |session|
-            identifier_value = send(identifier_value_method)
-            session.sign_up! identifier_type, identifier_value
+            session.sign_up! self
           end
         end
 
         define_method :test_track_log_in! do |opts = {}|
           discriminator = TestTrack::IdentitySessionDiscriminator.new(self)
           discriminator.with_session do |session|
-            identifier_value = send(identifier_value_method)
-            session.log_in! identifier_type, identifier_value
+            session.log_in! self, opts
           end
         end
       end

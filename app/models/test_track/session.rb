@@ -31,35 +31,40 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(identifier_type, identifier_value, opts = {})
+  def log_in!(identity, opts = {})
     @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
-    visitor.link_identifier!(identifier_type, identifier_value)
+    visitor.link_identifier!(identity.test_track_identifier_type, identity.test_track_identifier_value)
+    managed_identities[identity.test_track_identifier_type] = identity
     self.mixpanel_distinct_id = visitor.id
     true
   end
 
-  def sign_up!(identifier_type, identifier_value)
-    visitor.link_identifier!(identifier_type, identifier_value)
-    @signed_up_identifier_type = identifier_type
-    @signed_up_identifier_value = identifier_value
+  def sign_up!(identity)
+    visitor.link_identifier!(identity.test_track_identifier_type, identity.test_track_identifier_value)
+    managed_identities[identity.test_track_identifier_type] = identity
     @signed_up = true
   end
 
-  def authenticated_resource_matches_identity?(identity) # rubocop:disable Metrics/AbcSize
-    if signed_up?
-      signed_up_identifier_type == identity.test_track_identifier_type && signed_up_identifier_value == identity.test_track_identifier_value
-    else
-      authenticated_resource_method_name = "current_#{identity.class.model_name.element}"
-
-      # pass true to `respond_to?` to include private methods
-      controller.respond_to?(authenticated_resource_method_name, true) && controller.send(authenticated_resource_method_name) == identity
-    end
+  def managed_identity?(identity)
+    managed_identity = managed_identities[identity.test_track_identifier_type] ||= authenticated_resource_for_identity(identity)
+    managed_identity.present? && managed_identity == identity
   end
 
   private
 
   attr_reader :controller, :signed_up
   alias signed_up? signed_up
+
+  def managed_identities
+    @managed_identities ||= {}
+  end
+
+  def authenticated_resource_for_identity(identity)
+    authenticated_resource_method_name = "current_#{identity.class.model_name.element}"
+
+    # pass true to `respond_to?` to include private methods
+    controller.respond_to?(authenticated_resource_method_name, true) && controller.send(authenticated_resource_method_name)
+  end
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: visitor_id)
