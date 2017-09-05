@@ -6,6 +6,8 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def with_visitor
+    raise ArgumentError, "must provide block to `with_visitor`" unless block_given?
+
     if managed_identity?
       yield session.visitor_dsl
     else
@@ -16,6 +18,8 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   def with_session
+    raise ArgumentError, "must provide block to `with_session`" unless block_given?
+
     if web_context?
       yield session
     else
