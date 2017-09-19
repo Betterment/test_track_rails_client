@@ -3,8 +3,9 @@ class TestTrack::SessionIdentityCollection
     @controller = controller
   end
 
-  def find_by_identifier_type(identity)
-    identities[identity.test_track_identifier_type] || authenticated_resource_for_identity(identity) || nil
+  def include?(identity)
+    found_identity = identities[identity.test_track_identifier_type] || authenticated_resource_for_identity(identity)
+    found_identity.present? && found_identity == identity
   end
 
   def <<(identity)

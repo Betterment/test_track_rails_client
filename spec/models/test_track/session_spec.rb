@@ -569,14 +569,14 @@ RSpec.describe TestTrack::Session do
     end
   end
 
-  describe "#managed_identity?" do
+  describe "#has_matching_identity?" do
     context "when the controller's authenticated resource matches the identity" do
       before do
         allow(controller).to receive(:current_clown).and_return(identity)
       end
 
       it "returns true" do
-        expect(subject.managed_identity?(identity)).to eq true
+        expect(subject.has_matching_identity?(identity)).to eq true
       end
     end
 
@@ -588,27 +588,27 @@ RSpec.describe TestTrack::Session do
       end
 
       it "returns false" do
-        expect(subject.managed_identity?(identity)).to eq false
+        expect(subject.has_matching_identity?(identity)).to eq false
       end
     end
 
     context "when the identity matches a previously logged in identity" do
       it "returns true" do
-        expect(subject.managed_identity?(identity)).to eq false
+        expect(subject.has_matching_identity?(identity)).to eq false
 
         subject.log_in!(identity)
 
-        expect(subject.managed_identity?(identity)).to eq true
+        expect(subject.has_matching_identity?(identity)).to eq true
       end
     end
 
     context "when the identity matches a previously signed up identity" do
       it "returns true" do
-        expect(subject.managed_identity?(identity)).to eq false
+        expect(subject.has_matching_identity?(identity)).to eq false
 
         subject.sign_up!(identity)
 
-        expect(subject.managed_identity?(identity)).to eq true
+        expect(subject.has_matching_identity?(identity)).to eq true
       end
     end
   end

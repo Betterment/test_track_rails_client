@@ -59,8 +59,6 @@ RSpec.configure do |config|
   # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
 
-  config.before(:each) { RequestStore.clear! }
-
   config.include EnvironmentSpecHelper
   config.include EnabledSpecHelper
   config.include DelayedJobSpecHelper

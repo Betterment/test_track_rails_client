@@ -36,7 +36,7 @@ class TestTrack::Session
 
     @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
     visitor.link_identifier!(identity.test_track_identifier_type, identity.test_track_identifier_value)
-    managed_identities << identity
+    matching_identities << identity
     self.mixpanel_distinct_id = visitor.id
     true
   end
@@ -45,13 +45,12 @@ class TestTrack::Session
     raise "must provide a TestTrack::Identity" unless identity.is_a?(TestTrack::Identity)
 
     visitor.link_identifier!(identity.test_track_identifier_type, identity.test_track_identifier_value)
-    managed_identities << identity
+    matching_identities << identity
     @signed_up = true
   end
 
-  def managed_identity?(identity)
-    managed_identity = managed_identities.find_by_identifier_type(identity)
-    managed_identity.present? && managed_identity == identity
+  def has_matching_identity?(identity)
+    matching_identities.include?(identity)
   end
 
   private
@@ -227,7 +226,7 @@ class TestTrack::Session
     end
   end
 
-  def managed_identities
-    @managed_identities ||= TestTrack::SessionIdentityCollection.new(controller)
+  def matching_identities
+    @matching_identities ||= TestTrack::SessionIdentityCollection.new(controller)
   end
 end

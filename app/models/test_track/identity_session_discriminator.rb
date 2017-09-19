@@ -8,7 +8,7 @@ class TestTrack::IdentitySessionDiscriminator
   def with_visitor
     raise ArgumentError, "must provide block to `with_visitor`" unless block_given?
 
-    if managed_identity?
+    if matching_identity?
       yield session.visitor_dsl
     else
       TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
@@ -29,8 +29,8 @@ class TestTrack::IdentitySessionDiscriminator
 
   private
 
-  def managed_identity?
-    session.present? && session.managed_identity?(identity)
+  def matching_identity?
+    session.present? && session.has_matching_identity?(identity)
   end
 
   def web_context?

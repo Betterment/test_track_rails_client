@@ -16,24 +16,24 @@ RSpec.describe TestTrack::IdentitySessionDiscriminator do
 
       before do
         allow(RequestStore).to receive(:[]).with(:test_track_session).and_return(test_track_session)
-        allow(test_track_session).to receive(:managed_identity?).and_return(session_manages_identity)
+        allow(test_track_session).to receive(:has_matching_identity?).and_return(has_matching_identity)
         allow(test_track_session).to receive(:visitor_dsl).and_return(visitor_dsl)
       end
 
-      context "when the session manages the identity" do
-        let(:session_manages_identity) { true }
+      context "when the session has a matching identity" do
+        let(:has_matching_identity) { true }
 
         it "yields the session's visitor dsl" do
           subject.with_visitor do |visitor|
             expect(visitor).to eq visitor_dsl
           end
 
-          expect(test_track_session).to have_received(:managed_identity?).with(identity)
+          expect(test_track_session).to have_received(:has_matching_identity?).with(identity)
         end
       end
 
-      context "when the session does not manage the identity" do
-        let(:session_manages_identity) { false }
+      context "when the session does not have a matching identity" do
+        let(:has_matching_identity) { false }
         let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
 
         before do
