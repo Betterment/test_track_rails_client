@@ -349,6 +349,12 @@ def track_assignment(visitor_id, assignment, properties)
 def alias(visitor_id, existing_id)
 ```
 
+## Upgrading
+
+### to 2.0
+
+`TestTrack::Session#log_in!` and `TestTrack:Session#sign_up!` now take a `TestTrack::Identity` instance argument instead of an identity type and identity value.
+
 ## How to Contribute
 
 We would love for you to contribute! Anything that benefits the majority of `test_track` users—from a documentation fix to an entirely new feature—is encouraged.
