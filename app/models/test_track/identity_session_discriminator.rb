@@ -30,7 +30,7 @@ class TestTrack::IdentitySessionDiscriminator
   private
 
   def managed_identity?
-    session.managed_identity?(identity)
+    session.present? && session.managed_identity?(identity)
   end
 
   def web_context?
