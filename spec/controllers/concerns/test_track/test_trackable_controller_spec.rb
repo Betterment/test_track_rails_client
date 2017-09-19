@@ -76,8 +76,8 @@ RSpec.describe TestTrack::Controller do
     expect(response).to have_http_status(:no_content)
   end
 
-  it "stores the visitor in RequestStore" do
+  it "stores the session in RequestStore" do
     get :show, id: "1234"
-    expect(RequestStore).to have_received(:[]=).with(:test_track_controller, controller)
+    expect(RequestStore).to have_received(:[]=).with(:test_track_session, instance_of(TestTrack::Session))
   end
 end
