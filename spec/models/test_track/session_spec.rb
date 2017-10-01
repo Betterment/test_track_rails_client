@@ -118,11 +118,16 @@ RSpec.describe TestTrack::Session do
       end
 
       context "forget current visitor" do
+        before do
+          allow(TestTrack::Visitor).to receive(:new).and_call_original
+        end
+
         it "creates a temporary visitor when creating the identifier" do
           subject.manage do
             subject.log_in!(identity, forget_current_visitor: true)
           end
 
+          expect(TestTrack::Visitor).to have_received(:new)
           expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
             identifier_type: "clown_id",
             visitor_id: /\A[a-f0-9\-]{36}\z/,
@@ -543,8 +548,10 @@ RSpec.describe TestTrack::Session do
       expect(subject.log_in!(identity)).to eq true
     end
 
-    it "requires an identity" do
-      expect { subject.sign_up!('identity_type', 'identity_value') }.to raise_exception //
+    it "allows identity type and value arguments with a warning" do
+      expect do
+        subject.log_in!('identity_type', 'identity_value')
+      end.to output(/#log_in! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
     end
   end
 
@@ -564,8 +571,10 @@ RSpec.describe TestTrack::Session do
       expect(subject.sign_up!(identity)).to eq true
     end
 
-    it "requires an identity" do
-      expect { subject.sign_up!('identity_type', 'identity_value') }.to raise_exception //
+    it "allows identity type and value arguments with a warning" do
+      expect do
+        subject.sign_up!('identity_type', 'identity_value')
+      end.to output(/#sign_up! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
     end
   end
 

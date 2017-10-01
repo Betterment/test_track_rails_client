@@ -31,21 +31,41 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(identity, opts = {})
-    raise "must provide a TestTrack::Identity" unless identity.is_a?(TestTrack::Identity)
+  def log_in!(*args) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    opts = args[-1].is_a?(Hash) ? args.pop : {}
+
+    if args[0].is_a?(TestTrack::Identity)
+      identity = args[0]
+      identifier_type = identity.test_track_identifier_type
+      identifier_value = identity.test_track_identifier_value
+    else
+      identifier_type = args[0]
+      identifier_value = args[1]
+      warn "#log_in! with two args is deprecated. Please provide a TestTrack::Identity"
+    end
 
     @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
-    visitor.link_identifier!(identity.test_track_identifier_type, identity.test_track_identifier_value)
-    matching_identities << identity
+    visitor.link_identifier!(identifier_type, identifier_value)
+
+    matching_identities << identity if identity.present?
     self.mixpanel_distinct_id = visitor.id
     true
   end
 
-  def sign_up!(identity)
-    raise "must provide a TestTrack::Identity" unless identity.is_a?(TestTrack::Identity)
+  def sign_up!(*args) # rubocop:disable Metrics/MethodLength
+    if args[0].is_a?(TestTrack::Identity)
+      identity = args[0]
+      identifier_type = identity.test_track_identifier_type
+      identifier_value = identity.test_track_identifier_value
+    else
+      identifier_type = args[0]
+      identifier_value = args[1]
+      warn "#sign_up! with two args is deprecated. Please provide a TestTrack::Identity"
+    end
 
-    visitor.link_identifier!(identity.test_track_identifier_type, identity.test_track_identifier_value)
-    matching_identities << identity
+    visitor.link_identifier!(identifier_type, identifier_value)
+
+    matching_identities << identity if identity.present?
     @signed_up = true
   end
 

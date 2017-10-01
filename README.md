@@ -362,7 +362,7 @@ def alias(visitor_id, existing_id)
 
 ## Upgrading
 
-### From 1.x to 2.0
+### From 1.x to 1.4
 
 `TestTrack::Session#log_in!` and `TestTrack:Session#sign_up!` now take a `TestTrack::Identity` instance argument instead of an identity type and identity value.
 
