@@ -5,26 +5,39 @@ class TestTrack::IdentitySessionDiscriminator
     @identity = identity
   end
 
-  def controller
-    @controller ||= RequestStore[:test_track_controller]
+  def with_visitor
+    raise ArgumentError, "must provide block to `with_visitor`" unless block_given?
+
+    if matching_identity?
+      yield session.visitor_dsl
+    else
+      TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
+        yield v
+      end
+    end
   end
 
-  def authenticated_resource_matches_identity?
-    controller_has_authenticated_resource? && controller.send(authenticated_resource_method_name) == identity
-  end
+  def with_session
+    raise ArgumentError, "must provide block to `with_session`" unless block_given?
 
-  def web_context?
-    controller.present?
+    if web_context?
+      yield session
+    else
+      raise "#with_session called outside of web context"
+    end
   end
 
   private
 
-  def controller_has_authenticated_resource?
-    # pass true to `respond_to?` to include private methods
-    web_context? && controller.respond_to?(authenticated_resource_method_name, true)
+  def matching_identity?
+    session.present? && session.has_matching_identity?(identity)
   end
 
-  def authenticated_resource_method_name
-    @authenticated_resource_method_name ||= "current_#{identity.class.model_name.element}"
+  def web_context?
+    session.present?
+  end
+
+  def session
+    @session ||= RequestStore[:test_track_session]
   end
 end

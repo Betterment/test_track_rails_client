@@ -1,7 +1,21 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Session do
-  let(:controller) { instance_double(ApplicationController, cookies: cookies, request: request, response: response) }
+  let(:identity) { Clown.new(id: 1234) }
+
+  let(:controller_class) do
+    Class.new(ApplicationController) do
+      include TestTrack::Controller
+
+      private # make current_clown private to better simulate real world scenario
+
+      def current_clown
+      end
+    end
+  end
+
+  let(:controller) { controller_class.new }
+
   let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
   let(:headers) { {} }
   let(:mixpanel_cookie) { { distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json }
@@ -12,6 +26,9 @@ RSpec.describe TestTrack::Session do
   subject { described_class.new(controller) }
 
   before do
+    allow(controller).to receive(:cookies).and_return(cookies)
+    allow(controller).to receive(:request).and_return(request)
+    allow(controller).to receive(:response).and_return(response)
     allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
     allow(Thread).to receive(:new).and_call_original
     allow(TestTrack::CreateAliasJob).to receive(:new).and_call_original
@@ -44,19 +61,19 @@ RSpec.describe TestTrack::Session do
 
       it "provides the current visitor id when requesting an identifier" do
         subject.manage do
-          subject.log_in!("identifier_type", "value")
+          subject.log_in!(identity)
 
           expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
-            identifier_type: "identifier_type",
+            identifier_type: "clown_id",
             visitor_id: "fake_visitor_id",
-            value: "value"
+            value: "1234"
           )
         end
       end
 
       it "sets correct tt_visitor_id" do
         subject.manage do
-          subject.log_in!("identifier_type", "value")
+          subject.log_in!(identity)
         end
         expect(cookies['tt_visitor_id'][:value]).to eq "real_visitor_id"
       end
@@ -70,7 +87,7 @@ RSpec.describe TestTrack::Session do
 
         it "does not return the visitor id in the reponse header" do
           subject.manage do
-            subject.log_in!("identifier_type", "value")
+            subject.log_in!(identity)
           end
 
           expect(controller.response.headers).not_to have_key('X-Set-TT-Visitor-ID')
@@ -86,7 +103,7 @@ RSpec.describe TestTrack::Session do
 
         it "returns the existing visitor id in the reponse header" do
           subject.manage do
-            subject.log_in!("identifier_type", "value")
+            subject.log_in!(identity)
           end
 
           expect(controller.response.headers['X-Set-TT-Visitor-ID']).to eq('real_visitor_id')
@@ -95,21 +112,26 @@ RSpec.describe TestTrack::Session do
 
       it "changes the distinct_id in the mixpanel cookie" do
         subject.manage do
-          subject.log_in!("identifier_type", "value")
+          subject.log_in!(identity)
         end
         expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: "real_visitor_id", OtherProperty: "bar" }.to_json)
       end
 
       context "forget current visitor" do
+        before do
+          allow(TestTrack::Visitor).to receive(:new).and_call_original
+        end
+
         it "creates a temporary visitor when creating the identifier" do
           subject.manage do
-            subject.log_in!("identifier_type", "value", forget_current_visitor: true)
+            subject.log_in!(identity, forget_current_visitor: true)
           end
 
+          expect(TestTrack::Visitor).to have_received(:new)
           expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
-            identifier_type: "identifier_type",
+            identifier_type: "clown_id",
             visitor_id: /\A[a-f0-9\-]{36}\z/,
-            value: "value"
+            value: "1234"
           )
         end
       end
@@ -128,12 +150,12 @@ RSpec.describe TestTrack::Session do
       describe '#sign_up!' do
         it "provides the current visitor id when requesting an identifier" do
           subject.manage do
-            subject.sign_up!("identifier_type", "value")
+            subject.sign_up!(identity)
 
             expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
-              identifier_type: "identifier_type",
+              identifier_type: "clown_id",
               visitor_id: "fake_visitor_id",
-              value: "value"
+              value: "1234"
             )
           end
         end
@@ -142,12 +164,12 @@ RSpec.describe TestTrack::Session do
       describe '#log_in!' do
         it "provides the current visitor id when requesting an identifier" do
           subject.manage do
-            subject.log_in!("identifier_type", "value")
+            subject.log_in!(identity)
 
             expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
-              identifier_type: "identifier_type",
+              identifier_type: "clown_id",
               visitor_id: "fake_visitor_id",
-              value: "value"
+              value: "1234"
             )
           end
         end
@@ -405,7 +427,7 @@ RSpec.describe TestTrack::Session do
         )
 
         subject.manage do
-          subject.sign_up!('myappdb_user_id', 444)
+          subject.sign_up!(identity)
         end
 
         expect(Delayed::Job).to have_received(:enqueue).with(an_instance_of(TestTrack::CreateAliasJob))
@@ -518,12 +540,18 @@ RSpec.describe TestTrack::Session do
     end
 
     it "calls link_identifier! on the visitor" do
-      subject.log_in!('myappdb_user_id', 444)
-      expect(visitor).to have_received(:link_identifier!).with('myappdb_user_id', 444)
+      subject.log_in!(identity)
+      expect(visitor).to have_received(:link_identifier!).with('clown_id', 1234)
     end
 
     it "returns true" do
-      expect(subject.log_in!('myappdb_user_id', 444)).to eq true
+      expect(subject.log_in!(identity)).to eq true
+    end
+
+    it "allows identity type and value arguments with a warning" do
+      expect do
+        subject.log_in!('identity_type', 'identity_value')
+      end.to output(/#log_in! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
     end
   end
 
@@ -535,12 +563,62 @@ RSpec.describe TestTrack::Session do
     end
 
     it "calls link_identifier! on the visitor" do
-      subject.sign_up!('myappdb_user_id', 444)
-      expect(visitor).to have_received(:link_identifier!).with('myappdb_user_id', 444)
+      subject.sign_up!(identity)
+      expect(visitor).to have_received(:link_identifier!).with('clown_id', 1234)
     end
 
     it "returns true" do
-      expect(subject.sign_up!('myappdb_user_id', 444)).to eq true
+      expect(subject.sign_up!(identity)).to eq true
+    end
+
+    it "allows identity type and value arguments with a warning" do
+      expect do
+        subject.sign_up!('identity_type', 'identity_value')
+      end.to output(/#sign_up! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
+    end
+  end
+
+  describe "#has_matching_identity?" do
+    context "when the controller's authenticated resource matches the identity" do
+      before do
+        allow(controller).to receive(:current_clown).and_return(identity)
+      end
+
+      it "returns true" do
+        expect(subject.has_matching_identity?(identity)).to eq true
+      end
+    end
+
+    context "when the controller's authenticated resource does not match the identity" do
+      let(:other_identity) { Clown.new(id: 9876) }
+
+      before do
+        allow(controller).to receive(:current_clown).and_return(other_identity)
+      end
+
+      it "returns false" do
+        expect(subject.has_matching_identity?(identity)).to eq false
+      end
+    end
+
+    context "when the identity matches a previously logged in identity" do
+      it "returns true" do
+        expect(subject.has_matching_identity?(identity)).to eq false
+
+        subject.log_in!(identity)
+
+        expect(subject.has_matching_identity?(identity)).to eq true
+      end
+    end
+
+    context "when the identity matches a previously signed up identity" do
+      it "returns true" do
+        expect(subject.has_matching_identity?(identity)).to eq false
+
+        subject.sign_up!(identity)
+
+        expect(subject.has_matching_identity?(identity)).to eq true
+      end
     end
   end
 end

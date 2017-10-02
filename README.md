@@ -8,6 +8,17 @@ It provides server-side split-testing and feature-toggling through a simple API.
 
 If you're looking to do client-side assignment, then check out our [JS client](https://github.com/Betterment/test_track_js_client).
 
+* [Installation](#installation)
+* [Concepts](#concepts)
+* [Configuring the TestTrack server from your app](#configuring-the-testtrack-server-from-your-app)
+* [Varying app behavior based on assigned variant](#varying-app-behavior-based-on-assigned-variant)
+* [Tracking visitor logins](#tracking-visitor-logins)
+* [Tracking signups](#tracking-signups)
+* [Testing splits](#testing-splits)
+* [Custom Analytics](#custom-analytics)
+* [Upgrading](#upgrading)
+* [How to Contribute](#how-to-contribute)
+
 ## Installation
 
 Install the gem:
@@ -348,6 +359,12 @@ def track_assignment(visitor_id, assignment, properties)
 # @param existing_id [String] Any existing identifier for the visitor(defaults to Mixpanel's UniqueId)
 def alias(visitor_id, existing_id)
 ```
+
+## Upgrading
+
+### From 1.x to 1.3
+
+`TestTrack::Session#log_in!` and `TestTrack:Session#sign_up!` now take a `TestTrack::Identity` instance argument instead of an identity type and identity value.
 
 ## How to Contribute
 
