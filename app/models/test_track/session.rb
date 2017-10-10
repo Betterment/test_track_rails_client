@@ -123,7 +123,7 @@ class TestTrack::Session
   end
 
   def public_suffix_host
-    @public_suffix_host ||= PublicSuffix.parse(request.host)
+    @public_suffix_host ||= PublicSuffix.parse(request.host, default_rule: nil)
   end
 
   def manage_cookies!
