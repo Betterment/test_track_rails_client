@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '>= 4.1', "< 6.0"
   s.add_dependency "faraday", ">= 0.8", "< 1.0"
   s.add_dependency 'faraday_middleware'
-  s.add_dependency 'public_suffix', '~> 1.4.6'
+  s.add_dependency 'public_suffix', '>= 2.0.0', '<= 3.0.0'
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
   s.add_dependency 'delayed_job', '~> 4.0'
   s.add_dependency 'delayed_job_active_record'
@@ -33,5 +33,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rubocop", ">= 0.36"
   s.add_development_dependency "webmock", "~> 2.1.0"
 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.0.0'
 end
