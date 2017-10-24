@@ -169,11 +169,20 @@ RSpec.describe TestTrack::VaryDSL do
         expect(notifier).not_to have_received(:notify)
       end
     end
+
+    context "when adding a variant that was already configured" do
+      it "tells airbrake" do
+        subject.when :one, &noop
+        subject.when :one, &noop
+        expect(notifier).to have_received(:notify)
+          .with(/configures variant "one" more than once/)
+      end
+    end
   end
 
   context "#default" do
     it "accepts a block" do
-      subject.when :one do
+      subject.default :one do
         puts "hello"
       end
 
@@ -187,6 +196,16 @@ RSpec.describe TestTrack::VaryDSL do
 
       expect(notifier).to have_received(:notify)
         .with('vary for "button_size" configures unknown variant "this_default_does_not_exist"')
+    end
+
+    context "when adding a default for a variant that was already configured" do
+      it "tells airbrake" do
+        subject.when :one, &noop
+        subject.default :one, &noop
+
+        expect(notifier).to have_received(:notify)
+          .with(/configures variant "one" more than once/)
+      end
     end
 
     context "with a nil split_registry" do
