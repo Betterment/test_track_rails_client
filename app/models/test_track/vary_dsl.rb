@@ -57,6 +57,10 @@ class TestTrack::VaryDSL
     variant = variant.to_s
 
     raise ArgumentError, "must provide block for #{variant}" unless behavior_proc
+    notify_because_vary(<<-MESSAGE) if variant_behaviors.include?(variant)
+      configures variant "#{variant}" more than once.
+      This will raise an error in the next version of test_track_rails_client.
+    MESSAGE
     notify_because_vary "configures unknown variant \"#{variant}\"" unless variant_acceptable?(variant)
 
     variant_behaviors[variant] = behavior_proc
