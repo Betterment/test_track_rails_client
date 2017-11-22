@@ -1,9 +1,8 @@
 class TestTrack::NotifyAssignmentJob
-  attr_reader :mixpanel_distinct_id, :visitor_id, :assignment
+  attr_reader :visitor_id, :assignment
 
   def initialize(opts)
     @visitor_id = opts.delete(:visitor_id)
-    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id)
     @assignment = opts.delete(:assignment)
 
     %w(visitor_id assignment).each do |param_name|
@@ -25,15 +24,7 @@ class TestTrack::NotifyAssignmentJob
 
   def track
     return "failure" unless TestTrack.enabled?
-    result = TestTrack.analytics.track_assignment(visitor_id, assignment, track_options)
+    result = TestTrack.analytics.track_assignment(visitor_id, assignment)
     result ? "success" : "failure"
-  end
-
-  def track_options
-    if mixpanel_distinct_id.present?
-      { mixpanel_distinct_id: mixpanel_distinct_id }
-    else
-      {}
-    end
   end
 end

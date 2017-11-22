@@ -3,8 +3,7 @@ module TestTrack::Analytics
     delegate :alias, to: :mixpanel
 
     def track_assignment(visitor_id, assignment, params = {})
-      distinct_id = params.delete(:mixpanel_distinct_id) || visitor_id
-      mixpanel.track(distinct_id, 'SplitAssigned', split_properties(assignment).merge(TTVisitorID: visitor_id))
+      mixpanel.track(visitor_id, 'SplitAssigned', split_properties(assignment).merge(TTVisitorID: visitor_id))
     end
 
     private
