@@ -25,7 +25,15 @@ class TestTrack::NotifyAssignmentJob
 
   def track
     return "failure" unless TestTrack.enabled?
-    result = TestTrack.analytics.track_assignment(visitor_id, assignment, mixpanel_distinct_id: mixpanel_distinct_id)
+    result = TestTrack.analytics.track_assignment(visitor_id, assignment, track_options)
     result ? "success" : "failure"
+  end
+
+  def track_options
+    if mixpanel_distinct_id.present?
+      { mixpanel_distinct_id: mixpanel_distinct_id }
+    else
+      {}
+    end
   end
 end

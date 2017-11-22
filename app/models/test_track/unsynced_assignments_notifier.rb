@@ -3,7 +3,7 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   def initialize(opts)
     @visitor_id = opts.delete(:visitor_id)
-    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id) || visitor_id
+    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id)
     @assignments = opts.delete(:assignments)
 
     %w(visitor_id assignments).each do |param_name|

@@ -48,7 +48,7 @@ class TestTrack::Session
     visitor.link_identifier!(identifier_type, identifier_value)
 
     identities << identity if identity.present?
-    self.mixpanel_distinct_id = visitor.id
+    self.mixpanel_distinct_id = visitor.id if mixpanel_analytics?
     true
   end
 
@@ -127,8 +127,16 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    set_cookie(mixpanel_cookie_name, mixpanel_cookie.to_json)
+    set_cookie(mixpanel_cookie_name, mixpanel_cookie.to_json) if mixpanel_analytics?
     set_cookie(visitor_cookie_name, visitor.id)
+  end
+
+  def mixpanel_analytics?
+    unless instance_variable_defined? :@mixpanel_analytics
+      @mixpanel_analytics = TestTrack.analytics.is_a?(TestTrack::Analytics::MixpanelClient)
+    end
+
+    @mixpanel_analytics
   end
 
   def request
@@ -184,7 +192,7 @@ class TestTrack::Session
   end
 
   def mixpanel_distinct_id
-    mixpanel_cookie['distinct_id']
+    mixpanel_cookie['distinct_id'] if mixpanel_analytics?
   end
 
   def mixpanel_distinct_id=(value)
