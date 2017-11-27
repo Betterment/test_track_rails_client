@@ -36,47 +36,47 @@ RSpec.describe TestTrack::ABConfiguration do
 
   describe "#initialize" do
     it "raises when missing a split_name" do
-      expect do
+      expect {
         described_class.new initialize_options.except(:split_name)
-      end.to raise_error("Must provide split_name")
+      }.to raise_error("Must provide split_name")
     end
 
     it "raises when missing a true_variant" do
-      expect do
+      expect {
         described_class.new initialize_options.except(:true_variant)
-      end.to raise_error("Must provide true_variant")
+      }.to raise_error("Must provide true_variant")
     end
 
     it "raises when missing a split_registry" do
-      expect do
+      expect {
         described_class.new initialize_options.except(:split_registry)
-      end.to raise_error("Must provide split_registry")
+      }.to raise_error("Must provide split_registry")
     end
 
     it "raises when given an unknown option" do
-      expect do
+      expect {
         described_class.new initialize_options.merge(unwelcome: "option")
-      end.to raise_error("unknown opts: unwelcome")
+      }.to raise_error("unknown opts: unwelcome")
     end
 
     it "allows a nil split_registry" do
-      expect do
+      expect {
         described_class.new initialize_options.merge(split_registry: nil)
-      end.not_to raise_error
+      }.not_to raise_error
     end
 
     it "raises a descriptive error when the split is not in the split_registry" do
-      expect do
+      expect {
         described_class.new initialize_options.merge(split_name: :not_a_real_split)
-      end.to raise_error("unknown split: not_a_real_split.")
+      }.to raise_error("unknown split: not_a_real_split.")
     end
 
     context 'when in the development environment' do
       it 'gives a suggested fix' do
         with_rails_env 'development' do
-          expect do
+          expect {
             described_class.new initialize_options.merge(split_name: :not_a_real_split)
-          end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
+          }.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load")
         end
       end
     end
@@ -84,9 +84,9 @@ RSpec.describe TestTrack::ABConfiguration do
     context 'when in production' do
       it 'does not give a suggested fix' do
         with_rails_env 'production' do
-          expect do
+          expect {
             described_class.new initialize_options.merge(split_name: :not_a_real_split)
-          end.to raise_error("unknown split: not_a_real_split.")
+          }.to raise_error("unknown split: not_a_real_split.")
         end
       end
     end
@@ -94,7 +94,7 @@ RSpec.describe TestTrack::ABConfiguration do
 
   describe "#variants" do
     it "should only have true and false keys" do
-      expect(subject.variants.keys).to eq [:true, :false]
+      expect(subject.variants.keys).to eq %i(true false)
     end
 
     it "tells airbrake if there are more than two variants" do

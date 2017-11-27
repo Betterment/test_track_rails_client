@@ -9,8 +9,7 @@ RSpec.describe TestTrack::Session do
 
       private # make current_clown private to better simulate real world scenario
 
-      def current_clown
-      end
+      def current_clown; end
     end
   end
 
@@ -194,7 +193,7 @@ RSpec.describe TestTrack::Session do
       context "with malformed mixpanel cookie" do
         let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
         let(:malformed_mixpanel_cookie) do
-          URI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
+          CGI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
         end
 
         it "sets the mixpanel cookie's distinct_id to the visitor_id" do
@@ -549,9 +548,9 @@ RSpec.describe TestTrack::Session do
     end
 
     it "allows identity type and value arguments with a warning" do
-      expect do
+      expect {
         subject.log_in!('identity_type', 'identity_value')
-      end.to output(/#log_in! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
+      }.to output(/#log_in! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
     end
   end
 
@@ -572,9 +571,9 @@ RSpec.describe TestTrack::Session do
     end
 
     it "allows identity type and value arguments with a warning" do
-      expect do
+      expect {
         subject.sign_up!('identity_type', 'identity_value')
-      end.to output(/#sign_up! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
+      }.to output(/#sign_up! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
     end
   end
 

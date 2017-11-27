@@ -3,14 +3,15 @@ ruby '>= 2.0.0'
 
 gemspec
 
-gem 'rubocop', '< 0.42', require: false
+gem 'rubocop', '~> 0.51.0', require: false
+
 gem 'simplecov', require: false
 gem 'shoulda-matchers', '~> 2.8', require: false
 gem 'jbuilder', '~> 2.0'
 gem 'mime-types', '< 3'
 gem 'selenium-webdriver', '~> 2.5'
 
-gem 'ruby_spec_helpers', path: 'vendor/gems/ruby_spec_helpers'
+gem 'rspec-rails'
 
 gem 'rack', '~> 1.6' # Make sure travis can still run tests on older rubies
 

@@ -7,7 +7,7 @@ class TestTrack::NotifyAssignmentJob
     @assignment = opts.delete(:assignment)
 
     %w(visitor_id assignment).each do |param_name|
-      raise "#{param_name} must be present" unless send(param_name).present?
+      raise "#{param_name} must be present" if send(param_name).blank?
     end
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
   end

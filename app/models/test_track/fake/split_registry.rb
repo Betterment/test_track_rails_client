@@ -39,7 +39,7 @@ class TestTrack::Fake::SplitRegistry
   end
 
   def test_track_schema_yml_path
-    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || "#{Rails.root}/db/test_track_schema.yml"
+    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db', 'test_track_schema.yml')
   end
 
   def splits_with_deterministic_weights
@@ -47,7 +47,7 @@ class TestTrack::Fake::SplitRegistry
       default_variant = weighting_registry.keys.sort.first
 
       adjusted_weights = { default_variant => 100 }
-      weighting_registry.except(default_variant).keys.each do |variant|
+      weighting_registry.except(default_variant).each_key do |variant|
         adjusted_weights[variant] = 0
       end
 

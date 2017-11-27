@@ -17,7 +17,7 @@ class TestTrack::VaryDSL
   end
 
   def when(*variants, &block)
-    raise ArgumentError, "must provide at least one variant" unless variants.present?
+    raise ArgumentError, "must provide at least one variant" if variants.blank?
     variants.each do |variant|
       assign_behavior_to_variant(variant, block)
     end

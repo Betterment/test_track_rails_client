@@ -204,13 +204,20 @@ module Her
       #   @user = User.where(:email => "tobias@bluth.com").create(:fullname => "Tobias Fünke")
       #   # Called via POST "/users/1" with `&email=tobias@bluth.com&fullname=Tobias+Fünke`
       def create(attributes = {})
-        attributes ||= {}
-        resource = @parent.new(@params.merge(attributes))
-        resource.request_headers = request_headers
-        resource.request_options = request_options
-        resource.save
+        _build(attributes).tap(&:save)
+      end
 
-        resource
+      # Create a resource and return it, raises if there are validation or response errors
+      #
+      # @example
+      #   @user = User.create!(:fullname => "Tobias Fünke")
+      #   # Called via POST "/users/1" with `&fullname=Tobias+Fünke`
+      #
+      # @example
+      #   @user = User.where(:email => "tobias@bluth.com").create!(:fullname => "Tobias Fünke")
+      #   # Called via POST "/users/1" with `&email=tobias@bluth.com&fullname=Tobias+Fünke`
+      def create!(attributes = {})
+        _build(attributes).tap(&:save!)
       end
 
       # Fetch a resource and create it if it's not found
@@ -245,6 +252,14 @@ module Her
       # @private
       def clear_fetch_cache!
         instance_variable_set(:@_fetch, nil)
+      end
+
+      # @private
+      def _build(attributes)
+        resource = @parent.new(@params.merge(attributes))
+        resource.request_headers = request_headers
+        resource.request_options = request_options
+        resource
       end
     end
   end

@@ -37,9 +37,9 @@ RSpec.describe TestTrack::CreateAliasJob do
 
     it "blows up if analytics.alias raises Timeout::Error" do
       allow(TestTrack.analytics).to receive(:alias).and_raise(Timeout::Error, 'analytics alias failed')
-      expect do
+      expect {
         with_test_track_enabled { subject.perform }
-      end.to raise_error("analytics alias failed")
+      }.to raise_error("analytics alias failed")
     end
   end
 end

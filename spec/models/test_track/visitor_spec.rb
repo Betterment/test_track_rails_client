@@ -212,27 +212,27 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "requires less than two defaults" do
-        expect do
+        expect {
           new_visitor.vary(:blue_button, context: :spec) do |v|
             v.when :true, &blue_block
             v.default :false, &red_block
             v.default :false, &red_block
           end
-        end.to raise_error("cannot provide more than one `default`")
+        }.to raise_error("cannot provide more than one `default`")
       end
 
       it "requires more than zero defaults" do
-        expect do
+        expect {
           new_visitor.vary(:blue_button, context: :spec) { |v| v.when(:true, &blue_block) }
-        end.to raise_error("must provide exactly one `default`")
+        }.to raise_error("must provide exactly one `default`")
       end
 
       it "requires at least one when" do
-        expect do
+        expect {
           new_visitor.vary(:blue_button, context: :spec) do |v|
             v.default :true, &red_block
           end
-        end.to raise_error("must provide at least one `when`")
+        }.to raise_error("must provide at least one `when`")
       end
     end
   end
