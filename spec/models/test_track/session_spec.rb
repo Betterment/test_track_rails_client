@@ -377,7 +377,7 @@ RSpec.describe TestTrack::Session do
       # block until thread completes
       notifier_thread.join
 
-      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(visitor_id: 'fake_visitor_id' , assignments: [])
+      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(visitor_id: 'fake_visitor_id', assignments: [])
 
       expect(unsynced_assignments_notifier).to have_received(:notify)
     end

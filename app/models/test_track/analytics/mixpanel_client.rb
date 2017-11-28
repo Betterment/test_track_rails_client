@@ -1,6 +1,6 @@
 module TestTrack::Analytics
   class MixpanelClient
-    def track_assignment(visitor_id, assignment, params = {})
+    def track_assignment(visitor_id, assignment)
       mixpanel.track(visitor_id, 'SplitAssigned', split_properties(assignment).merge(TTVisitorID: visitor_id))
     end
 

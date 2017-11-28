@@ -8,7 +8,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
   describe '#track_assignment' do
     it 'calls underlying' do
       expect(subject.track_assignment(123, foo: "bar")).to eq true
-      expect(underlying).to have_received(:track_assignment).with(123, { foo: "bar" }, {})
+      expect(underlying).to have_received(:track_assignment).with(123, foo: "bar")
     end
 
     context 'underlying raises' do
@@ -16,7 +16,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
         allow(underlying).to receive(:track_assignment).and_raise StandardError
 
         expect(subject.track_assignment(123, {})).to eq false
-        expect(underlying).to have_received(:track_assignment).with(123, {}, {})
+        expect(underlying).to have_received(:track_assignment).with(123, {})
       end
     end
   end
