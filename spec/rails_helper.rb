@@ -65,5 +65,4 @@ RSpec.configure do |config|
   config.include RailsCompatibilitySpecHelper, type: :controller
 end
 
-ENV['MIXPANEL_TOKEN'] = 'fakemixpaneltoken'
 Delayed::Worker.delay_jobs = false

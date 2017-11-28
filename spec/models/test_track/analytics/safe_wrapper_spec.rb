@@ -5,22 +5,6 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
 
   subject { TestTrack::Analytics::SafeWrapper.new(underlying) }
 
-  describe '#alias' do
-    it 'calls underlying' do
-      expect(subject.alias(123, 321)).to eq true
-      expect(underlying).to have_received(:alias).with(123, 321)
-    end
-
-    context 'underlying raises' do
-      it 'returns false' do
-        allow(underlying).to receive(:alias).and_raise StandardError
-
-        expect(subject.alias(123, 321)).to eq false
-        expect(underlying).to have_received(:alias).with(123, 321)
-      end
-    end
-  end
-
   describe '#track_assignment' do
     it 'calls underlying' do
       expect(subject.track_assignment(123, foo: "bar")).to eq true

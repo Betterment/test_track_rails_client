@@ -16,10 +16,6 @@ module TestTrack::Analytics
       safe_action { underlying.track_assignment(visitor_id, assignment, params) }
     end
 
-    def alias(visitor_id, existing_id)
-      safe_action { underlying.alias(visitor_id, existing_id) }
-    end
-
     private
 
     def error_handler

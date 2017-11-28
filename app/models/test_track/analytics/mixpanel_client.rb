@@ -1,7 +1,5 @@
 module TestTrack::Analytics
   class MixpanelClient
-    delegate :alias, to: :mixpanel
-
     def track_assignment(visitor_id, assignment, params = {})
       mixpanel.track(visitor_id, 'SplitAssigned', split_properties(assignment).merge(TTVisitorID: visitor_id))
     end

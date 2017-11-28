@@ -43,23 +43,8 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
 
       expect(TestTrack.analytics).to have_received(:track_assignment).with(
         "fake_visitor_id",
-        assignment,
-        mixpanel_distinct_id: nil
+        assignment
       )
-    end
-
-    context "mixpanel_distinct_id supplied" do
-      let(:subject) { described_class.new(params.merge(mixpanel_distinct_id: "fake_mixpanel_id")) }
-
-      it "passes along the mixpanel_distinct_id" do
-        with_test_track_enabled { subject.perform }
-
-        expect(TestTrack.analytics).to have_received(:track_assignment).with(
-          "fake_visitor_id",
-          assignment,
-          mixpanel_distinct_id: 'fake_mixpanel_id'
-        )
-      end
     end
 
     it "sends test_track assignment" do

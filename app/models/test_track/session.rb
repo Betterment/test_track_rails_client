@@ -64,6 +64,8 @@ class TestTrack::Session
     visitor.link_identifier!(identifier_type, identifier_value)
 
     identities << identity if identity.present?
+
+    true
   end
 
   def has_matching_identity?(identity)
