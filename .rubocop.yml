@@ -46,8 +46,7 @@ Lint/AmbiguousRegexpLiteral:
     - 'spec/**/*'
 
 Lint/BooleanSymbol:
-  Exclude:
-    - 'spec/**/*'
+  Enabled: true
 
 Metrics/AbcSize:
   Exclude:
