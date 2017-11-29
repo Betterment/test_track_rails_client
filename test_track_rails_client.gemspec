@@ -32,5 +32,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "timecop"
   s.add_development_dependency "webmock", "~> 2.1.0"
 
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 2.1.0'
 end

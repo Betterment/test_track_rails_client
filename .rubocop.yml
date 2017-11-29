@@ -13,7 +13,7 @@ AllCops:
     - 'Gemfile'
   DisplayStyleGuide: true
   DisplayCopNames: true
-  TargetRubyVersion: 2.0
+  TargetRubyVersion: 2.1
 
 Layout/AlignParameters:
   Enabled: false
