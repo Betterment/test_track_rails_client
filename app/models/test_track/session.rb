@@ -45,8 +45,10 @@ class TestTrack::Session
 
     @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
     visitor.link_identifier!(identifier_type, identifier_value)
-
     identities << identity if identity.present?
+
+    TestTrack.login_callback.call(test_track_visitor_id: visitor.id)
+
     true
   end
 
@@ -62,8 +64,9 @@ class TestTrack::Session
     end
 
     visitor.link_identifier!(identifier_type, identifier_value)
-
     identities << identity if identity.present?
+
+    TestTrack.signup_callback.call(test_track_visitor_id: visitor.id)
 
     true
   end

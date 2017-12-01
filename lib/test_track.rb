@@ -27,6 +27,22 @@ module TestTrack
       @analytics = client.is_a?(TestTrack::Analytics::SafeWrapper) ? client : wrapper(client)
     end
 
+    def signup_callback=(callback)
+      @signup_callback = callback
+    end
+
+    def login_callback=(callback)
+      @login_callback = callback
+    end
+
+    def login_callback
+      @login_callback ||= Proc.new {}
+    end
+
+    def signup_callback
+      @signup_callback ||= Proc.new {}
+    end
+
     private
 
     def wrapper(client)

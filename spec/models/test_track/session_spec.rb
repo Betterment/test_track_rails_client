@@ -67,6 +67,39 @@ RSpec.describe TestTrack::Session do
         end
       end
 
+      context 'when login_callback is not configured' do
+        it 'executes a default no-op callback' do
+          expect(TestTrack.login_callback).to receive(:call)
+          subject.manage { subject.log_in!(identity) }
+        end
+      end
+
+      context 'when login_callback is configured' do
+        let(:custom_callback) { ->(options) { options.merge(success: true) } }
+
+        around do |example|
+          begin
+            TestTrack.login_callback = custom_callback
+            example.run
+          ensure
+            TestTrack.login_callback = nil
+          end
+        end
+
+        it 'calls configured callback' do
+          expect(custom_callback).to receive(:call)
+          subject.manage { subject.log_in!(identity) }
+        end
+
+        context 'when login_callback does not accept one argument' do
+          let(:custom_callback) { -> {} }
+
+          it 'raises argument error' do
+            expect { subject.manage { subject.log_in!(identity) } }.to raise_error ArgumentError
+          end
+        end
+      end
+
       it "sets correct tt_visitor_id" do
         subject.manage do
           subject.log_in!(identity)
@@ -146,6 +179,39 @@ RSpec.describe TestTrack::Session do
               visitor_id: "fake_visitor_id",
               value: "1234"
             )
+          end
+        end
+
+        context 'when signup_callback is not configured' do
+          it 'executes a default no-op callback' do
+            expect(TestTrack.signup_callback).to receive(:call)
+            subject.manage { subject.sign_up!(identity) }
+          end
+        end
+
+        context 'when signup_callback is configured' do
+          let(:custom_callback) { ->(options) { options.merge(success: true) } }
+
+          around do |example|
+            begin
+              TestTrack.signup_callback = custom_callback
+              example.run
+            ensure
+              TestTrack.signup_callback = nil
+            end
+          end
+
+          it 'calls configured callback' do
+            expect(custom_callback).to receive(:call)
+            subject.manage { subject.sign_up!(identity) }
+          end
+
+          context 'when signup_callback does not accept one argument' do
+            let(:custom_callback) { -> {} }
+
+            it 'raises argument error' do
+              expect { subject.manage { subject.sign_up!(identity) } }.to raise_error ArgumentError
+            end
           end
         end
       end
