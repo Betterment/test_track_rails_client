@@ -45,9 +45,11 @@ class TestTrack::OfflineSession
   end
 
   def notify_unsynced_assignments!
-    TestTrack::UnsyncedAssignmentsNotifier.new(
-      visitor_id: visitor.id,
-      assignments: visitor.unsynced_assignments
-    ).notify if unsynced_assignments?
+    if unsynced_assignments?
+      TestTrack::UnsyncedAssignmentsNotifier.new(
+        visitor_id: visitor.id,
+        assignments: visitor.unsynced_assignments
+      ).notify
+    end
   end
 end

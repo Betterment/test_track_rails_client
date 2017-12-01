@@ -22,7 +22,7 @@ RSpec.describe TestTrack::ApplicationHelper do
 
       expect(base64_variable_match).to be_present
 
-      decoded_state_hash = JSON.load(Base64.strict_decode64(base64_variable_match[1]))
+      decoded_state_hash = JSON.parse(Base64.strict_decode64(base64_variable_match[1]))
 
       expect(decoded_state_hash).to eq state_hash
     end

@@ -7,8 +7,7 @@ RSpec.describe TestTrack::SessionIdentityCollection do
 
       private # make current_clown private to better simulate real world scenario
 
-      def current_clown
-      end
+      def current_clown; end
     end
   end
 

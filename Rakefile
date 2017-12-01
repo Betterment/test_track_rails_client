@@ -36,30 +36,34 @@ task :vendor_deps do
   FileUtils.module_eval do
     cd "vendor/gems" do
       rm_r Dir.glob('*')
-      %w(ruby_spec_helpers her fakeable_her publicsuffix-ruby).each do |repo|
+      %w(her fakeable_her).each do |repo|
         `git clone --depth=1 git@github.com:Betterment/#{repo}.git && rm -rf #{repo}/.git`
       end
     end
 
-    cd "vendor/gems/ruby_spec_helpers" do
+    cd "vendor/gems/her" do
       rm_r(Dir.glob('.*') - %w(. ..))
       rm_r Dir.glob('*.md')
       rm_r %w(
+        Appraisals
         Gemfile
         Gemfile.lock
+        Rakefile
+        gemfiles
         spec
       ), force: true
-      `sed -E -i '' '/license/d' ruby_spec_helpers.gemspec`
     end
 
     cd "vendor/gems/fakeable_her" do
       rm_r(Dir.glob('.*') - %w(. ..))
       rm_r Dir.glob('*.md')
       rm_r %w(
+        Appraisals
         Gemfile
         Gemfile.lock
         Rakefile
         bin
+        gemfiles
         spec
       ), force: true
       `sed -E -i '' '/license/d' fakeable_her.gemspec`
@@ -70,7 +74,7 @@ end
 
 task(:default).clear
 if ENV['APPRAISAL_INITIALIZED'] || ENV['TRAVIS']
-  task default: [:rubocop, :spec]
+  task default: %i(rubocop spec)
 else
   require 'appraisal'
   Appraisal::Task.new

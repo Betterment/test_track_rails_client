@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::ConfigUpdater do
-  let(:schema_file_path) { "#{Rails.root}/tmp/test_track_schema.yml" }
+  let(:schema_file_path) { Rails.root.join('tmp', 'test_track_schema.yml') }
   let(:errors) { double(full_messages: ["this is wrong"]) }
 
   subject { described_class.new(schema_file_path) }
@@ -19,21 +19,21 @@ RSpec.describe TestTrack::ConfigUpdater do
 
     context "schema file" do
       it "removes the split from the schema file" do
-        given_schema <<-YML
----
-identifier_types: []
-splits:
-  old_split:
-    'false': 50
-    'true': 50
+        given_schema <<-YML.strip_heredoc
+          ---
+          identifier_types: []
+          splits:
+            old_split:
+              'false': 50
+              'true': 50
         YML
 
         subject.drop_split(:old_split)
 
-        expect_schema <<-YML
----
-identifier_types: []
-splits: {}
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types: []
+          splits: {}
         YML
       end
     end
@@ -71,55 +71,55 @@ splits: {}
     context "schema file" do
       it "persists the splits" do
         subject.split(:name, foo: 20, bar: 80)
-        expect_schema <<-YML
----
-identifier_types: []
-splits:
-  name:
-    bar: 80
-    foo: 20
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types: []
+          splits:
+            name:
+              bar: 80
+              foo: 20
         YML
       end
 
       it "does not overwrite existing splits" do
-        given_schema <<-YML
----
-identifier_types:
-- some_identifier_type
-splits:
-  red_button:
-    'false': 50
-    'true': 50
+        given_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - some_identifier_type
+          splits:
+            red_button:
+              'false': 50
+              'true': 50
         YML
 
         subject.split(:name, foo: 20, bar: 80)
 
-        expect_schema <<-YML
----
-identifier_types:
-- some_identifier_type
-splits:
-  name:
-    bar: 80
-    foo: 20
-  red_button:
-    'false': 50
-    'true': 50
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - some_identifier_type
+          splits:
+            name:
+              bar: 80
+              foo: 20
+            red_button:
+              'false': 50
+              'true': 50
         YML
       end
 
       it "deletes splits that are no longer on the test track server" do
-        given_schema <<-YML
----
-identifier_types:
-- some_identifier_type
-splits:
-  blue_button:
-    'false': 50
-    'true': 50
-  really_old_split:
-    'false': 50
-    'true': 50
+        given_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - some_identifier_type
+          splits:
+            blue_button:
+              'false': 50
+              'true': 50
+            really_old_split:
+              'false': 50
+              'true': 50
         YML
 
         allow(TestTrack::Remote::SplitRegistry).to receive(:reset).and_call_original
@@ -131,54 +131,54 @@ splits:
         subject.split(:name, foo: 20, bar: 80)
 
         expect(TestTrack::Remote::SplitRegistry).to have_received(:reset)
-        expect_schema <<-YML
----
-identifier_types:
-- some_identifier_type
-splits:
-  blue_button:
-    'false': 50
-    'true': 50
-  name:
-    bar: 80
-    foo: 20
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - some_identifier_type
+          splits:
+            blue_button:
+              'false': 50
+              'true': 50
+            name:
+              bar: 80
+              foo: 20
         YML
       end
 
       it "alphabetizes the splits and the weighting registries" do
-        given_schema <<-YML
----
-identifier_types: []
-splits:
-  a:
-    'false': 50
-    'true': 50
-  b:
-    'false': 50
-    'true': 50
-  d:
-    'false': 50
-    'true': 50
+        given_schema <<-YML.strip_heredoc
+          ---
+          identifier_types: []
+          splits:
+            a:
+              'false': 50
+              'true': 50
+            b:
+              'false': 50
+              'true': 50
+            d:
+              'false': 50
+              'true': 50
         YML
 
         subject.split(:c, true: 50, false: 50)
 
-        expect_schema <<-YML
----
-identifier_types: []
-splits:
-  a:
-    'false': 50
-    'true': 50
-  b:
-    'false': 50
-    'true': 50
-  c:
-    'false': 50
-    'true': 50
-  d:
-    'false': 50
-    'true': 50
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types: []
+          splits:
+            a:
+              'false': 50
+              'true': 50
+            b:
+              'false': 50
+              'true': 50
+            c:
+              'false': 50
+              'true': 50
+            d:
+              'false': 50
+              'true': 50
         YML
       end
     end
@@ -209,11 +209,11 @@ splits:
       it "persists the identifier types" do
         subject.identifier_type(:my_id)
 
-        expect_schema <<-YML
----
-identifier_types:
-- my_id
-splits: {}
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - my_id
+          splits: {}
         YML
       end
 
@@ -223,39 +223,39 @@ splits: {}
         subject.identifier_type(:d)
         subject.identifier_type(:c)
 
-        expect_schema <<-YML
----
-identifier_types:
-- a
-- b
-- c
-- d
-splits: {}
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - a
+          - b
+          - c
+          - d
+          splits: {}
         YML
       end
 
       it "does not overwrite existing identifier types" do
-        given_schema <<-YML
----
-identifier_types:
-- some_identifier_type
-splits:
-  blue_button:
-    'false': 50
-    'true': 50
+        given_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - some_identifier_type
+          splits:
+            blue_button:
+              'false': 50
+              'true': 50
         YML
 
         subject.identifier_type(:my_id)
 
-        expect_schema <<-YML
----
-identifier_types:
-- my_id
-- some_identifier_type
-splits:
-  blue_button:
-    'false': 50
-    'true': 50
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types:
+          - my_id
+          - some_identifier_type
+          splits:
+            blue_button:
+              'false': 50
+              'true': 50
         YML
       end
     end
@@ -266,20 +266,20 @@ splits:
       allow(TestTrack::Remote::SplitConfig).to receive(:new).and_call_original
       allow(TestTrack::Remote::IdentifierType).to receive(:new).and_call_original
 
-      given_schema <<-YML
----
-identifier_types:
-- a
-- b
-- c
-splits:
-  balance_unit:
-    dollar: 50
-    pound: 25
-    doge: 25
-  blue_button:
-    'false': 50
-    'true': 50
+      given_schema <<-YML.strip_heredoc
+        ---
+        identifier_types:
+        - a
+        - b
+        - c
+        splits:
+          balance_unit:
+            dollar: 50
+            pound: 25
+            doge: 25
+          blue_button:
+            'false': 50
+            'true': 50
       YML
 
       subject.load_schema
@@ -296,20 +296,20 @@ splits:
       expect(TestTrack::Remote::IdentifierType).to have_received(:new).with(name: "b")
       expect(TestTrack::Remote::IdentifierType).to have_received(:new).with(name: "c")
 
-      expect_schema <<-YML
----
-identifier_types:
-- a
-- b
-- c
-splits:
-  balance_unit:
-    dollar: 50
-    pound: 25
-    doge: 25
-  blue_button:
-    'false': 50
-    'true': 50
+      expect_schema <<-YML.strip_heredoc
+        ---
+        identifier_types:
+        - a
+        - b
+        - c
+        splits:
+          balance_unit:
+            dollar: 50
+            pound: 25
+            doge: 25
+          blue_button:
+            'false': 50
+            'true': 50
       YML
     end
   end
@@ -318,7 +318,7 @@ splits:
     File.open(schema_file_path, "w") do |f|
       f.write yaml
     end
-    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(YAML.load(yaml)["splits"])
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(YAML.safe_load(yaml)["splits"])
   end
 
   def expect_schema(yaml)

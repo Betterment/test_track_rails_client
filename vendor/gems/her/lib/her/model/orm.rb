@@ -1,3 +1,4 @@
+# coding: utf-8
 module Her
   module Model
     # This module adds ORM-like capabilities to the model
@@ -35,36 +36,44 @@ module Her
       #   @user.save
       #   # Called via POST "/users"
       def save
-        callback = new? ? :create : :update
-        method = self.class.method_for(callback)
+        if valid?
+          callback = new? ? :create : :update
+          method = self.class.method_for(callback)
 
-        run_callbacks callback do
-          run_callbacks :save do
-            params = to_params
-            self.class.request(to_params.merge(:_method => method, :_path => request_path, :_headers => request_headers, :_options => request_options)) do |parsed_data, response|
-              assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-              @metadata = parsed_data[:metadata]
-              @response_errors = parsed_data[:errors]
-              self.assign_attributes(status_code: response.status)
+          run_callbacks callback do
+            run_callbacks :save do
+              params = to_params
+              self.class.request(to_params.merge(:_method => method, :_path => request_path, :_headers => request_headers, :_options => request_options)) do |parsed_data, response|
+                assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
+                @metadata = parsed_data[:metadata]
+                @response_errors = parsed_data[:errors]
+                self.assign_attributes(status_code: response.status)
 
-              return false if !response.success? || @response_errors.any?
-              if self.changed_attributes.present?
-                @previously_changed = self.changed_attributes.clone
-                self.changed_attributes.clear
+                return false if !response.success? || @response_errors.any?
+                if self.changed_attributes.present?
+                  @previously_changed = self.changed_attributes.clone
+                  self.changed_attributes.clear
+                end
               end
             end
           end
+          true
+        else
+          false
         end
-
-        true
       end
 
       # Similar to save(), except that ResourceInvalid is raised if the save fails
       def save!
-        if !self.save
-          raise Her::Errors::ResponseError.for(status_code).new("Remote validation of #{self.class.name} failed with a #{status_code}: #{full_error_messages}")
+        if self.save
+          true
+        elsif response_errors.present?
+          raise Her::Errors::ResponseError.for(status_code), "Remote validation of #{self.class.name} failed with a #{status_code}: #{full_error_messages}"
+        elsif errors.present?
+          raise Her::Errors::RecordInvalid, "Local validation of #{self.class.name} failed: #{errors.full_messages}"
+        else
+          raise 'unreachable'
         end
-        true
       end
 
       # Destroy a resource
@@ -73,24 +82,24 @@ module Her
       #   @user = User.find(1)
       #   @user.destroy
       #   # Called via DELETE "/users/1"
-      def destroy
+      def destroy(params = {})
         method = self.class.method_for(:destroy)
         run_callbacks :destroy do
-          self.class.request(:_method => method, :_path => request_path, :_headers => request_headers, :_options => request_options) do |parsed_data, response|
+          self.class.request(params.merge(:_method => method, :_path => request_path, :_headers => request_headers, :_options => request_options)) do |parsed_data, response|
             raise Her::Errors::ResponseError.for(response.status).new("Request against #{self.class} returned a #{response.status}") if response.status >= 400
             assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
             @metadata = parsed_data[:metadata]
             @response_errors = parsed_data[:errors]
-            @destroyed = true
+            @destroyed = response.success?
           end
         end
         self
       end
 
       def full_error_messages
-          self.response_errors.map do |field, messages|
-            "#{field} #{messages.join(', ')}"
-          end.join('. ')
+        self.response_errors.map do |field, messages|
+          "#{field} #{messages.join(', ')}"
+        end.join('. ')
       end
 
       module ClassMethods
@@ -141,7 +150,7 @@ module Her
         end
 
         # Delegate the following methods to `scoped`
-        [:all, :where, :create, :build, :find, :find_by, :first, :first_or_create, :first_or_initialize].each do |method|
+        [:all, :where, :create, :create!, :build, :find, :find_by, :first, :first_or_create, :first_or_initialize].each do |method|
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{method}(*params)
               scoped.send(#{method.to_sym.inspect}, *params)
@@ -172,7 +181,10 @@ module Her
         def destroy_existing(id, params = {}, headers = {}, options = {})
           request(params.merge(:_method => method_for(:destroy), :_headers => headers, :_options => options, :_path => build_request_path(params.merge(primary_key => id)))) do |parsed_data, response|
             raise Her::Errors::ResponseError.for(response.status).new("Request against #{name} returned a #{response.status}") if response.status >= 400
-            new(parse(parsed_data[:data]).merge(:_destroyed => true))
+            data = parse(parsed_data[:data])
+            metadata = parsed_data[:metadata]
+            response_errors = parsed_data[:errors]
+            new(data.merge(:_destroyed => response.success?, :metadata => metadata, :response_errors => response_errors))
           end
         end
 

@@ -28,7 +28,7 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
       stub_test_track_assignments(foo: :bar)
 
       visitor = TestTrack::Visitor.new
-      expect do
+      expect {
         visitor.vary(:foo, context: :spec) do |v|
           v.when :bar do
             # noop
@@ -37,7 +37,7 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
             raise "this branch shouldn't be executed"
           end
         end
-      end.not_to raise_error
+      }.not_to raise_error
     end
   end
 end

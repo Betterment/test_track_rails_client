@@ -40,22 +40,22 @@ RSpec.describe TestTrack::VaryDSL do
 
   context "#initialize" do
     it "raises when given an unknown option" do
-      expect do
+      expect {
         described_class.new(
           assignment: assignment,
           split_registry: split_registry,
           context: "the_context",
           one_of_these_things_is_not_like_the_other: "hint: its me!"
         )
-      end.to raise_error("unknown opts: one_of_these_things_is_not_like_the_other")
+      }.to raise_error("unknown opts: one_of_these_things_is_not_like_the_other")
     end
 
     it "raises when missing a required option" do
-      expect do
+      expect {
         described_class.new(
           split_registry: split_registry
         )
-      end.to raise_error("Must provide assignment")
+      }.to raise_error("Must provide assignment")
     end
 
     context "when the split is not in the split_registry" do
@@ -64,25 +64,25 @@ RSpec.describe TestTrack::VaryDSL do
       end
 
       it "raises a descriptive error" do
-        expect do
+        expect {
           described_class.new(
             assignment: assignment,
             split_registry: split_registry,
             context: "the_context"
           )
-        end.to raise_error("unknown split: not_a_real_split.")
+        }.to raise_error("unknown split: not_a_real_split.")
       end
 
       context "when in the development environment" do
         it "suggests a fix" do
           allow(Rails.env).to receive(:development?).and_return true
-          expect do
+          expect {
             described_class.new(
               assignment: assignment,
               split_registry: split_registry,
               context: "the_context"
             )
-          end.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load.")
+          }.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load.")
         end
       end
     end

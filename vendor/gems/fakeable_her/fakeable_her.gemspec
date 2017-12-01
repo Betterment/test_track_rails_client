@@ -1,4 +1,3 @@
-# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fakeable_her/version'
@@ -16,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'her'
-  spec.add_dependency 'rails', '~> 4.1'
+  spec.add_dependency 'rails', '>= 4.1', '< 5.2'
 
-  spec.add_development_dependency 'rubocop', '>= 0.36'
+  spec.add_development_dependency 'appraisal', '~> 2.2.0'
 end

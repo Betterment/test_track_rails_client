@@ -6,8 +6,8 @@ class TestTrack::Remote::Visitor
   has_many :assignments
 
   def self.from_identifier(identifier_type, identifier_value)
-    raise "must provide an identifier_type" unless identifier_type.present?
-    raise "must provide an identifier_value" unless identifier_value.present?
+    raise "must provide an identifier_type" if identifier_type.blank?
+    raise "must provide an identifier_value" if identifier_value.blank?
 
     # TODO: FakeableHer needs to make this faking a feature of `get`
     if faked?

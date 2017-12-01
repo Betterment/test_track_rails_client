@@ -26,9 +26,9 @@ class TestTrack::Remote::SplitRegistry
     if faked?
       instance.attributes.freeze
     else
-      Rails.cache.fetch(CACHE_KEY, expires_in: 5.seconds) do
+      Rails.cache.fetch(CACHE_KEY, expires_in: 5.seconds) {
         instance.attributes
-      end.freeze
+      }.freeze
     end
   rescue *TestTrack::SERVER_ERRORS => e
     Rails.logger.error "TestTrack failed to load split registry. #{e}"

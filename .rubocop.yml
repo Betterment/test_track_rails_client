@@ -1,47 +1,39 @@
 # See full list of defaults here: https://github.com/bbatsov/rubocop/blob/master/config/default.yml
 # To see all cops used see here: https://github.com/bbatsov/rubocop/blob/master/config/enabled.yml
 
-require:
-  - ruby_spec_helpers/rubocop
+inherit_from:
+  - .rubocop_todo.yml
 
 AllCops:
   Exclude:
     - 'bin/**/*'
-    - 'db/**/*'
-    - 'spec/dummy/**/*'
     - 'config/**/*'
     - 'vendor/**/*'
-    - 'frontend/**/*'
-    - 'build/**/*'
+    - 'spec/dummy/**/*'
+    - 'Gemfile'
   DisplayStyleGuide: true
   DisplayCopNames: true
+  TargetRubyVersion: 2.1
 
-Rails:
-  Enabled: true
+Layout/AlignParameters:
+  Enabled: false
 
-Metrics/ClassLength:
-  Max: 250
+Layout/CaseIndentation:
+  IndentOneStep: true
 
-Metrics/ModuleLength:
-  Max: 250
+Layout/ClosingParenthesisIndentation:
+  Enabled: false
 
-Metrics/AbcSize:
-  Exclude:
-    - 'spec/**/*'
+Layout/IndentArray:
+  EnforcedStyle: consistent
 
-Metrics/CyclomaticComplexity:
-  Max: 10
-  Exclude:
-    - 'spec/**/*'
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
 
-Metrics/PerceivedComplexity:
-  Exclude:
-    - 'spec/**/*'
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
 
-Metrics/LineLength:
-  Max: 140
-
-Metrics/MethodLength:
+Lint/AmbiguousBlockAssociation:
   Exclude:
     - 'spec/**/*'
 
@@ -53,23 +45,76 @@ Lint/AmbiguousRegexpLiteral:
   Exclude:
     - 'spec/**/*'
 
+Lint/BooleanSymbol:
+  Enabled: true
+
+Metrics/AbcSize:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Max: 250
+
+Metrics/CyclomaticComplexity:
+  Max: 10
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/LineLength:
+  Max: 140
+
+Metrics/MethodLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/ModuleLength:
+  Max: 250
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'spec/**/*'
+
+Performance/RedundantMatch:
+  Enabled: false
+
+Rails:
+  Enabled: true
+
+Rails/ApplicationRecord:
+  Enabled: false
+
+Rails/Delegate:
+  EnforceForPrefixed: false
+
+Rails/FindEach:
+  Enabled: false
+
+Rails/HttpPositionalArguments:
+  Enabled: false
+
+Rails/OutputSafety:
+  Enabled: true
+
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 Style/Documentation:
   Enabled: false
 
-Style/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
-Style/StringLiterals:
+Style/FrozenStringLiteralComment:
   Enabled: false
 
-Style/SignalException:
+Style/GuardClause:
   Enabled: false
 
-Style/SymbolProc:
+Style/Lambda:
   Enabled: false
-
-Style/CaseIndentation:
-  IndentOneStep: true
 
 Style/LambdaCall:
   Exclude:
@@ -79,38 +124,29 @@ Style/MissingElse:
   Enabled: true
   EnforcedStyle: case
 
-Style/ClassAndModuleChildren:
-  Enabled: false
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    default: '()'
+    '%i': '()'
+    '%I': '()'
+    '%r': '{}'
+    '%w': '()'
+    '%W': '()'
 
-Style/AlignParameters:
-  Enabled: false
-
-Style/IndentArray:
-  EnforcedStyle: consistent
-
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
-Style/ClosingParenthesisIndentation:
-  Enabled: false
-
-Style/MultilineOperationIndentation:
-  EnforcedStyle: indented
-
-Style/PredicateName:
+Naming/PredicateName:
   NamePrefix:
     - is_
   NamePrefixBlacklist:
     - is_
 
-Style/Lambda:
+Style/SignalException:
   Enabled: false
 
-Rails/FindEach:
+Style/StringLiterals:
   Enabled: false
 
-Style/GuardClause:
+Style/SymbolProc:
   Enabled: false
 
-Performance/RedundantMatch:
+Style/YodaCondition:
   Enabled: false
