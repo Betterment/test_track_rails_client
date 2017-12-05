@@ -360,6 +360,17 @@ def track_assignment(visitor_id, assignment, properties)
 def alias(visitor_id, existing_id)
 ```
 
+In the same initializer, you can also configure a custom callback on user signup and login. You can, for example, alias or identify a user with the correct TestTrack visitor id.
+`TestTrack::Session.sign_up!` and `TestTrack::Session.log_in!` each trigger their own configurable callbacks, passing a hash `{ test_track_visitor_id: X }` as an argument.
+
+```ruby
+# config/initializers/test_track.rb
+TestTrack.signup_callback = MyCustomAnalyticsClient.alias
+TestTrack.login_callback = MyCustomAnalyticsClient.identify
+```
+
+Note: `signup_callback` and `login_callback` must accept a hash as an argument.
+
 ## Upgrading
 
 ### From 1.x to 1.3
