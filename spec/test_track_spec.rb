@@ -53,7 +53,7 @@ RSpec.describe TestTrack do
 
     it "is configurable" do
       begin
-        TestTrack.login_callback = ->(_){ 'custom callback' }
+        TestTrack.login_callback = ->(_) { 'custom callback' }
         expect(TestTrack.login_callback.call(test_track_visitor_id: 1)).to eq 'custom callback'
       ensure
         TestTrack.login_callback = nil
@@ -68,7 +68,7 @@ RSpec.describe TestTrack do
 
     it "is configurable" do
       begin
-        TestTrack.signup_callback = ->(_){ 'custom callback' }
+        TestTrack.signup_callback = ->(_) { 'custom callback' }
         expect(TestTrack.signup_callback.call(test_track_visitor_id: 1)).to eq 'custom callback'
       ensure
         TestTrack.signup_callback = nil

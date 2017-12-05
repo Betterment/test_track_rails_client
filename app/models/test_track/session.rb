@@ -52,7 +52,7 @@ class TestTrack::Session
     true
   end
 
-  def sign_up!(*args) # rubocop:disable Metrics/MethodLength
+  def sign_up!(*args) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     if args[0].is_a?(TestTrack::Identity)
       identity = args[0]
       identifier_type = identity.test_track_identifier_type

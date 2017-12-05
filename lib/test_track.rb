@@ -19,6 +19,8 @@ module TestTrack
   mattr_accessor :enabled_override
 
   class << self
+    attr_writer :signup_callback, :login_callback
+
     def analytics
       @analytics ||= wrapper(mixpanel)
     end
@@ -27,20 +29,12 @@ module TestTrack
       @analytics = client.is_a?(TestTrack::Analytics::SafeWrapper) ? client : wrapper(client)
     end
 
-    def signup_callback=(callback)
-      @signup_callback = callback
-    end
-
-    def login_callback=(callback)
-      @login_callback = callback
-    end
-
     def login_callback
-      @login_callback ||= Proc.new {}
+      @login_callback ||= proc {}
     end
 
     def signup_callback
-      @signup_callback ||= Proc.new {}
+      @signup_callback ||= proc {}
     end
 
     private
