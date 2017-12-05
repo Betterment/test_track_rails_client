@@ -1,9 +1,8 @@
 class TestTrack::UnsyncedAssignmentsNotifier
-  attr_reader :mixpanel_distinct_id, :visitor_id, :assignments
+  attr_reader :visitor_id, :assignments
 
   def initialize(opts)
     @visitor_id = opts.delete(:visitor_id)
-    @mixpanel_distinct_id = opts.delete(:mixpanel_distinct_id) || visitor_id
     @assignments = opts.delete(:assignments)
 
     %w(visitor_id assignments).each do |param_name|
@@ -29,7 +28,6 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   def build_notify_assignment_job(assignment)
     TestTrack::NotifyAssignmentJob.new(
-      mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor_id,
       assignment: assignment
     )

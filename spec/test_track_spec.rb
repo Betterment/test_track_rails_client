@@ -46,6 +46,36 @@ RSpec.describe TestTrack do
     end
   end
 
+  describe "login_callback" do
+    it "noops by default" do
+      expect(TestTrack.login_callback.call(test_track_visitor_id: 1)).to be_nil
+    end
+
+    it "is configurable" do
+      begin
+        TestTrack.login_callback = ->(_) { 'custom callback' }
+        expect(TestTrack.login_callback.call(test_track_visitor_id: 1)).to eq 'custom callback'
+      ensure
+        TestTrack.login_callback = nil
+      end
+    end
+  end
+
+  describe "signup_callback" do
+    it "noops by default" do
+      expect(TestTrack.signup_callback.call(test_track_visitor_id: 1)).to be_nil
+    end
+
+    it "is configurable" do
+      begin
+        TestTrack.signup_callback = ->(_) { 'custom callback' }
+        expect(TestTrack.signup_callback.call(test_track_visitor_id: 1)).to eq 'custom callback'
+      ensure
+        TestTrack.signup_callback = nil
+      end
+    end
+  end
+
   describe "analytics" do
     it "wraps default client in SafeWrapper" do
       expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper

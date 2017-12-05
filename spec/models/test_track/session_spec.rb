@@ -15,9 +15,8 @@ RSpec.describe TestTrack::Session do
 
   let(:controller) { controller_class.new }
 
-  let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
+  let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
   let(:headers) { {} }
-  let(:mixpanel_cookie) { { distinct_id: "fake_distinct_id", OtherProperty: "bar" }.to_json }
   let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers) }
   let(:response) { double(:response, headers: {}) }
   let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
@@ -30,8 +29,6 @@ RSpec.describe TestTrack::Session do
     allow(controller).to receive(:response).and_return(response)
     allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
     allow(Thread).to receive(:new).and_call_original
-    allow(TestTrack::CreateAliasJob).to receive(:new).and_call_original
-    ENV['MIXPANEL_TOKEN'] = 'fakefakefake'
   end
 
   describe "#manage" do
@@ -42,7 +39,7 @@ RSpec.describe TestTrack::Session do
       end
 
       context "with no visitor cookie" do
-        let(:cookies) { { mp_fakefakefake_mixpanel: mixpanel_cookie }.with_indifferent_access }
+        let(:cookies) { {} }
 
         it "returns a new visitor id" do
           subject.manage {}
@@ -67,6 +64,39 @@ RSpec.describe TestTrack::Session do
             visitor_id: "fake_visitor_id",
             value: "1234"
           )
+        end
+      end
+
+      context 'when login_callback is not configured' do
+        it 'executes a default no-op callback' do
+          expect(TestTrack.login_callback).to receive(:call)
+          subject.manage { subject.log_in!(identity) }
+        end
+      end
+
+      context 'when login_callback is configured' do
+        let(:custom_callback) { ->(options) { options.merge(success: true) } }
+
+        around do |example|
+          begin
+            TestTrack.login_callback = custom_callback
+            example.run
+          ensure
+            TestTrack.login_callback = nil
+          end
+        end
+
+        it 'calls configured callback' do
+          expect(custom_callback).to receive(:call)
+          subject.manage { subject.log_in!(identity) }
+        end
+
+        context 'when login_callback does not accept one argument' do
+          let(:custom_callback) { -> {} }
+
+          it 'raises argument error' do
+            expect { subject.manage { subject.log_in!(identity) } }.to raise_error ArgumentError
+          end
         end
       end
 
@@ -107,13 +137,6 @@ RSpec.describe TestTrack::Session do
 
           expect(controller.response.headers['X-Set-TT-Visitor-ID']).to eq('real_visitor_id')
         end
-      end
-
-      it "changes the distinct_id in the mixpanel cookie" do
-        subject.manage do
-          subject.log_in!(identity)
-        end
-        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: "real_visitor_id", OtherProperty: "bar" }.to_json)
       end
 
       context "forget current visitor" do
@@ -158,6 +181,39 @@ RSpec.describe TestTrack::Session do
             )
           end
         end
+
+        context 'when signup_callback is not configured' do
+          it 'executes a default no-op callback' do
+            expect(TestTrack.signup_callback).to receive(:call)
+            subject.manage { subject.sign_up!(identity) }
+          end
+        end
+
+        context 'when signup_callback is configured' do
+          let(:custom_callback) { ->(options) { options.merge(success: true) } }
+
+          around do |example|
+            begin
+              TestTrack.signup_callback = custom_callback
+              example.run
+            ensure
+              TestTrack.signup_callback = nil
+            end
+          end
+
+          it 'calls configured callback' do
+            expect(custom_callback).to receive(:call)
+            subject.manage { subject.sign_up!(identity) }
+          end
+
+          context 'when signup_callback does not accept one argument' do
+            let(:custom_callback) { -> {} }
+
+            it 'raises argument error' do
+              expect { subject.manage { subject.sign_up!(identity) } }.to raise_error ArgumentError
+            end
+          end
+        end
       end
 
       describe '#log_in!' do
@@ -171,42 +227,6 @@ RSpec.describe TestTrack::Session do
               value: "1234"
             )
           end
-        end
-      end
-    end
-
-    context "mixpanel" do
-      it "resets the mixpanel cookie to the same value if already there" do
-        subject.manage {}
-        expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq mixpanel_cookie
-      end
-
-      context "without mixpanel cookie" do
-        let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
-
-        it "sets the mixpanel cookie's distinct_id to the visitor_id" do
-          subject.manage {}
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: 'fake_visitor_id' }.to_json)
-        end
-      end
-
-      context "with malformed mixpanel cookie" do
-        let(:cookies) { { tt_visitor_id: "fake_visitor_id", mp_fakefakefake_mixpanel: malformed_mixpanel_cookie }.with_indifferent_access }
-        let(:malformed_mixpanel_cookie) do
-          CGI.escape("{\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}")
-        end
-
-        it "sets the mixpanel cookie's distinct_id to the visitor_id" do
-          subject.manage {}
-          expect(cookies['mp_fakefakefake_mixpanel'][:value]).to eq({ distinct_id: 'fake_visitor_id' }.to_json)
-        end
-
-        it "logs an error" do
-          allow(Rails.logger).to receive(:error).and_call_original
-          subject.manage {}
-          expect(Rails.logger).to have_received(:error).with(
-            "malformed mixpanel JSON from cookie {\"distinct_id\": \"fake_distinct_id\", \"referrer\":\"http://bad.com/?q=\"bad\"\"}"
-          )
         end
       end
     end
@@ -319,7 +339,6 @@ RSpec.describe TestTrack::Session do
 
           expect(Thread).to have_received(:new)
           expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-            expect(args[:mixpanel_distinct_id]).to eq('fake_distinct_id')
             expect(args[:visitor_id]).to eq('fake_visitor_id')
             args[:assignments].first.tap do |assignment|
               expect(assignment.split_name).to eq('bar')
@@ -369,7 +388,7 @@ RSpec.describe TestTrack::Session do
 
               expect(Thread).to have_received(:new)
               expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-                expect(args[:mixpanel_distinct_id]).to eq("fake_distinct_id")
+                expect(args.keys).to contain_exactly :visitor_id, :assignments
                 expect(args[:visitor_id]).to eq("fake_visitor_id")
                 args[:assignments].first.tap do |assignment|
                   expect(assignment.split_name).to eq("switched_split")
@@ -413,31 +432,6 @@ RSpec.describe TestTrack::Session do
         end
       end
     end
-
-    context "aliasing" do
-      before do
-        allow(Delayed::Job).to receive(:enqueue).and_return(true)
-      end
-
-      it "enqueues an alias job if there was a signup" do
-        expect(TestTrack::CreateAliasJob).to receive(:new).with(
-          existing_id: 'fake_distinct_id',
-          alias_id: 'fake_visitor_id'
-        )
-
-        subject.manage do
-          subject.sign_up!(identity)
-        end
-
-        expect(Delayed::Job).to have_received(:enqueue).with(an_instance_of(TestTrack::CreateAliasJob))
-      end
-
-      it "doesn't enqueue an alias job if there was no signup" do
-        subject.manage {}
-        expect(TestTrack::CreateAliasJob).not_to have_received(:new)
-        expect(Delayed::Job).not_to have_received(:enqueue).with(an_instance_of(TestTrack::CreateAliasJob))
-      end
-    end
   end
 
   describe "#notify_unsynced_assignments!" do
@@ -449,11 +443,7 @@ RSpec.describe TestTrack::Session do
       # block until thread completes
       notifier_thread.join
 
-      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
-        expect(args[:mixpanel_distinct_id]).to eq("fake_distinct_id")
-        expect(args[:visitor_id]).to eq("fake_visitor_id")
-        expect(args[:assignments]).to eq([])
-      end
+      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(visitor_id: 'fake_visitor_id', assignments: [])
 
       expect(unsynced_assignments_notifier).to have_received(:notify)
     end

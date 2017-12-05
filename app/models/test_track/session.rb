@@ -14,7 +14,6 @@ class TestTrack::Session
     manage_cookies!
     manage_response_headers!
     notify_unsynced_assignments! if sync_assignments?
-    create_alias! if signed_up?
   end
 
   def visitor_dsl
@@ -46,13 +45,14 @@ class TestTrack::Session
 
     @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
     visitor.link_identifier!(identifier_type, identifier_value)
-
     identities << identity if identity.present?
-    self.mixpanel_distinct_id = visitor.id
+
+    TestTrack.login_callback.call(test_track_visitor_id: visitor.id)
+
     true
   end
 
-  def sign_up!(*args) # rubocop:disable Metrics/MethodLength
+  def sign_up!(*args) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     if args[0].is_a?(TestTrack::Identity)
       identity = args[0]
       identifier_type = identity.test_track_identifier_type
@@ -64,9 +64,11 @@ class TestTrack::Session
     end
 
     visitor.link_identifier!(identifier_type, identifier_value)
-
     identities << identity if identity.present?
-    @signed_up = true
+
+    TestTrack.signup_callback.call(test_track_visitor_id: visitor.id)
+
+    true
   end
 
   def has_matching_identity?(identity)
@@ -75,8 +77,7 @@ class TestTrack::Session
 
   private
 
-  attr_reader :controller, :signed_up
-  alias signed_up? signed_up
+  attr_reader :controller
 
   def visitor
     @visitor ||= TestTrack::Visitor.new(id: visitor_id)
@@ -127,7 +128,6 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    set_cookie(mixpanel_cookie_name, mixpanel_cookie.to_json)
     set_cookie(visitor_cookie_name, visitor.id)
   end
 
@@ -157,7 +157,6 @@ class TestTrack::Session
 
   def notify_unsynced_assignments!
     payload = {
-      mixpanel_distinct_id: mixpanel_distinct_id,
       visitor_id: visitor.id,
       assignments: visitor.unsynced_assignments
     }
@@ -171,50 +170,8 @@ class TestTrack::Session
     end
   end
 
-  def create_alias!
-    create_alias_job = TestTrack::CreateAliasJob.new(
-      existing_id: mixpanel_distinct_id,
-      alias_id: visitor.id
-    )
-    Delayed::Job.enqueue(create_alias_job)
-  end
-
   def sync_assignments?
     visitor.loaded? && visitor.unsynced_assignments.present?
-  end
-
-  def mixpanel_distinct_id
-    mixpanel_cookie['distinct_id']
-  end
-
-  def mixpanel_distinct_id=(value)
-    mixpanel_cookie['distinct_id'] = value
-  end
-
-  def mixpanel_cookie
-    @mixpanel_cookie ||= read_mixpanel_cookie || generate_mixpanel_cookie
-  end
-
-  def read_mixpanel_cookie
-    mixpanel_cookie = cookies[mixpanel_cookie_name]
-    begin
-      JSON.parse(mixpanel_cookie) if mixpanel_cookie
-    rescue JSON::ParserError
-      Rails.logger.error("malformed mixpanel JSON from cookie #{CGI.unescape(mixpanel_cookie)}")
-      nil
-    end
-  end
-
-  def generate_mixpanel_cookie
-    { 'distinct_id' => visitor.id }
-  end
-
-  def mixpanel_token
-    ENV['MIXPANEL_TOKEN'] || raise("ENV['MIXPANEL_TOKEN'] must be set")
-  end
-
-  def mixpanel_cookie_name
-    "mp_#{mixpanel_token}_mixpanel"
   end
 
   def visitor_cookie_name

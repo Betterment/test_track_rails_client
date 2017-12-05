@@ -5,18 +5,12 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
   let(:alert_assignment) { instance_double(TestTrack::Assignment, split_name: "alert", variant: "yellow", context: "the_context") }
   let(:params) do
     {
-      mixpanel_distinct_id: "fake_mixpanel_id",
       visitor_id: "fake_visitor_id",
       assignments: [phaser_assignment, alert_assignment]
     }
   end
 
   subject { described_class.new(params) }
-
-  it "allows empty mixpanel_distinct_id" do
-    expect { described_class.new(params.merge(mixpanel_distinct_id: nil)) }
-      .to_not raise_error
-  end
 
   it "blows up with empty visitor id" do
     expect { described_class.new(params.merge(visitor_id: nil)) }
@@ -39,13 +33,11 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
 
     before do
       allow(TestTrack::NotifyAssignmentJob).to receive(:new).with(
-        mixpanel_distinct_id: "fake_mixpanel_id",
         visitor_id: "fake_visitor_id",
         assignment: phaser_assignment
       ).and_return(phaser_job)
 
       allow(TestTrack::NotifyAssignmentJob).to receive(:new).with(
-        mixpanel_distinct_id: "fake_mixpanel_id",
         visitor_id: "fake_visitor_id",
         assignment: alert_assignment
       ).and_return(alert_job)
