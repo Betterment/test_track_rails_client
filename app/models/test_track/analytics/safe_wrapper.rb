@@ -16,6 +16,10 @@ module TestTrack::Analytics
       safe_action { underlying.track_assignment(visitor_id, assignment) }
     end
 
+    def sign_up!(visitor_id)
+      safe_action { underlying.sign_up!(visitor_id) } if underlying.respond_to?(:sign_up!)
+    end
+
     private
 
     def error_handler

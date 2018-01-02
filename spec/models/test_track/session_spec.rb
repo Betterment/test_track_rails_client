@@ -148,6 +148,50 @@ RSpec.describe TestTrack::Session do
             )
           end
         end
+
+        context 'when analytics client is not default' do
+          around do |example|
+            RSpec::Mocks.with_temporary_scope do
+              default_client = TestTrack.analytics
+              begin
+                TestTrack.analytics = TestTrack::Analytics::SafeWrapper.new(client)
+                example.run
+              ensure
+                TestTrack.analytics = default_client
+              end
+            end
+          end
+
+          context 'when client does not implement sign_up! method' do
+            let(:client) { double(respond_to?: false) }
+
+            it 'does not call sign_up! on analytics client' do
+              expect(client).not_to receive(:sign_up!)
+              subject.manage { subject.sign_up!(identity) }
+            end
+          end
+
+          context 'when client does implement sign_up! method' do
+            let(:client) { double(sign_up!: true) }
+
+            it 'calls sign_up! on analytics client' do
+              expect(client).to receive(:sign_up!)
+              subject.manage { subject.sign_up!(identity) }
+            end
+
+            context 'when sign_up! method does not accept one argument' do
+              class TestClient
+                def sign_up!(visitor_id, extraneous_arg); end
+              end
+              let(:client) { TestClient.new }
+
+              it 'logs an argument error' do
+                expect(Rails.logger).to receive(:error).with(ArgumentError)
+                subject.manage { subject.sign_up!(identity) }
+              end
+            end
+          end
+        end
       end
 
       describe '#log_in!' do
