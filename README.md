@@ -337,7 +337,7 @@ end
 
 ## Analytics
 
-TestTrack does not offer builtin functionality for analyzing the results of split tests. TestTrack does provide hooks to easily integrate with your preferred analytics tool. By default, TestTrack will use Mixpanel as an analytics backend. If you wish to use another tool, you can set the `analytics` attribute on `TestTrack` with your custom client. You should do this in a Rails initializer.
+TestTrack does not offer built-in functionality for analyzing the results of split tests. TestTrack does provide hooks to easily integrate with your preferred analytics tool. By default, TestTrack will use Mixpanel as an analytics backend. If you wish to use another tool, you can set the `analytics` attribute on `TestTrack` with your custom client. You should do this in a Rails initializer.
 
 ```ruby
 # config/initializers/test_track.rb
@@ -412,7 +412,7 @@ end
 
 ## Upgrading
 
-### From 1.x to 2.0
+### From 2.0 to 3.0
 
 TestTrack Rails Client no longer manages your Mixpanel cookie. The analytics plugin now provides a callback on `sign_up!` that will allow you to implement this functionality within your application. Please see the [analytics documentation](#analytics) for more details.
 
