@@ -419,27 +419,4 @@ RSpec.describe TestTrack::Visitor do
       end
     end
   end
-
-  describe ".backfill_identity" do
-    let(:params) { { identifier_type: "clown_id", identifier_value: "1234", existing_id: "ABCDEFG" } }
-    let(:remote_visitor) do
-      TestTrack::Remote::Visitor.new(
-        id: "remote_visitor_id",
-        assignments: [
-          { split_name: "foo", variant: "bar", unsynced: false }
-        ]
-      )
-    end
-
-    before do
-      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(remote_visitor)
-    end
-
-    it "returns a new visitor populated with data from the test track server" do
-      visitor = described_class.backfill_identity(params)
-      expect(visitor.id).to eq "remote_visitor_id"
-      expect(visitor.assignment_registry["foo"].variant).to eq("bar")
-      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("clown_id", "1234")
-    end
-  end
 end

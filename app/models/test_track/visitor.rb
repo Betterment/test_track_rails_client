@@ -79,16 +79,6 @@ class TestTrack::Visitor
     end
   end
 
-  def self.backfill_identity(opts)
-    remote_identifier_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
-    visitor = new(
-      id: remote_identifier_visitor.id,
-      assignments: remote_identifier_visitor.assignments
-    )
-
-    visitor
-  end
-
   def offline?
     @tt_offline
   end
