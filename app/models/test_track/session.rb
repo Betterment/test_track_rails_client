@@ -30,10 +30,7 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(*args)
-    opts = args[-1].is_a?(Hash) ? args.pop : {}
-
-    identity = args[0]
+  def log_in!(identity, opts = {})
     identifier_type = identity.test_track_identifier_type
     identifier_value = identity.test_track_identifier_value
 
@@ -44,8 +41,7 @@ class TestTrack::Session
     true
   end
 
-  def sign_up!(*args)
-    identity = args[0]
+  def sign_up!(identity)
     identifier_type = identity.test_track_identifier_type
     identifier_value = identity.test_track_identifier_value
 
