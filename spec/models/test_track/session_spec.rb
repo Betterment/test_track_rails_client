@@ -490,12 +490,6 @@ RSpec.describe TestTrack::Session do
     it "returns true" do
       expect(subject.log_in!(identity)).to eq true
     end
-
-    it "allows identity type and value arguments with a warning" do
-      expect {
-        subject.log_in!('identity_type', 'identity_value')
-      }.to output(/#log_in! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
-    end
   end
 
   describe "#sign_up!" do
@@ -512,12 +506,6 @@ RSpec.describe TestTrack::Session do
 
     it "returns true" do
       expect(subject.sign_up!(identity)).to eq true
-    end
-
-    it "allows identity type and value arguments with a warning" do
-      expect {
-        subject.sign_up!('identity_type', 'identity_value')
-      }.to output(/#sign_up! with two args is deprecated. Please provide a TestTrack::Identity/).to_stderr
     end
   end
 
