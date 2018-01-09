@@ -1,30 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Analytics::SafeWrapper do
-  let(:underlying) { double("Client", track_assignment: true, alias: false) }
+  let(:underlying) { double("Client", track_assignment: true, sign_up!: true) }
 
   subject { TestTrack::Analytics::SafeWrapper.new(underlying) }
-
-  describe '#alias' do
-    it 'calls underlying' do
-      expect(subject.alias(123, 321)).to eq true
-      expect(underlying).to have_received(:alias).with(123, 321)
-    end
-
-    context 'underlying raises' do
-      it 'returns false' do
-        allow(underlying).to receive(:alias).and_raise StandardError
-
-        expect(subject.alias(123, 321)).to eq false
-        expect(underlying).to have_received(:alias).with(123, 321)
-      end
-    end
-  end
 
   describe '#track_assignment' do
     it 'calls underlying' do
       expect(subject.track_assignment(123, foo: "bar")).to eq true
-      expect(underlying).to have_received(:track_assignment).with(123, { foo: "bar" }, {})
+      expect(underlying).to have_received(:track_assignment).with(123, foo: "bar")
     end
 
     context 'underlying raises' do
@@ -32,7 +16,37 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
         allow(underlying).to receive(:track_assignment).and_raise StandardError
 
         expect(subject.track_assignment(123, {})).to eq false
-        expect(underlying).to have_received(:track_assignment).with(123, {}, {})
+        expect(underlying).to have_received(:track_assignment).with(123, {})
+      end
+    end
+  end
+
+  describe '#sign_up!' do
+    context 'when client does not implement sign_up! method' do
+      let(:underlying) { double("Client", respond_to?: false) }
+
+      it 'does not call sign_up! on analytics client' do
+        expect(underlying).not_to receive(:sign_up!)
+        subject.sign_up!(1)
+      end
+    end
+
+    context 'when client does implement sign_up! method' do
+      it 'calls sign_up! on analytics client' do
+        expect(underlying).to receive(:sign_up!)
+        subject.sign_up!(1)
+      end
+
+      context 'when sign_up! method does not accept one argument' do
+        class TestClient
+          def sign_up!(visitor_id, extraneous_arg); end
+        end
+        let(:underlying) { TestClient.new }
+
+        it 'logs an argument error' do
+          expect(Rails.logger).to receive(:error).with(ArgumentError)
+          subject.sign_up!(1)
+        end
       end
     end
   end

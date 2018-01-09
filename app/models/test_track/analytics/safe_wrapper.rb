@@ -12,12 +12,12 @@ module TestTrack::Analytics
       @error_handler = handler
     end
 
-    def track_assignment(visitor_id, assignment, params = {})
-      safe_action { underlying.track_assignment(visitor_id, assignment, params) }
+    def track_assignment(visitor_id, assignment)
+      safe_action { underlying.track_assignment(visitor_id, assignment) }
     end
 
-    def alias(visitor_id, existing_id)
-      safe_action { underlying.alias(visitor_id, existing_id) }
+    def sign_up!(visitor_id)
+      safe_action { underlying.sign_up!(visitor_id) } if underlying.respond_to?(:sign_up!)
     end
 
     private

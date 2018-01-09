@@ -79,17 +79,6 @@ class TestTrack::Visitor
     end
   end
 
-  def self.backfill_identity(opts)
-    remote_identifier_visitor = TestTrack::Remote::Visitor.from_identifier(opts[:identifier_type], opts[:identifier_value])
-    visitor = new(
-      id: remote_identifier_visitor.id,
-      assignments: remote_identifier_visitor.assignments
-    )
-
-    TestTrack::CreateAliasJob.new(existing_id: opts[:existing_id], alias_id: visitor.id).perform
-    visitor
-  end
-
   def offline?
     @tt_offline
   end
