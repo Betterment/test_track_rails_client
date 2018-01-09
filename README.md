@@ -415,6 +415,7 @@ end
 ### From 2.0 to 3.0
 
 TestTrack Rails Client no longer manages your Mixpanel cookie. The analytics plugin now provides a callback on `sign_up!` that will allow you to implement this functionality within your application. Please see the [analytics documentation](#analytics) for more details.
+The TestTrack.analytics client `#track_assignment` method no longer accepts a properties hash as an argument as `mixpanel_distinct_id` is no longer relevant.
 
 ### From 1.x to 1.3
 
