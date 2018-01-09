@@ -91,11 +91,11 @@ RSpec.describe TestTrack::Identity do
       end
 
       it "delegates to the session discriminator" do
-        subject.test_track_log_in! some_args: 1234
+        subject.test_track_log_in! forget_current_visitor: true
 
         expect(TestTrack::IdentitySessionDiscriminator).to have_received(:new).with(subject)
         expect(identity_session_discriminator).to have_received(:with_session)
-        expect(session).to have_received(:log_in!).with(subject, some_args: 1234)
+        expect(session).to have_received(:log_in!).with(subject, forget_current_visitor: true)
       end
     end
 

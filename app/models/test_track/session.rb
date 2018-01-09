@@ -30,11 +30,11 @@ class TestTrack::Session
     }
   end
 
-  def log_in!(identity, opts = {})
+  def log_in!(identity, forget_current_visitor: nil)
     identifier_type = identity.test_track_identifier_type
     identifier_value = identity.test_track_identifier_value
 
-    @visitor = TestTrack::Visitor.new if opts[:forget_current_visitor]
+    @visitor = TestTrack::Visitor.new if forget_current_visitor
     visitor.link_identifier!(identifier_type, identifier_value)
 
     identities << identity if identity.present?
