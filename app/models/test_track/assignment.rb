@@ -16,7 +16,11 @@ class TestTrack::Assignment
   end
 
   def unsynced?
-    true
+    !feature_gate?
+  end
+
+  def feature_gate?
+    split_name.end_with?('_enabled')
   end
 
   private

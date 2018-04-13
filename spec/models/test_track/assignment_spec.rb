@@ -48,4 +48,18 @@ RSpec.describe TestTrack::Assignment do
       end
     end
   end
+
+  describe "#unsynced?" do
+    it "returns true" do
+      expect(subject.unsynced?).to eq true
+    end
+
+    context "for a feature gate" do
+      subject { described_class.new(visitor: visitor, split_name: :feature_enabled) }
+
+      it "returns false" do
+        expect(subject.unsynced?).to eq false
+      end
+    end
+  end
 end
