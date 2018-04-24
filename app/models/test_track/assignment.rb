@@ -16,7 +16,7 @@ class TestTrack::Assignment
   end
 
   def unsynced?
-    !feature_gate?
+    true
   end
 
   def feature_gate?
