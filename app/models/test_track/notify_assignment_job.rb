@@ -12,12 +12,15 @@ class TestTrack::NotifyAssignmentJob
   end
 
   def perform
-    TestTrack::Remote::AssignmentEvent.create!(
-      visitor_id: visitor_id,
-      split_name: assignment.split_name,
-      context: assignment.context,
-      mixpanel_result: track
-    )
+    tracking_result = track
+    unless assignment.feature_gate?
+      TestTrack::Remote::AssignmentEvent.create!(
+        visitor_id: visitor_id,
+        split_name: assignment.split_name,
+        context: assignment.context,
+        mixpanel_result: tracking_result
+      )
+    end
   end
 
   private

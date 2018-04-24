@@ -1,7 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::NotifyAssignmentJob do
-  let(:assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun", context: "the_context") }
+  let(:feature_gate) { false }
+  let(:assignment) do
+    instance_double(
+      TestTrack::Assignment,
+      split_name: "phaser",
+      variant: "stun",
+      context: "the_context",
+      feature_gate?: feature_gate
+    )
+  end
   let(:params) do
     {
       visitor_id: "fake_visitor_id",
@@ -56,6 +65,25 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
         context: 'the_context',
         mixpanel_result: 'success'
       )
+    end
+
+    context "with a feature gate" do
+      let(:feature_gate) { true }
+
+      it "does not send test_track assignments" do
+        with_test_track_enabled { subject.perform }
+
+        expect(TestTrack::Remote::AssignmentEvent).not_to have_received(:create!)
+      end
+
+      it "still sends analytics events" do
+        with_test_track_enabled { subject.perform }
+
+        expect(TestTrack.analytics).to have_received(:track_assignment).with(
+          "fake_visitor_id",
+          assignment
+        )
+      end
     end
 
     context "analytics client fails" do

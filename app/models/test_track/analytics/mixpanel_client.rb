@@ -1,7 +1,7 @@
 module TestTrack::Analytics
   class MixpanelClient
     def track_assignment(visitor_id, assignment)
-      mixpanel.track(visitor_id, 'SplitAssigned', split_properties(assignment).merge(TTVisitorID: visitor_id))
+      mixpanel.track(visitor_id, event_name(assignment), split_properties(assignment).merge(TTVisitorID: visitor_id))
     end
 
     private
@@ -9,6 +9,14 @@ module TestTrack::Analytics
     def mixpanel
       raise "ENV['MIXPANEL_TOKEN'] must be set" unless ENV['MIXPANEL_TOKEN']
       @mixpanel ||= Mixpanel::Tracker.new(ENV['MIXPANEL_TOKEN'])
+    end
+
+    def event_name(assignment)
+      if assignment.feature_gate?
+        'FeatureGateExperienced'
+      else
+        'SplitAssigned'
+      end
     end
 
     def split_properties(assignment)

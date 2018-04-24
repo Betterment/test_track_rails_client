@@ -5,7 +5,17 @@ RSpec.describe TestTrack::Analytics::MixpanelClient do
 
   describe "#track_assignment" do
     let(:mixpanel) { instance_double(Mixpanel::Tracker, track: true) }
-    let(:assignment) { instance_double(TestTrack::Assignment, visitor: 123, split_name: "foo", variant: "true", context: "bar") }
+    let(:feature_gate) { false }
+    let(:assignment) do
+      instance_double(
+        TestTrack::Assignment,
+        visitor: 123,
+        split_name: "foo",
+        variant: "true",
+        context: "bar",
+        feature_gate?: feature_gate
+      )
+    end
     let(:split_properties) do
       {
         SplitName: "foo",
@@ -46,6 +56,16 @@ RSpec.describe TestTrack::Analytics::MixpanelClient do
       expect { subject.track_assignment(123, assignment) }.to raise_error Mixpanel::ConnectionError
 
       expect(WebMock).to have_requested(:post, 'https://api.mixpanel.com/track')
+    end
+
+    context "with a feature gate" do
+      let(:feature_gate) { true }
+
+      it "tracks a FeatureGateExperienced event instead" do
+        subject.track_assignment(123, assignment)
+
+        expect(mixpanel).to have_received(:track).with(123, 'FeatureGateExperienced', split_properties)
+      end
     end
   end
 end
