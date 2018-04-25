@@ -23,6 +23,14 @@ class TestTrack::Assignment
     split_name.end_with?('_enabled')
   end
 
+  def analytics_event
+    @analytics_event ||= AnalyticsEvent.new(self)
+  end
+
+  def visitor_id
+    visitor.id
+  end
+
   private
 
   def _variant

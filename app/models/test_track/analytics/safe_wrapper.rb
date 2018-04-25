@@ -12,8 +12,8 @@ module TestTrack::Analytics
       @error_handler = handler
     end
 
-    def track_assignment(visitor_id, assignment)
-      safe_action { underlying.track_assignment(visitor_id, assignment) }
+    def track(analytics_event)
+      safe_action { underlying.track(analytics_event) }
     end
 
     def sign_up!(visitor_id)

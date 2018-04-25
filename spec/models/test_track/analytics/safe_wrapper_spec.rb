@@ -1,22 +1,22 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Analytics::SafeWrapper do
-  let(:underlying) { double("Client", track_assignment: true, sign_up!: true) }
+  let(:underlying) { double("Client", track: true, sign_up!: true) }
 
   subject { TestTrack::Analytics::SafeWrapper.new(underlying) }
 
-  describe '#track_assignment' do
+  describe '#track' do
     it 'calls underlying' do
-      expect(subject.track_assignment(123, foo: "bar")).to eq true
-      expect(underlying).to have_received(:track_assignment).with(123, foo: "bar")
+      expect(subject.track("my event")).to eq true
+      expect(underlying).to have_received(:track).with("my event")
     end
 
     context 'underlying raises' do
       it 'returns false' do
-        allow(underlying).to receive(:track_assignment).and_raise StandardError
+        allow(underlying).to receive(:track).and_raise StandardError
 
-        expect(subject.track_assignment(123, {})).to eq false
-        expect(underlying).to have_received(:track_assignment).with(123, {})
+        expect(subject.track("my event")).to eq false
+        expect(underlying).to have_received(:track).with("my event")
       end
     end
   end
@@ -55,12 +55,12 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
     let(:error) { StandardError.new("Something went wrong") }
 
     before do
-      allow(underlying).to receive(:track_assignment).and_raise error
+      allow(underlying).to receive(:track).and_raise error
       allow(Rails.logger).to receive(:error)
     end
 
     it 'logs error to Rails.logger' do
-      subject.track_assignment(123, {})
+      subject.track("my event")
 
       expect(Rails.logger).to have_received(:error).with(error)
     end
@@ -75,7 +75,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
       end
 
       it 'uses custom lambda' do
-        subject.track_assignment(123, {})
+        subject.track("my event")
 
         expect(handler).to have_received(:call).with(error)
       end

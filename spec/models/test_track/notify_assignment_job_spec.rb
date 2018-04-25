@@ -2,13 +2,15 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::NotifyAssignmentJob do
   let(:feature_gate) { false }
+  let(:analytics_event) { instance_double(TestTrack::AnalyticsEvent) }
   let(:assignment) do
     instance_double(
       TestTrack::Assignment,
       split_name: "phaser",
       variant: "stun",
       context: "the_context",
-      feature_gate?: feature_gate
+      feature_gate?: feature_gate,
+      analytics_event: analytics_event
     )
   end
   let(:params) do
@@ -39,21 +41,18 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     let(:remote_assignment) { instance_double(TestTrack::Remote::AssignmentEvent) }
     before do
       allow(TestTrack::Remote::AssignmentEvent).to receive(:create!).and_return(remote_assignment)
-      allow(TestTrack.analytics).to receive(:track_assignment).and_return(true)
+      allow(TestTrack.analytics).to receive(:track).and_return(true)
     end
 
     it "does not send analytics events when test track is not enabled" do
       subject.perform
-      expect(TestTrack.analytics).to_not have_received(:track_assignment)
+      expect(TestTrack.analytics).to_not have_received(:track)
     end
 
     it "sends analytics event" do
       with_test_track_enabled { subject.perform }
 
-      expect(TestTrack.analytics).to have_received(:track_assignment).with(
-        "fake_visitor_id",
-        assignment
-      )
+      expect(TestTrack.analytics).to have_received(:track).with(analytics_event)
     end
 
     it "sends test_track assignment" do
@@ -79,16 +78,13 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       it "still sends analytics events" do
         with_test_track_enabled { subject.perform }
 
-        expect(TestTrack.analytics).to have_received(:track_assignment).with(
-          "fake_visitor_id",
-          assignment
-        )
+        expect(TestTrack.analytics).to have_received(:track).with(analytics_event)
       end
     end
 
     context "analytics client fails" do
       before do
-        allow(TestTrack.analytics).to receive(:track_assignment).and_return(false)
+        allow(TestTrack.analytics).to receive(:track).and_return(false)
       end
 
       it "sends test_track assignment with mixpanel_result set to failure" do
