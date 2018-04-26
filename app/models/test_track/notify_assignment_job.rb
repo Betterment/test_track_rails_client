@@ -12,19 +12,22 @@ class TestTrack::NotifyAssignmentJob
   end
 
   def perform
-    TestTrack::Remote::AssignmentEvent.create!(
-      visitor_id: visitor_id,
-      split_name: assignment.split_name,
-      context: assignment.context,
-      mixpanel_result: track
-    )
+    tracking_result = track
+    unless assignment.feature_gate?
+      TestTrack::Remote::AssignmentEvent.create!(
+        visitor_id: visitor_id,
+        split_name: assignment.split_name,
+        context: assignment.context,
+        mixpanel_result: tracking_result
+      )
+    end
   end
 
   private
 
   def track
     return "failure" unless TestTrack.enabled?
-    result = TestTrack.analytics.track_assignment(visitor_id, assignment)
+    result = TestTrack.analytics.track(assignment.analytics_event)
     result ? "success" : "failure"
   end
 end

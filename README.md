@@ -349,9 +349,10 @@ Your client must implement the following methods:
 ```ruby
 # Called when a new Split has been Assigned
 #
-# @param visitor_id [String] TestTrack's unique visitor identification key
-# @param assignment [TestTrack::Assignment] The assignment model itself
-def track_assignment(visitor_id, assignment)
+# @param analytics_event [TestTrack::AnalyticsEvent] An object
+# representing an analytics event providing name and properties
+# values you can send to your analytics backend
+def track(analytics_event)
 
 # Called after TestTrack.sign_up!
 #
@@ -361,7 +362,7 @@ def sign_up!(visitor_id)
 
 ### Using TestTrack with a new analytics tool
 
-TestTrack manages its own visitor identifier which is different from the identifier of your analytics tool. We recommend using TestTrack's visitor identifier as your analytics identifier when possible. Within TestTrack Rails Client, assignment events will trigger a call to `TestTrack.analytics.track_assignment` with a TestTrack visitor identifier. To ensure that analytics events coming from within the browser have the right identifier, you must set the identifier when your analytics javascript library is loaded.
+TestTrack manages its own visitor identifier which is different from the identifier of your analytics tool. We recommend using TestTrack's visitor identifier as your analytics identifier when possible. Within TestTrack Rails Client, assignment events will trigger a call to `TestTrack.analytics.track` with a TestTrack visitor identifier. To ensure that analytics events coming from within the browser have the right identifier, you must set the identifier when your analytics javascript library is loaded.
 
 Here's an example for how to do it with Mixpanel:
 
@@ -373,44 +374,15 @@ mixpanel.init('YOUR MIXPANEL TOKEN', {
 });
 ```
 
-### Using TestTrack with an existing analytics tool
-
-In cases where you have already established identities with your analytics tool, you can use TestTrack's hooks to link TestTrack's visitor identifier to your analytics identifier.
-
-Using Mixpanel as an example, you must call [`mixpanel.alias`](https://mixpanel.com/help/questions/articles/assigning-your-own-unique-ids-to-users) with the visitor's analytics identifier and their TestTrack visitor identifier. This will establish a link between those two identifiers within your analytics tool, allowing you to analyze your funnels. We recommend using a thread-local storage like [`RequestStore`](https://github.com/steveklabnik/request_store) to make your identifier available to the TestTrack analytics client.
-
-In your controller, store the Mixpanel distinct ID in the RequestStore.
-
-```ruby
-class ApplicationController < ActionController::Base
-  before_action :store_mixpanel_distinct_id
-
-  def store_mixpanel_distinct_id
-    RequestStore[:mixpanel_distinct_id] = cookies["mp_#{ENV['MIXPANEL_TOKEN']}_mixpanel"]
-  end
-end
-```
-
-Then in your custom analytics plugin, use that value for assignment events and aliasing.
-
-```ruby
-def track_assignment!(visitor_id)
-  identifier = RequestStore[:mixpanel_distinct_id] || visitor_id
-  properties = {
-    SplitName: assignment.split_name,
-    SplitVariant: assignment.variant,
-    SplitContext: assignment.context
-  }
-
-  mixpanel.track(identifier, 'SplitAssigned', properties)
-end
-
-def sign_up!(visitor_id)
-  mixpanel.alias(visitor_id, RequestStore[:mixpanel_distinct_id])
-end
-```
-
 ## Upgrading
+
+### From 3.0 to 4.0
+
+The contract of custom analytics plugins has changed. Instead of
+implementing `track_assignment` you now must implement `track`. It's
+easier and more conventional, though, and takes care of differentiating
+between expiriment assignments and feature gate experiences, which are
+no longer recorded server-side.
 
 ### From 2.0 to 3.0
 

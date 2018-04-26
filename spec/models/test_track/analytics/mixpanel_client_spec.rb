@@ -3,9 +3,16 @@ require 'rails_helper'
 RSpec.describe TestTrack::Analytics::MixpanelClient do
   subject { TestTrack::Analytics::MixpanelClient.new }
 
-  describe "#track_assignment" do
+  describe "#track" do
     let(:mixpanel) { instance_double(Mixpanel::Tracker, track: true) }
-    let(:assignment) { instance_double(TestTrack::Assignment, visitor: 123, split_name: "foo", variant: "true", context: "bar") }
+    let(:analytics_event) do
+      instance_double(
+        TestTrack::AnalyticsEvent,
+        visitor_id: 123,
+        name: "SplitAssigned",
+        properties: split_properties
+      )
+    end
     let(:split_properties) do
       {
         SplitName: "foo",
@@ -21,20 +28,20 @@ RSpec.describe TestTrack::Analytics::MixpanelClient do
     end
 
     it "configures mixpanel with the token" do
-      subject.track_assignment(123, assignment)
+      subject.track(analytics_event)
 
       expect(Mixpanel::Tracker).to have_received(:new).with('fakefakefake')
     end
 
     it "calls mixpanel track" do
-      subject.track_assignment(123, assignment)
+      subject.track(analytics_event)
 
       expect(mixpanel).to have_received(:track).with(123, 'SplitAssigned', split_properties)
     end
 
     it "raises if mixpanel track raises Mixpanel::ConnectionError" do
       allow(mixpanel).to receive(:track) { raise Mixpanel::ConnectionError.new, "Womp womp" }
-      expect { subject.track_assignment(123, assignment) }.to raise_error Mixpanel::ConnectionError, /Womp womp/
+      expect { subject.track(analytics_event) }.to raise_error Mixpanel::ConnectionError, /Womp womp/
     end
 
     it "raises if mixpanel track fails" do
@@ -43,7 +50,7 @@ RSpec.describe TestTrack::Analytics::MixpanelClient do
       allow(Mixpanel::Tracker).to receive(:new).and_call_original
       stub_request(:post, 'https://api.mixpanel.com/track').to_return(status: 500, body: "")
 
-      expect { subject.track_assignment(123, assignment) }.to raise_error Mixpanel::ConnectionError
+      expect { subject.track(analytics_event) }.to raise_error Mixpanel::ConnectionError
 
       expect(WebMock).to have_requested(:post, 'https://api.mixpanel.com/track')
     end
