@@ -1,50 +1,62 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::AnalyticsEvent do
-  context "with a feature gate" do
-    let(:assignment) do
-      instance_double(
-        TestTrack::Assignment,
-        visitor_id: 34,
-        split_name: "foo_enabled",
-        variant: "true",
-        context: "home_page",
-        feature_gate?: true
-      )
-    end
+  let(:assignment) do
+    instance_double(
+      TestTrack::Assignment,
+      visitor_id: 34,
+      split_name: "foo_experiment",
+      variant: "treatment",
+      context: "home_page",
+      feature_gate?: false
+    )
+  end
 
-    subject { described_class.new(assignment) }
+  subject { described_class.new(assignment) }
 
-    it "has a name of FeatureGateExperienced" do
-      expect(subject.name).to eq "FeatureGateExperienced"
-    end
-
-    it "has a well-formed properties" do
-      expect(subject.properties).to eq(
-        TTVisitorID: 34,
-        SplitName: "foo_enabled",
-        SplitVariant: "true",
-        SplitContext: "home_page"
-      )
+  describe "#assignment" do
+    it "returns the analytics_event's assignment" do
+      expect(subject.assignment).to eq assignment
     end
   end
 
-  context "with an experiment" do
-    let(:assignment) do
-      instance_double(
-        TestTrack::Assignment,
-        visitor_id: 34,
-        split_name: "foo_experiment",
-        variant: "treatment",
-        context: "home_page",
-        feature_gate?: false
-      )
+  describe "#visitor_id" do
+    it "returns the assignment's visitor_id" do
+      expect(subject.visitor_id).to eq 34
+    end
+  end
+
+  describe "#name" do
+    it "returns SplitAssigned" do
+      expect(subject.name).to eq "SplitAssigned"
     end
 
-    subject { described_class.new(assignment) }
+    context "with a feature gate" do
+      let(:assignment) do
+        instance_double(
+          TestTrack::Assignment,
+          visitor_id: 34,
+          split_name: "foo_enabled",
+          variant: "true",
+          context: "home_page",
+          feature_gate?: true
+        )
+      end
 
-    it "has a name of SplitAssigned" do
-      expect(subject.name).to eq "SplitAssigned"
+      it "returns FeatureGateExperienced" do
+        expect(subject.name).to eq "FeatureGateExperienced"
+      end
+    end
+  end
+
+  describe "#properties" do
+    it "returns a hash with relevant facts about the assignment" do
+      expect(subject.properties).to eq(
+        TTVisitorID: 34,
+        SplitName: "foo_experiment",
+        SplitVariant: "treatment",
+        SplitContext: "home_page"
+      )
     end
   end
 end
