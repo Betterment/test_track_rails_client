@@ -472,7 +472,6 @@ RSpec.describe TestTrack::Session do
       subject.visitors_by_identity[identity]
 
       expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123").exactly(:once)
-
     end
   end
 
