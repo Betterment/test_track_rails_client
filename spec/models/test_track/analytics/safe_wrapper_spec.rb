@@ -3,20 +3,22 @@ require 'rails_helper'
 RSpec.describe TestTrack::Analytics::SafeWrapper do
   let(:underlying) { double("Client", track: true, sign_up!: true) }
 
+  let(:event) { instance_double(TestTrack::AnalyticsEvent) }
+
   subject { TestTrack::Analytics::SafeWrapper.new(underlying) }
 
   describe '#track' do
     it 'calls underlying' do
-      expect(subject.track("my event")).to eq true
-      expect(underlying).to have_received(:track).with("my event")
+      expect(subject.track(event)).to eq true
+      expect(underlying).to have_received(:track).with(event)
     end
 
     context 'underlying raises' do
       it 'returns false' do
         allow(underlying).to receive(:track).and_raise StandardError
 
-        expect(subject.track("my event")).to eq false
-        expect(underlying).to have_received(:track).with("my event")
+        expect(subject.track(event)).to eq false
+        expect(underlying).to have_received(:track).with(event)
       end
     end
   end
@@ -60,7 +62,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
     end
 
     it 'logs error to Rails.logger' do
-      subject.track("my event")
+      subject.track(event)
 
       expect(Rails.logger).to have_received(:error).with(error)
     end
@@ -75,7 +77,7 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
       end
 
       it 'uses custom lambda' do
-        subject.track("my event")
+        subject.track(event)
 
         expect(handler).to have_received(:call).with(error)
       end
