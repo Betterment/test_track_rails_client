@@ -1,4 +1,4 @@
-class TestTrack::IdentitySessionDiscriminator
+class TestTrack::IdentitySessionLocator
   attr_reader :identity
 
   def initialize(identity)
@@ -8,8 +8,8 @@ class TestTrack::IdentitySessionDiscriminator
   def with_visitor
     raise ArgumentError, "must provide block to `with_visitor`" unless block_given?
 
-    if matching_identity?
-      yield session.visitor_dsl
+    if web_context?
+      yield session.visitor_dsl_for(identity)
     else
       TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
         yield v
@@ -28,10 +28,6 @@ class TestTrack::IdentitySessionDiscriminator
   end
 
   private
-
-  def matching_identity?
-    session.present? && session.has_matching_identity?(identity)
-  end
 
   def web_context?
     session.present?

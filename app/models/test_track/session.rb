@@ -16,6 +16,27 @@ class TestTrack::Session
     notify_unsynced_assignments! if sync_assignments?
   end
 
+  def visitor_dsl_for(identity)
+    if has_matching_identity?(identity)
+      visitor_dsl
+    else
+      TestTrack::VisitorDSL.new(visitors_by_identity[identity])
+    end
+  end
+
+  def visitors_by_identity
+    @visitors_by_identity ||= Hash.new do |visitors_by_identity, identity|
+      remote_visitor = TestTrack::Remote::Visitor.from_identifier(
+        identity.test_track_identifier_type,
+        identity.test_track_identifier_value
+      )
+      visitors_by_identity[identity] = TestTrack::Visitor.new(
+        id: remote_visitor.id,
+        assignments: remote_visitor.assignments
+      )
+    end
+  end
+
   def visitor_dsl
     @visitor_dsl ||= TestTrack::VisitorDSL.new(visitor)
   end
