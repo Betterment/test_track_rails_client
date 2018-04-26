@@ -422,6 +422,59 @@ RSpec.describe TestTrack::Session do
     end
   end
 
+  describe "#visitor_dsl_for" do
+    before do
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
+    end
+
+    context "when the controller's authenticated resource matches the identity" do
+      before do
+        allow(controller).to receive(:current_clown).and_return(identity)
+      end
+
+      it "doesn't fetch a remote visitor" do
+        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+
+        expect(TestTrack::Remote::Visitor).not_to have_received(:from_identifier)
+      end
+    end
+
+    context "when the controller's authenticated resource does not match the identity" do
+      let(:other_identity) { Clown.new(id: 9876) }
+
+      before do
+        allow(controller).to receive(:current_clown).and_return(other_identity)
+      end
+
+      it "fetches a remote visitor" do
+        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
+      end
+    end
+  end
+
+  describe "#visitors_by_identity" do
+    let(:identity) { double(test_track_identifier_type: "foo_user_id", test_track_identifier_value: "123") }
+
+    before do
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
+    end
+
+    it "fetches a remote visitor on demand given an identity" do
+      expect(subject.visitors_by_identity[identity]).to be_a TestTrack::Visitor
+
+      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123")
+    end
+
+    it "only fetches a remote visitor once for the same identity" do
+      subject.visitors_by_identity[identity]
+      subject.visitors_by_identity[identity]
+
+      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123").exactly(:once)
+    end
+  end
+
   describe "#visitor_dsl" do
     let(:visitor) { instance_double(TestTrack::Visitor) }
 
