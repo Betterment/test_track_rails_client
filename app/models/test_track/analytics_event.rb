@@ -18,10 +18,10 @@ module TestTrack
 
     def properties
       {
-        TTVisitorID: visitor_id,
-        SplitName: assignment.split_name,
-        SplitVariant: assignment.variant,
-        SplitContext: assignment.context
+        test_track_visitor_id: visitor_id,
+        split_name: assignment.split_name,
+        split_variant: assignment.variant,
+        split_context: assignment.context
       }
     end
   end
