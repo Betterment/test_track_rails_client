@@ -52,10 +52,10 @@ RSpec.describe TestTrack::AnalyticsEvent do
   describe "#properties" do
     it "returns a hash with relevant facts about the assignment" do
       expect(subject.properties).to eq(
-        TTVisitorID: 34,
-        SplitName: "foo_experiment",
-        SplitVariant: "treatment",
-        SplitContext: "home_page"
+        test_track_visitor_id: 34,
+        split_name: "foo_experiment",
+        split_variant: "treatment",
+        split_context: "home_page"
       )
     end
   end
