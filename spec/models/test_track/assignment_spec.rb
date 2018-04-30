@@ -12,6 +12,12 @@ RSpec.describe TestTrack::Assignment do
     end
   end
 
+  describe "#analytics_event" do
+    it "returns an analytics_event" do
+      expect(subject.analytics_event).to be_a(TestTrack::AnalyticsEvent)
+    end
+  end
+
   describe "#variant" do
     let(:variant) { :the_variant }
     let(:variant_calculator) { instance_double(TestTrack::VariantCalculator, variant: variant) }

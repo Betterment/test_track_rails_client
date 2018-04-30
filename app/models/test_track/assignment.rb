@@ -24,7 +24,7 @@ class TestTrack::Assignment
   end
 
   def analytics_event
-    @analytics_event ||= AnalyticsEvent.new(self)
+    @analytics_event ||= TestTrack::AnalyticsEvent.new(self)
   end
 
   def visitor_id
