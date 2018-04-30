@@ -27,8 +27,8 @@ RSpec.describe TestTrack::AnalyticsEvent do
   end
 
   describe "#name" do
-    it "returns SplitAssigned" do
-      expect(subject.name).to eq "SplitAssigned"
+    it "returns split_assigned" do
+      expect(subject.name).to eq "split_assigned"
     end
 
     context "with a feature gate" do
@@ -43,8 +43,8 @@ RSpec.describe TestTrack::AnalyticsEvent do
         )
       end
 
-      it "returns FeatureGateExperienced" do
-        expect(subject.name).to eq "FeatureGateExperienced"
+      it "returns feature_gate_experienced" do
+        expect(subject.name).to eq "feature_gate_experienced"
       end
     end
   end
