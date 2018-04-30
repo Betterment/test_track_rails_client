@@ -10,9 +10,9 @@ module TestTrack
 
     def name
       if assignment.feature_gate?
-        'FeatureGateExperienced'
+        'feature_gate_experienced'
       else
-        'SplitAssigned'
+        'split_assigned'
       end
     end
 
