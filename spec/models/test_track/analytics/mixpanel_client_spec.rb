@@ -9,7 +9,7 @@ RSpec.describe TestTrack::Analytics::MixpanelClient do
       instance_double(
         TestTrack::AnalyticsEvent,
         visitor_id: 123,
-        name: "SplitAssigned",
+        name: "split_assigned",
         properties: split_properties
       )
     end
@@ -36,7 +36,7 @@ RSpec.describe TestTrack::Analytics::MixpanelClient do
     it "calls mixpanel track" do
       subject.track(analytics_event)
 
-      expect(mixpanel).to have_received(:track).with(123, 'SplitAssigned', split_properties)
+      expect(mixpanel).to have_received(:track).with(123, 'split_assigned', split_properties)
     end
 
     it "raises if mixpanel track raises Mixpanel::ConnectionError" do
