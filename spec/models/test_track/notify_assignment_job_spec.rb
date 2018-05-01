@@ -2,15 +2,13 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::NotifyAssignmentJob do
   let(:feature_gate) { false }
-  let(:analytics_event) { instance_double(TestTrack::AnalyticsEvent) }
   let(:assignment) do
     instance_double(
       TestTrack::Assignment,
       split_name: "phaser",
       variant: "stun",
       context: "the_context",
-      feature_gate?: feature_gate,
-      analytics_event: analytics_event
+      feature_gate?: feature_gate
     )
   end
   let(:params) do
@@ -52,7 +50,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     it "sends analytics event" do
       with_test_track_enabled { subject.perform }
 
-      expect(TestTrack.analytics).to have_received(:track).with(analytics_event)
+      expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
     end
 
     it "sends test_track assignment" do
@@ -78,7 +76,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       it "still sends analytics events" do
         with_test_track_enabled { subject.perform }
 
-        expect(TestTrack.analytics).to have_received(:track).with(analytics_event)
+        expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
       end
     end
 
