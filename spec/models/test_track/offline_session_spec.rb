@@ -38,6 +38,7 @@ RSpec.describe TestTrack::OfflineSession do
           expect(assignment.variant).to eq("bar")
           expect(assignment).to respond_to(:context)
           expect(assignment.unsynced?).to eq false
+          expect(assignment.feature_gate?).to eq false
         end
       end
     end
