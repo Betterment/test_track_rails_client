@@ -3,6 +3,10 @@ class TestTrack::OfflineSession
     def unsynced?
       unsynced
     end
+
+    def feature_gate?
+      split_name.end_with?('_enabled')
+    end
   end
 
   def initialize(remote_visitor)
