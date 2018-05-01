@@ -1,7 +1,7 @@
 class TestTrack::Remote::Assignment
   include TestTrack::RemoteModel
 
-  attributes :visitor_id, :split_name, :variant, :unsynced
+  attributes :visitor_id, :split_name, :variant, :context, :unsynced
 
   validates :visitor_id, :split_name, :variant, :mixpanel_result, presence: true
 
