@@ -33,8 +33,11 @@ RSpec.describe TestTrack::OfflineSession do
       expect(TestTrack::Visitor).to have_received(:new) do |args|
         expect(args[:id]).to eq("remote_visitor_id")
         args[:assignments].first.tap do |assignment|
+          expect(assignment.visitor_id).to eq("remote_visitor_id")
           expect(assignment.split_name).to eq("foo")
           expect(assignment.variant).to eq("bar")
+          expect(assignment).to respond_to(:context)
+          expect(assignment.unsynced?).to eq false
         end
       end
     end
