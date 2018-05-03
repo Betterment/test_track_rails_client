@@ -241,51 +241,9 @@ if test_track_visitor.ab :dark_deployed_feature, context: 'signup'
 end
 ```
 
-### Varying app behavior in an offline context
-
-The `OfflineSession` class can be used to load a test track visitor when there is no access to browser cookies. It is perfect for use in a process being run from either a job queue or a scheduler. The visitor object that is yielded to the block is the same as the visitor in a controller context; it has both the `vary` and `ab` methods.
-
-An `OfflineSession` can be established in one of two ways:
-
-1. with an `identifier_type`:
-```ruby
-OfflineSession.with_visitor_for(:myapp_user_id, 1234) do |test_track_visitor|
-  test_track_visitor.vary :name_of_split, context: 'background_job' do |v|
-    v.when :variant_1, :variant_2 do
-      # Do something
-    end
-    v.when :variant_3 do
-      # Do another thing
-    end
-    v.default :variant_4 do
-      # Do something else
-    end
-  end
-end
-```
-
-2. with a `TestTrack::Visitor#id`:
-```ruby
-OfflineSession.with_visitor_id(1234) do |test_track_visitor|
-  test_track_visitor.vary :name_of_split, context: 'background_job' do |v|
-    v.when :variant_1, :variant_2 do
-      # Do something
-    end
-    v.when :variant_3 do
-      # Do another thing
-    end
-    v.default :variant_4 do
-      # Do something else
-    end
-  end
-end
-```
-
 ### Varying app behavior from within a model
 
-The `TestTrack::Identity` concern can be included in a model and it will add two methods to the model: `test_track_vary` and `test_track_ab`. Behind the scenes, these methods check to see if they are being used within a web context of a controller that includes `TestTrack::Controller` or not. If called in a web context they will use the `test_track_visitor` that the controller has and participate in the existing session, if not, they will standup an `OfflineSession`.
-
-Because these methods may need to stand up an `OfflineSession` the consuming model needs to provide both the identifier type and which column should be used as the identifier value via the `test_track_identifier` method so that the `OfflineSession` can grab the correct visitor.
+The `TestTrack::Identity` concern can be included in a model and it will add two methods to the model: `test_track_vary` and `test_track_ab`.
 
 ```ruby
 class User
@@ -294,8 +252,6 @@ class User
   test_track_identifier :myapp_user_id, :id # `id` is a column on User model which is what we're using as the identifier value in this example.
 end
 ```
-
-N.B. If you call `test_track_vary` and `test_track_ab` on a model in a web context, but that model is not the currently authenticated model, an `OfflineSession` will be created instead of participating in the existing session.
 
 ## Tracking visitor logins
 
@@ -319,7 +275,7 @@ The `test_track_visitor.sign_up!` method tells TestTrack when a new identifier h
 test_track_visitor.sign_up!(:myapp_user_id, 2345)
 ```
 
-## Testing splits
+## Testing your split-dependent application code with RSpec
 
 Add this line to your `rails_helper.rb`:
 
