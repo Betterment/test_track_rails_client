@@ -94,7 +94,7 @@ class TestTrack::Visitor
   private
 
   def assignments
-    @assignments ||= (remote_visitor && remote_visitor.assignments) || []
+    @assignments ||= remote_visitor&.assignments || []
   end
 
   def remote_visitor
