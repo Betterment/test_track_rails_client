@@ -57,6 +57,8 @@ Mix `TestTrack::Controller` into any controllers needing access to TestTrack:
 ```ruby
 class MyController < ApplicationController
   include TestTrack::Controller
+
+  self.test_track_identity = :current_user
 end
 ```
 

@@ -35,6 +35,13 @@ RSpec.describe TestTrack::Controller do
     allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
   end
 
+  describe ".test_track_identity class attribute" do
+    it "holds a test_track_identity" do
+      subject.class.test_track_identity = :current_user
+      expect(subject.class.test_track_identity).to eq :current_user
+    end
+  end
+
   it "responds with the action's usual http status" do
     get :index
     expect(response).to have_http_status(:ok)

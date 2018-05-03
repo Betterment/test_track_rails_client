@@ -2,6 +2,8 @@ module TestTrack::Controller
   extend ActiveSupport::Concern
 
   included do
+    class_attribute :test_track_identity
+
     helper_method :test_track_session, :test_track_visitor
     helper TestTrack::ApplicationHelper
     around_action :manage_test_track_session
