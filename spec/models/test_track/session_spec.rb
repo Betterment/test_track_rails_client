@@ -7,6 +7,8 @@ RSpec.describe TestTrack::Session do
     Class.new(ApplicationController) do
       include TestTrack::Controller
 
+      self.test_track_identity = :current_clown
+
       private # make current_clown private to better simulate real world scenario
 
       def current_clown; end
@@ -427,15 +429,27 @@ RSpec.describe TestTrack::Session do
       allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
     end
 
+    context "when the controller has no authenticated resource" do
+      before do
+        allow(controller).to receive(:current_clown).and_return(nil)
+      end
+
+      it "fetches a remote visitor by identity" do
+        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
+      end
+    end
+
     context "when the controller's authenticated resource matches the identity" do
       before do
         allow(controller).to receive(:current_clown).and_return(identity)
       end
 
-      it "doesn't fetch a remote visitor" do
+      it "fetches a remote visitor by identity" do
         expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
 
-        expect(TestTrack::Remote::Visitor).not_to have_received(:from_identifier)
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
       end
     end
 
@@ -446,7 +460,7 @@ RSpec.describe TestTrack::Session do
         allow(controller).to receive(:current_clown).and_return(other_identity)
       end
 
-      it "fetches a remote visitor" do
+      it "fetches a remote visitor by identity" do
         expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
@@ -532,12 +546,12 @@ RSpec.describe TestTrack::Session do
     let(:visitor) { subject.send(:visitor) }
 
     before do
-      allow(visitor).to receive(:link_identifier!).and_call_original
+      allow(visitor).to receive(:link_identity!).and_call_original
     end
 
-    it "calls link_identifier! on the visitor" do
+    it "calls link_identity! on the visitor" do
       subject.log_in!(identity)
-      expect(visitor).to have_received(:link_identifier!).with('clown_id', 1234)
+      expect(visitor).to have_received(:link_identity!).with(identity)
     end
 
     it "returns true" do
@@ -549,60 +563,16 @@ RSpec.describe TestTrack::Session do
     let(:visitor) { subject.send(:visitor) }
 
     before do
-      allow(visitor).to receive(:link_identifier!).and_call_original
+      allow(visitor).to receive(:link_identity!).and_call_original
     end
 
-    it "calls link_identifier! on the visitor" do
+    it "calls link_identity! on the visitor" do
       subject.sign_up!(identity)
-      expect(visitor).to have_received(:link_identifier!).with('clown_id', 1234)
+      expect(visitor).to have_received(:link_identity!).with(identity)
     end
 
     it "returns true" do
       expect(subject.sign_up!(identity)).to eq true
-    end
-  end
-
-  describe "#has_matching_identity?" do
-    context "when the controller's authenticated resource matches the identity" do
-      before do
-        allow(controller).to receive(:current_clown).and_return(identity)
-      end
-
-      it "returns true" do
-        expect(subject.has_matching_identity?(identity)).to eq true
-      end
-    end
-
-    context "when the controller's authenticated resource does not match the identity" do
-      let(:other_identity) { Clown.new(id: 9876) }
-
-      before do
-        allow(controller).to receive(:current_clown).and_return(other_identity)
-      end
-
-      it "returns false" do
-        expect(subject.has_matching_identity?(identity)).to eq false
-      end
-    end
-
-    context "when the identity matches a previously logged in identity" do
-      it "returns true" do
-        expect(subject.has_matching_identity?(identity)).to eq false
-
-        subject.log_in!(identity)
-
-        expect(subject.has_matching_identity?(identity)).to eq true
-      end
-    end
-
-    context "when the identity matches a previously signed up identity" do
-      it "returns true" do
-        expect(subject.has_matching_identity?(identity)).to eq false
-
-        subject.sign_up!(identity)
-
-        expect(subject.has_matching_identity?(identity)).to eq true
-      end
     end
   end
 end

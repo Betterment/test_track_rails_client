@@ -17,11 +17,7 @@ class TestTrack::Session
   end
 
   def visitor_dsl_for(identity)
-    if has_matching_identity?(identity)
-      visitor_dsl
-    else
-      TestTrack::VisitorDSL.new(visitors_by_identity[identity])
-    end
+    TestTrack::VisitorDSL.new(visitors_by_identity[identity])
   end
 
   def visitors_by_identity
@@ -38,7 +34,7 @@ class TestTrack::Session
   end
 
   def visitor_dsl
-    @visitor_dsl ||= TestTrack::VisitorDSL.new(visitor)
+    TestTrack::VisitorDSL.new(visitor)
   end
 
   def state_hash
@@ -52,30 +48,20 @@ class TestTrack::Session
   end
 
   def log_in!(identity, forget_current_visitor: nil)
-    identifier_type = identity.test_track_identifier_type
-    identifier_value = identity.test_track_identifier_value
+    @unauthenticated_visitor = TestTrack::Visitor.new if forget_current_visitor
+    unauthenticated_visitor.link_identity!(identity)
+    visitors_by_identity[identity] = unauthenticated_visitor
 
-    @visitor = TestTrack::Visitor.new if forget_current_visitor
-    visitor.link_identifier!(identifier_type, identifier_value)
-
-    identities << identity if identity.present?
     true
   end
 
   def sign_up!(identity)
-    identifier_type = identity.test_track_identifier_type
-    identifier_value = identity.test_track_identifier_value
-
-    visitor.link_identifier!(identifier_type, identifier_value)
-    identities << identity if identity.present?
+    unauthenticated_visitor.link_identity!(identity)
+    visitors_by_identity[identity] = unauthenticated_visitor
 
     TestTrack.analytics.sign_up!(visitor.id)
 
     true
-  end
-
-  def has_matching_identity?(identity)
-    identities.include?(identity)
   end
 
   private
@@ -83,10 +69,28 @@ class TestTrack::Session
   attr_reader :controller
 
   def visitor
-    @visitor ||= TestTrack::Visitor.new(id: visitor_id)
+    if current_identity
+      visitors_by_identity[current_identity]
+    else
+      unauthenticated_visitor
+    end
   end
 
-  def visitor_id
+  def current_identity
+    raise <<~ERROR unless controller.class.test_track_identity&.is_a?(Symbol)
+      Your controller (or controller base class) must set test_track_identity for
+      TestTrack to work properly. e.g.:
+
+        self.test_track_identity = :current_user
+    ERROR
+    controller.send(controller.class.test_track_identity)
+  end
+
+  def unauthenticated_visitor
+    @unauthenticated_visitor ||= TestTrack::Visitor.new(id: unauthenticated_visitor_id)
+  end
+
+  def unauthenticated_visitor_id
     cookies[visitor_cookie_name] || request_headers[visitor_request_header_name]
   end
 
@@ -204,9 +208,5 @@ class TestTrack::Session
         RequestStore.clear!
       end
     end
-  end
-
-  def identities
-    @identities ||= TestTrack::SessionIdentityCollection.new(controller)
   end
 end

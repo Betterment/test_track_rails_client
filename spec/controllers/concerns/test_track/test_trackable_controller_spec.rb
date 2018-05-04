@@ -6,6 +6,8 @@ RSpec.describe TestTrack::Controller do
   controller(ApplicationController) do
     include mixin
 
+    self.test_track_identity = :current_clown
+
     def index
       render json: {
         split_registry: test_track_session.state_hash[:registry],
@@ -17,6 +19,10 @@ RSpec.describe TestTrack::Controller do
       test_track_visitor.ab 'time', 'beer_thirty'
       head :no_content
     end
+
+    private
+
+    def current_clown; end
   end
 
   def response_json
