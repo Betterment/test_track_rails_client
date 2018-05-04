@@ -21,12 +21,14 @@ If you're looking to do client-side assignment, then check out our [JS client](h
 
 ## Installation
 
-Install the gem:
+### Install the gem:
 
 ```ruby
 # Gemfile
 gem 'test_track_rails_client'
 ```
+
+### Create an app in the TestTrack server
 
 In every environment (local included) cut an App record via the **TestTrack server** rails console:
 
@@ -40,6 +42,8 @@ README](https://github.com/Betterment/test_track/blob/master/README.md#user-cont
 for additional information on configuring seed apps for local
 development.
 
+### Set up ENV vars
+
 Set up ENV vars in every environment:
 
 * `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#custom-analytics) you can omit this.
@@ -51,8 +55,9 @@ Set up ENV vars in every environment:
   * `example.org`
   * etc
 
+### Prepare your controllers
 
-Mix `TestTrack::Controller` into any controllers needing access to TestTrack:
+Mix `TestTrack::Controller` into any controllers needing access to TestTrack and configure it with the name of your `:current_user` method.
 
 ```ruby
 class MyController < ApplicationController
@@ -61,6 +66,15 @@ class MyController < ApplicationController
   self.test_track_identity = :current_user
 end
 ```
+
+### Prepare your identity models
+
+You'll need to configure your `User` model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
+
+If your app doesn't support authentication, just define a method that
+always returns `nil`, e.g. `def current_user; end`.
+
+### Set up the Chrome extension (optional)
 
 If you'd like to be able to use the [TestTrack Chrome Extension](https://github.com/Betterment/test_track_chrome_extension) which makes it easy for you and your team to change assignments via your browser, you **must** set up the TestTrack JS client.
 
@@ -341,6 +355,10 @@ implementing `track_assignment` you now must implement `track`. It's
 easier and more conventional, though, and takes care of differentiating
 between expiriment assignments and feature gate experiences, which are
 no longer recorded server-side.
+
+You also must add `self.test_track_identity = :current_user` (or
+whatever your controller uses as a sign-in identity) to your
+TestTrack-enabled controllers.
 
 ### From 2.0 to 3.0
 
