@@ -11,8 +11,10 @@ class TestTrack::Session
   def manage
     yield
   ensure
-    manage_cookies!
-    manage_response_headers!
+    if visitor.id_loaded?
+      manage_cookies!
+      manage_response_headers!
+    end
     notify_unsynced_assignments! if sync_assignments?
   end
 
@@ -22,14 +24,7 @@ class TestTrack::Session
 
   def visitors_by_identity
     @visitors_by_identity ||= Hash.new do |visitors_by_identity, identity|
-      remote_visitor = TestTrack::Remote::Visitor.from_identifier(
-        identity.test_track_identifier_type,
-        identity.test_track_identifier_value
-      )
-      visitors_by_identity[identity] = TestTrack::Visitor.new(
-        id: remote_visitor.id,
-        assignments: remote_visitor.assignments
-      )
+      visitors_by_identity[identity] = TestTrack::LazyVisitorByIdentity.new(identity)
     end
   end
 

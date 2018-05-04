@@ -6,6 +6,7 @@ class TestTrack::Visitor
   def initialize(opts = {})
     opts = opts.dup
     @id = opts.delete(:id)
+    @loaded = true if opts[:assignments]
     @assignments = opts.delete(:assignments)
     unless id
       @id = SecureRandom.uuid
@@ -83,8 +84,12 @@ class TestTrack::Visitor
     @tt_offline
   end
 
+  def id_loaded?
+    true
+  end
+
   def loaded?
-    !offline? && @remote_visitor.present?
+    !offline? && @loaded
   end
 
   def id_overridden_by_existing_visitor?
@@ -105,7 +110,15 @@ class TestTrack::Visitor
   end
 
   def remote_visitor
-    @remote_visitor ||= TestTrack::Remote::Visitor.find(id) unless tt_offline?
+    @remote_visitor ||= _remote_visitor
+  end
+
+  def _remote_visitor
+    unless tt_offline?
+      TestTrack::Remote::Visitor.find(id).tap do |_|
+        @loaded = true
+      end
+    end
   rescue *TestTrack::SERVER_ERRORS => e
     Rails.logger.error "TestTrack failed to load remote visitor. #{e}"
     @tt_offline = true

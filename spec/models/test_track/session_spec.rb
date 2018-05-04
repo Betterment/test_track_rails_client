@@ -435,7 +435,9 @@ RSpec.describe TestTrack::Session do
       end
 
       it "fetches a remote visitor by identity" do
-        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
       end
@@ -447,7 +449,9 @@ RSpec.describe TestTrack::Session do
       end
 
       it "fetches the remote visitor by identity instead of by visitor_id for security" do
-        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
       end
@@ -461,7 +465,9 @@ RSpec.describe TestTrack::Session do
       end
 
       it "fetches a remote visitor by identity" do
-        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
       end
@@ -475,15 +481,21 @@ RSpec.describe TestTrack::Session do
       allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
     end
 
-    it "fetches a remote visitor on demand given an identity" do
-      expect(subject.visitors_by_identity[identity]).to be_a TestTrack::Visitor
+    it "returns a lazy visitor" do
+      expect(subject.visitors_by_identity[identity]).to be_a TestTrack::LazyVisitorByIdentity
+
+      expect(TestTrack::Remote::Visitor).not_to have_received(:from_identifier)
+    end
+
+    it "lazily fetches a remote visitor on demand given an identity" do
+      expect(subject.visitors_by_identity[identity].id).to eq "fake_visitor_id"
 
       expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123")
     end
 
     it "only fetches a remote visitor once for the same identity" do
-      subject.visitors_by_identity[identity]
-      subject.visitors_by_identity[identity]
+      subject.visitors_by_identity[identity].id
+      subject.visitors_by_identity[identity].id
 
       expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123").exactly(:once)
     end
@@ -517,7 +529,7 @@ RSpec.describe TestTrack::Session do
       end
 
       it "returns a visitor looked up by identity" do
-        subject.visitor_dsl
+        subject.visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', '132')
       end
