@@ -441,12 +441,12 @@ RSpec.describe TestTrack::Session do
       end
     end
 
-    context "when the controller's authenticated resource matches the identity" do
+    context "when the controller's authenticated resource matches the requested identity" do
       before do
         allow(controller).to receive(:current_clown).and_return(identity)
       end
 
-      it "fetches a remote visitor by identity" do
+      it "fetches the remote visitor by identity instead of by visitor_id for security" do
         expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
@@ -499,6 +499,28 @@ RSpec.describe TestTrack::Session do
       subject.visitor_dsl
 
       expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
+    end
+
+    context "with a current identity" do
+      let(:clown) { double(test_track_identifier_type: 'clown_id', test_track_identifier_value: '132') }
+      let(:visitor) { instance_double(TestTrack::Remote::Visitor, id: 'an id for real', assignments: {}) }
+
+      before do
+        my_clown = clown
+        controller_class.class_eval do
+          define_method(:current_clown) do
+            my_clown
+          end
+        end
+
+        allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(visitor)
+      end
+
+      it "returns a visitor looked up by identity" do
+        subject.visitor_dsl
+
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', '132')
+      end
     end
   end
 
