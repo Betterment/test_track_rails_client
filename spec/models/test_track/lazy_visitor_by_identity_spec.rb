@@ -24,4 +24,18 @@ RSpec.describe TestTrack::LazyVisitorByIdentity do
       expect_them_to_be true
     end
   end
+
+  describe "#respond_to?" do
+    it "returns true if underlying responds to it" do
+      expect(subject.respond_to?(:id)).to eq true
+    end
+
+    it "returns true if we actually respond to it" do
+      expect(subject.respond_to?(:id_loaded?)).to eq true
+    end
+
+    it "returns false if random" do
+      expect(subject.respond_to?(:fooblitz)).to eq false
+    end
+  end
 end

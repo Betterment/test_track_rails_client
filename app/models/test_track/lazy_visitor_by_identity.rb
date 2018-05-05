@@ -18,7 +18,7 @@ class TestTrack::LazyVisitorByIdentity
   end
 
   def respond_to_missing?(method, include_private = false)
-    super || visitor.respond_to?(method, include_private)
+    super || __visitor__.respond_to?(method, include_private)
   end
 
   def __visitor__
