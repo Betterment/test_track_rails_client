@@ -67,13 +67,13 @@ class MyController < ApplicationController
 end
 ```
 
-### Prepare your identity models
+If your app doesn't support authentication, set
+`self.test_track_identity` to `:none`.
 
-You'll need to configure your `User` model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
+### Prepare your identity models (optional)
 
-If your app doesn't support authentication, you must set
-`self.test_track_identity = :none` in your TestTrack-enabled
-controllers.
+If your app supports authentication, You'll need to configure your
+`User` model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
 
 ### Set up the Chrome extension (optional)
 
