@@ -101,7 +101,8 @@ class TestTrack::Visitor
   def identifier_opts(identity)
     {
       identifier_type: identity.test_track_identifier_type,
-      visitor_id: id, value: identity.test_track_identifier_value.to_s
+      visitor_id: id,
+      value: identity.test_track_identifier_value.to_s
     }
   end
 
