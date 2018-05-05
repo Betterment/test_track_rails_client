@@ -359,7 +359,11 @@ no longer recorded server-side.
 
 You also must add `self.test_track_identity = :current_user` (or
 whatever your controller uses as a sign-in identity) to your
-TestTrack-enabled controllers.
+TestTrack-enabled controllers, or set it to `:none` if your app doesn't
+support authentication.
+
+If your app supports authentication, You'll need to configure your
+user model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
 
 ### From 2.0 to 3.0
 
