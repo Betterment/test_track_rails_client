@@ -54,18 +54,20 @@ RSpec.describe TestTrack::SessionVisitorRepository do
   end
 
   describe "#authenticate!" do
-    let(:current_identity) { your_clown }
+    context "with an identity" do
+      let(:current_identity) { your_clown }
 
-    it "changes its idea of current_identity" do
-      expect(subject.current_identity).to eq your_clown
-      subject.authenticate!(my_clown)
-      expect(subject.current_identity).to eq my_clown
-    end
+      it "changes its idea of current_identity" do
+        expect(subject.current_identity).to eq your_clown
+        subject.authenticate!(my_clown)
+        expect(subject.current_identity).to eq my_clown
+      end
 
-    it "promotes unauthenticated_visitor to visitor" do
-      expect(subject.current.id).not_to eq("12345abc")
-      subject.authenticate!(my_clown)
-      expect(subject.current.id).to eq("12345abc")
+      it "promotes unauthenticated_visitor to current visitor" do
+        expect(subject.current.id).not_to eq("12345abc")
+        subject.authenticate!(my_clown)
+        expect(subject.current.id).to eq("12345abc")
+      end
     end
 
     context "without an identity" do
