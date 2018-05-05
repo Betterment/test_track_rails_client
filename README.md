@@ -71,8 +71,9 @@ end
 
 You'll need to configure your `User` model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
 
-If your app doesn't support authentication, just define a method that
-always returns `nil`, e.g. `def current_user; end`.
+If your app doesn't support authentication, you must set
+`self.test_track_identity = :none` in your TestTrack-enabled
+controllers.
 
 ### Set up the Chrome extension (optional)
 

@@ -429,6 +429,20 @@ RSpec.describe TestTrack::Session do
       allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
     end
 
+    context "when the controller disables authentication" do
+      before do
+        controller.class.test_track_identity = :none
+      end
+
+      it "fetches a remote visitor by its identity" do
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
+
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
+      end
+    end
+
     context "when the controller has no authenticated resource" do
       before do
         allow(controller).to receive(:current_clown).and_return(nil)

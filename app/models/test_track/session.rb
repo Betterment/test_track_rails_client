@@ -77,8 +77,11 @@ class TestTrack::Session
       TestTrack to work properly. e.g.:
 
         self.test_track_identity = :current_user
+
+      If your app doesn't support authentication, set it to `:none`.
     ERROR
-    controller.send(controller.class.test_track_identity)
+    identity = controller.class.test_track_identity
+    controller.send(identity) unless identity == :none
   end
 
   def unauthenticated_visitor
