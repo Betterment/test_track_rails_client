@@ -19,13 +19,7 @@ class TestTrack::Session
   end
 
   def visitor_dsl_for(identity)
-    TestTrack::VisitorDSL.new(visitors_by_identity[identity])
-  end
-
-  def visitors_by_identity
-    @visitors_by_identity ||= Hash.new do |visitors_by_identity, identity|
-      visitors_by_identity[identity] = TestTrack::LazyVisitorByIdentity.new(identity)
-    end
+    TestTrack::VisitorDSL.new(visitors.for_identity(identity))
   end
 
   def visitor_dsl
@@ -43,33 +37,20 @@ class TestTrack::Session
   end
 
   def log_in!(identity, forget_current_visitor: nil)
-    @unauthenticated_visitor = TestTrack::Visitor.new if forget_current_visitor
-    unauthenticated_visitor.link_identity!(identity)
-    visitors_by_identity[identity] = unauthenticated_visitor
-
+    visitors.forget_unauthenticated! if forget_current_visitor
+    visitors.authenticate!(identity)
     true
   end
 
   def sign_up!(identity)
-    unauthenticated_visitor.link_identity!(identity)
-    visitors_by_identity[identity] = unauthenticated_visitor
-
+    visitors.authenticate!(identity)
     TestTrack.analytics.sign_up!(visitor.id)
-
     true
   end
 
   private
 
   attr_reader :controller
-
-  def visitor
-    if current_identity
-      visitors_by_identity[current_identity]
-    else
-      unauthenticated_visitor
-    end
-  end
 
   def current_identity
     raise <<~ERROR unless controller.class.test_track_identity&.is_a?(Symbol)
@@ -84,12 +65,19 @@ class TestTrack::Session
     controller.send(identity) unless identity == :none
   end
 
-  def unauthenticated_visitor
-    @unauthenticated_visitor ||= TestTrack::Visitor.new(id: unauthenticated_visitor_id)
-  end
-
   def unauthenticated_visitor_id
     cookies[visitor_cookie_name] || request_headers[visitor_request_header_name]
+  end
+
+  def visitors
+    @visitors ||= TestTrack::SessionVisitorRepository.new(
+      current_identity: current_identity,
+      unauthenticated_visitor_id: unauthenticated_visitor_id
+    )
+  end
+
+  def visitor
+    visitors.current
   end
 
   def set_cookie(name, value)

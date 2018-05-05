@@ -474,33 +474,6 @@ RSpec.describe TestTrack::Session do
     end
   end
 
-  describe "#visitors_by_identity" do
-    let(:identity) { double(test_track_identifier_type: "foo_user_id", test_track_identifier_value: "123") }
-
-    before do
-      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
-    end
-
-    it "returns a lazy visitor" do
-      expect(subject.visitors_by_identity[identity]).to be_a TestTrack::LazyVisitorByIdentity
-
-      expect(TestTrack::Remote::Visitor).not_to have_received(:from_identifier)
-    end
-
-    it "lazily fetches a remote visitor on demand given an identity" do
-      expect(subject.visitors_by_identity[identity].id).to eq "fake_visitor_id"
-
-      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123")
-    end
-
-    it "only fetches a remote visitor once for the same identity" do
-      subject.visitors_by_identity[identity].id
-      subject.visitors_by_identity[identity].id
-
-      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123").exactly(:once)
-    end
-  end
-
   describe "#visitor_dsl" do
     let(:visitor) { instance_double(TestTrack::Visitor) }
 
