@@ -73,7 +73,7 @@ RSpec.describe TestTrack::SessionVisitorRepository do
     context "without an identity" do
       let(:current_identity) { nil }
 
-      it "links the visitor to current_identity" do
+      it "links the current unauthenticated visitor to the provided identity" do
         allow(subject.current).to receive(:link_identity!).and_call_original
         subject.authenticate!(my_clown)
         expect(subject.current).to have_received(:link_identity!).with(my_clown)
