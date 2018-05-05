@@ -11,7 +11,7 @@ class TestTrack::Session
   def manage
     yield
   ensure
-    if visitor.id_loaded?
+    if current_visitor.id_loaded?
       manage_cookies!
       manage_response_headers!
     end
@@ -23,7 +23,7 @@ class TestTrack::Session
   end
 
   def visitor_dsl
-    TestTrack::VisitorDSL.new(visitor)
+    TestTrack::VisitorDSL.new(current_visitor)
   end
 
   def state_hash
@@ -31,8 +31,8 @@ class TestTrack::Session
       url: TestTrack.url,
       cookieDomain: cookie_domain,
       cookieName: visitor_cookie_name,
-      registry: visitor.split_registry,
-      assignments: visitor.assignment_json
+      registry: current_visitor.split_registry,
+      assignments: current_visitor.assignment_json
     }
   end
 
@@ -44,7 +44,7 @@ class TestTrack::Session
 
   def sign_up!(identity)
     visitors.authenticate!(identity)
-    TestTrack.analytics.sign_up!(visitor.id)
+    TestTrack.analytics.sign_up!(current_visitor.id)
     true
   end
 
@@ -76,7 +76,7 @@ class TestTrack::Session
     )
   end
 
-  def visitor
+  def current_visitor
     visitors.current
   end
 
@@ -121,7 +121,7 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    set_cookie(visitor_cookie_name, visitor.id)
+    set_cookie(visitor_cookie_name, current_visitor.id)
   end
 
   def request
@@ -145,13 +145,13 @@ class TestTrack::Session
   end
 
   def manage_response_headers!
-    response_headers[visitor_response_header_name] = visitor.id if visitor.id_overridden_by_existing_visitor?
+    response_headers[visitor_response_header_name] = current_visitor.id if current_visitor.id_overridden_by_existing_visitor?
   end
 
   def notify_unsynced_assignments!
     payload = {
-      visitor_id: visitor.id,
-      assignments: visitor.unsynced_assignments
+      visitor_id: current_visitor.id,
+      assignments: current_visitor.unsynced_assignments
     }
     ActiveSupport::Notifications.instrument('test_track.notify_unsynced_assignments', payload) do
       ##
@@ -164,7 +164,7 @@ class TestTrack::Session
   end
 
   def sync_assignments?
-    visitor.loaded? && visitor.unsynced_assignments.present?
+    current_visitor.loaded? && current_visitor.unsynced_assignments.present?
   end
 
   def visitor_cookie_name

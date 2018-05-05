@@ -527,7 +527,7 @@ RSpec.describe TestTrack::Session do
   describe "#state_hash" do
     let(:visitor) { instance_double(TestTrack::Visitor, split_registry: "split registry", assignment_json: "assignments") }
     before do
-      allow(subject).to receive(:visitor).and_return(visitor)
+      allow(subject).to receive(:current_visitor).and_return(visitor)
     end
 
     it "includes the test track URL" do
@@ -565,7 +565,7 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#log_in!" do
-    let(:visitor) { subject.send(:visitor) }
+    let(:visitor) { subject.send(:current_visitor) }
 
     before do
       allow(visitor).to receive(:link_identity!).and_call_original
@@ -582,7 +582,7 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#sign_up!" do
-    let(:visitor) { subject.send(:visitor) }
+    let(:visitor) { subject.send(:current_visitor) }
 
     before do
       allow(visitor).to receive(:link_identity!).and_call_original
