@@ -306,6 +306,21 @@ RSpec.describe TestTrack::Session do
           expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
+        it "notifies unsynced assignments for identities" do
+          subject.manage do
+            subject.visitor_dsl_for(identity).ab('bar', true_variant: 'baz', context: :spec)
+          end
+
+          expect(Thread).to have_received(:new)
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+            expect(args[:visitor_id]).to eq('fake_visitor_id')
+            args[:assignments].first.tap do |assignment|
+              expect(assignment.split_name).to eq('bar')
+              expect(assignment.variant).to eq('baz')
+            end
+          end
+        end
+
         it "does not notify unsynced assignments if there are no new assignments" do
           subject.manage {}
           expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
