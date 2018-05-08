@@ -405,40 +405,6 @@ RSpec.describe TestTrack::Session do
     end
   end
 
-  describe "#notify_unsynced_assignments!" do
-    it "notifies in background thread" do
-      notifier_thread = subject.send(:notify_unsynced_assignments!)
-
-      expect(notifier_thread).to be_a(Thread)
-
-      # block until thread completes
-      notifier_thread.join
-
-      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(visitor_id: 'fake_visitor_id', assignments: [])
-
-      expect(unsynced_assignments_notifier).to have_received(:notify)
-    end
-
-    let(:notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier) }
-
-    it "passes along RequestStore contents to the background thread" do
-      RequestStore[:stashed_object] = 'stashed object'
-      found_object = nil
-
-      allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(notifier)
-      allow(notifier).to receive(:notify) do
-        found_object = RequestStore[:stashed_object]
-      end
-
-      notifier_thread = subject.send(:notify_unsynced_assignments!)
-
-      # block until thread completes
-      notifier_thread.join
-
-      expect(found_object).to eq 'stashed object'
-    end
-  end
-
   describe "#visitor_dsl_for" do
     before do
       allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original

@@ -28,6 +28,18 @@ class TestTrack::SessionVisitorRepository
     unauthenticated.link_identity!(identity)
   end
 
+  def all
+    identity_visitor_map.values.to_set << current
+  end
+
+  def notify_unsynced_assignments!
+    all.each do |visitor|
+      if visitor.loaded? && visitor.unsynced_assignments.present?
+        TestTrack::ThreadedVisitorNotifier.new(visitor).notify
+      end
+    end
+  end
+
   private
 
   def unauthenticated

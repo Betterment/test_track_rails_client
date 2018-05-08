@@ -15,7 +15,7 @@ class TestTrack::Session
       manage_cookies!
       manage_response_headers!
     end
-    notify_unsynced_assignments! if sync_assignments?
+    visitors.notify_unsynced_assignments!
   end
 
   def visitor_dsl_for(identity)
@@ -148,25 +148,6 @@ class TestTrack::Session
     response_headers[visitor_response_header_name] = current_visitor.id if current_visitor.id_overridden_by_existing_visitor?
   end
 
-  def notify_unsynced_assignments!
-    payload = {
-      visitor_id: current_visitor.id,
-      assignments: current_visitor.unsynced_assignments
-    }
-    ActiveSupport::Notifications.instrument('test_track.notify_unsynced_assignments', payload) do
-      ##
-      # This block creates an unbounded number of threads up to 1 per request.
-      # This can potentially cause issues under high load, in which case we should move to a thread pool/work queue.
-      new_thread_with_request_store do
-        TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
-      end
-    end
-  end
-
-  def sync_assignments?
-    current_visitor.loaded? && current_visitor.unsynced_assignments.present?
-  end
-
   def visitor_cookie_name
     ENV['TEST_TRACK_VISITOR_COOKIE_NAME'] || 'tt_visitor_id'
   end
@@ -181,18 +162,5 @@ class TestTrack::Session
 
   def fully_qualified_cookie_domain_enabled?
     ENV['TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED'] == '1'
-  end
-
-  def new_thread_with_request_store
-    Thread.new(RequestStore.store) do |original_store|
-      begin
-        RequestStore.begin!
-        RequestStore.store.merge!(original_store)
-        yield
-      ensure
-        RequestStore.end!
-        RequestStore.clear!
-      end
-    end
   end
 end
