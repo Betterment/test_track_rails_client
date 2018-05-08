@@ -292,9 +292,10 @@ RSpec.describe TestTrack::Visitor do
     end
   end
 
-  describe "#link_identifier!" do
+  describe "#link_identity!" do
     subject { described_class.new(id: "fake_visitor_id") }
     let(:delayed_identifier_proxy) { double(create!: "fake visitor") }
+    let(:identity) { double(test_track_identifier_type: 'myappdb_user_id', test_track_identifier_value: 444) }
 
     before do
       allow(TestTrack::Remote::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
@@ -302,7 +303,7 @@ RSpec.describe TestTrack::Visitor do
 
     it "sends the appropriate params to test track" do
       allow(TestTrack::Remote::Identifier).to receive(:create!).and_call_original
-      subject.link_identifier!('myappdb_user_id', 444)
+      subject.link_identity!(identity)
       expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
         identifier_type: 'myappdb_user_id',
         visitor_id: "fake_visitor_id",
@@ -311,13 +312,13 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "preserves id if unchanged" do
-      subject.link_identifier!('myappdb_user_id', 444)
+      subject.link_identity!(identity)
       expect(subject.id).to eq "fake_visitor_id"
     end
 
     it "delays the identifier creation if TestTrack times out and carries on" do
       allow(TestTrack::Remote::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
-      subject.link_identifier!('myappdb_user_id', 444)
+      subject.link_identity!(identity)
 
       expect(subject.id).to eq "fake_visitor_id"
 
@@ -329,7 +330,7 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "normally doesn't delay identifier creation" do
-      subject.link_identifier!('myappdb_user_id', 444)
+      subject.link_identity!(identity)
 
       expect(subject.id).to eq "fake_visitor_id"
       expect(delayed_identifier_proxy).not_to have_received(:create!)
@@ -352,12 +353,12 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "changes id if changed" do
-        subject.link_identifier!('myappdb_user_id', 444)
+        subject.link_identity!(identity)
         expect(subject.id).to eq 'server_id'
       end
 
       it "ingests a server-provided assignment as non-new" do
-        subject.link_identifier!('myappdb_user_id', 444)
+        subject.link_identity!(identity)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
@@ -371,7 +372,7 @@ RSpec.describe TestTrack::Visitor do
           variant: "never",
           unsynced?: true)
 
-        subject.link_identifier!('myappdb_user_id', 444)
+        subject.link_identity!(identity)
 
         subject.assignment_registry['baz'].tap do |assignment|
           expect(assignment.variant).to eq 'never'
@@ -385,7 +386,7 @@ RSpec.describe TestTrack::Visitor do
           variant: "something_else",
           unsynced?: true)
 
-        subject.link_identifier!('myappdb_user_id', 444)
+        subject.link_identity!(identity)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
@@ -399,7 +400,7 @@ RSpec.describe TestTrack::Visitor do
           variant: "something_else",
           unsynced?: false)
 
-        subject.link_identifier!('myappdb_user_id', 444)
+        subject.link_identity!(identity)
 
         subject.assignment_registry['foo'].tap do |assignment|
           expect(assignment.variant).to eq 'definitely'
@@ -411,7 +412,7 @@ RSpec.describe TestTrack::Visitor do
         expect(subject.unsynced_assignments.count).to eq 1
         expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
 
-        subject.link_identifier!('myappdb_user_id', 444)
+        subject.link_identity!(identity)
 
         expect(subject.unsynced_assignments.count).to eq 2
         expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'

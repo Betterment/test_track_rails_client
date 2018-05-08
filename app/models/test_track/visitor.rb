@@ -6,6 +6,7 @@ class TestTrack::Visitor
   def initialize(opts = {})
     opts = opts.dup
     @id = opts.delete(:id)
+    @loaded = true if opts[:assignments]
     @assignments = opts.delete(:assignments)
     unless id
       @id = SecureRandom.uuid
@@ -65,17 +66,17 @@ class TestTrack::Visitor
     @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
 
-  def link_identifier!(identifier_type, identifier_value)
-    identifier_opts = { identifier_type: identifier_type, visitor_id: id, value: identifier_value.to_s }
+  def link_identity!(identity)
+    opts = identifier_opts(identity)
     begin
-      identifier = TestTrack::Remote::Identifier.create!(identifier_opts)
+      identifier = TestTrack::Remote::Identifier.create!(opts)
       merge!(identifier.visitor)
     rescue *TestTrack::SERVER_ERRORS => e
       Rails.logger.error "TestTrack failed to link identifier, retrying. #{e}"
 
       # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
       # but subsequent requests will be better off
-      TestTrack::Remote::Identifier.delay.create!(identifier_opts)
+      TestTrack::Remote::Identifier.delay.create!(opts)
     end
   end
 
@@ -83,8 +84,12 @@ class TestTrack::Visitor
     @tt_offline
   end
 
+  def id_loaded?
+    true
+  end
+
   def loaded?
-    !offline? && @remote_visitor.present?
+    !offline? && @loaded
   end
 
   def id_overridden_by_existing_visitor?
@@ -93,12 +98,28 @@ class TestTrack::Visitor
 
   private
 
+  def identifier_opts(identity)
+    {
+      identifier_type: identity.test_track_identifier_type,
+      visitor_id: id,
+      value: identity.test_track_identifier_value.to_s
+    }
+  end
+
   def assignments
-    @assignments ||= (remote_visitor && remote_visitor.assignments) || []
+    @assignments ||= remote_visitor&.assignments || []
   end
 
   def remote_visitor
-    @remote_visitor ||= TestTrack::Remote::Visitor.find(id) unless tt_offline?
+    @remote_visitor ||= _remote_visitor
+  end
+
+  def _remote_visitor
+    unless tt_offline?
+      TestTrack::Remote::Visitor.find(id).tap do |_|
+        @loaded = true
+      end
+    end
   rescue *TestTrack::SERVER_ERRORS => e
     Rails.logger.error "TestTrack failed to load remote visitor. #{e}"
     @tt_offline = true

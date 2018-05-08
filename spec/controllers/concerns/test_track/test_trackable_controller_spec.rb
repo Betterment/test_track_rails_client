@@ -6,6 +6,8 @@ RSpec.describe TestTrack::Controller do
   controller(ApplicationController) do
     include mixin
 
+    self.test_track_identity = :current_clown
+
     def index
       render json: {
         split_registry: test_track_session.state_hash[:registry],
@@ -17,6 +19,10 @@ RSpec.describe TestTrack::Controller do
       test_track_visitor.ab 'time', 'beer_thirty'
       head :no_content
     end
+
+    private
+
+    def current_clown; end
   end
 
   def response_json
@@ -33,6 +39,13 @@ RSpec.describe TestTrack::Controller do
     allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
     allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
     allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
+  end
+
+  describe ".test_track_identity class attribute" do
+    it "holds a test_track_identity" do
+      subject.class.test_track_identity = :current_user
+      expect(subject.class.test_track_identity).to eq :current_user
+    end
   end
 
   it "responds with the action's usual http status" do

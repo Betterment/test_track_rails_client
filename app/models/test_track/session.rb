@@ -11,34 +11,19 @@ class TestTrack::Session
   def manage
     yield
   ensure
-    manage_cookies!
-    manage_response_headers!
-    notify_unsynced_assignments! if sync_assignments?
+    if current_visitor.id_loaded?
+      manage_cookies!
+      manage_response_headers!
+    end
+    visitors.notify_unsynced_assignments!
   end
 
   def visitor_dsl_for(identity)
-    if has_matching_identity?(identity)
-      visitor_dsl
-    else
-      TestTrack::VisitorDSL.new(visitors_by_identity[identity])
-    end
-  end
-
-  def visitors_by_identity
-    @visitors_by_identity ||= Hash.new do |visitors_by_identity, identity|
-      remote_visitor = TestTrack::Remote::Visitor.from_identifier(
-        identity.test_track_identifier_type,
-        identity.test_track_identifier_value
-      )
-      visitors_by_identity[identity] = TestTrack::Visitor.new(
-        id: remote_visitor.id,
-        assignments: remote_visitor.assignments
-      )
-    end
+    TestTrack::VisitorDSL.new(visitors.for_identity(identity))
   end
 
   def visitor_dsl
-    @visitor_dsl ||= TestTrack::VisitorDSL.new(visitor)
+    TestTrack::VisitorDSL.new(current_visitor)
   end
 
   def state_hash
@@ -46,48 +31,53 @@ class TestTrack::Session
       url: TestTrack.url,
       cookieDomain: cookie_domain,
       cookieName: visitor_cookie_name,
-      registry: visitor.split_registry,
-      assignments: visitor.assignment_json
+      registry: current_visitor.split_registry,
+      assignments: current_visitor.assignment_json
     }
   end
 
   def log_in!(identity, forget_current_visitor: nil)
-    identifier_type = identity.test_track_identifier_type
-    identifier_value = identity.test_track_identifier_value
-
-    @visitor = TestTrack::Visitor.new if forget_current_visitor
-    visitor.link_identifier!(identifier_type, identifier_value)
-
-    identities << identity if identity.present?
+    visitors.forget_unauthenticated! if forget_current_visitor
+    visitors.authenticate!(identity)
     true
   end
 
   def sign_up!(identity)
-    identifier_type = identity.test_track_identifier_type
-    identifier_value = identity.test_track_identifier_value
-
-    visitor.link_identifier!(identifier_type, identifier_value)
-    identities << identity if identity.present?
-
-    TestTrack.analytics.sign_up!(visitor.id)
-
+    visitors.authenticate!(identity)
+    TestTrack.analytics.sign_up!(current_visitor.id)
     true
-  end
-
-  def has_matching_identity?(identity)
-    identities.include?(identity)
   end
 
   private
 
   attr_reader :controller
 
-  def visitor
-    @visitor ||= TestTrack::Visitor.new(id: visitor_id)
+  def current_identity
+    raise <<~ERROR unless controller.class.test_track_identity&.is_a?(Symbol)
+      Your controller (or controller base class) must set test_track_identity for
+      TestTrack to work properly. e.g.:
+
+        self.test_track_identity = :current_user
+
+      If your app doesn't support authentication, set it to `:none`.
+    ERROR
+    identity = controller.class.test_track_identity
+    controller.send(identity) unless identity == :none
   end
 
-  def visitor_id
+  def unauthenticated_visitor_id
     cookies[visitor_cookie_name] || request_headers[visitor_request_header_name]
+  end
+
+  def visitors
+    @visitors ||= TestTrack::SessionVisitorRepository.new(
+      current_identity: current_identity,
+      unauthenticated_visitor_id: unauthenticated_visitor_id
+    )
+  end
+
+  def current_visitor
+    visitors.current
   end
 
   def set_cookie(name, value)
@@ -131,7 +121,7 @@ class TestTrack::Session
   end
 
   def manage_cookies!
-    set_cookie(visitor_cookie_name, visitor.id)
+    set_cookie(visitor_cookie_name, current_visitor.id)
   end
 
   def request
@@ -155,26 +145,7 @@ class TestTrack::Session
   end
 
   def manage_response_headers!
-    response_headers[visitor_response_header_name] = visitor.id if visitor.id_overridden_by_existing_visitor?
-  end
-
-  def notify_unsynced_assignments!
-    payload = {
-      visitor_id: visitor.id,
-      assignments: visitor.unsynced_assignments
-    }
-    ActiveSupport::Notifications.instrument('test_track.notify_unsynced_assignments', payload) do
-      ##
-      # This block creates an unbounded number of threads up to 1 per request.
-      # This can potentially cause issues under high load, in which case we should move to a thread pool/work queue.
-      new_thread_with_request_store do
-        TestTrack::UnsyncedAssignmentsNotifier.new(payload).notify
-      end
-    end
-  end
-
-  def sync_assignments?
-    visitor.loaded? && visitor.unsynced_assignments.present?
+    response_headers[visitor_response_header_name] = current_visitor.id if current_visitor.id_overridden_by_existing_visitor?
   end
 
   def visitor_cookie_name
@@ -191,22 +162,5 @@ class TestTrack::Session
 
   def fully_qualified_cookie_domain_enabled?
     ENV['TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED'] == '1'
-  end
-
-  def new_thread_with_request_store
-    Thread.new(RequestStore.store) do |original_store|
-      begin
-        RequestStore.begin!
-        RequestStore.store.merge!(original_store)
-        yield
-      ensure
-        RequestStore.end!
-        RequestStore.clear!
-      end
-    end
-  end
-
-  def identities
-    @identities ||= TestTrack::SessionIdentityCollection.new(controller)
   end
 end

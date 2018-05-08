@@ -19,7 +19,9 @@ class TestTrack::ABConfiguration
   private
 
   def build_variant_hash
-    notify_because_ab("configures split with more than 2 variants") if split_variants && split_variants.size > 2
+    if split_variants && split_variants.size > 2 # rubocop:disable Style/SafeNavigation
+      notify_because_ab("configures split with more than 2 variants")
+    end
     { true: true_variant, false: false_variant }
   end
 

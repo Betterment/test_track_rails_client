@@ -7,6 +7,8 @@ RSpec.describe TestTrack::Session do
     Class.new(ApplicationController) do
       include TestTrack::Controller
 
+      self.test_track_identity = :current_clown
+
       private # make current_clown private to better simulate real world scenario
 
       def current_clown; end
@@ -304,6 +306,21 @@ RSpec.describe TestTrack::Session do
           expect(unsynced_assignments_notifier).to have_received(:notify)
         end
 
+        it "notifies unsynced assignments for identities" do
+          subject.manage do
+            subject.visitor_dsl_for(identity).ab('bar', true_variant: 'baz', context: :spec)
+          end
+
+          expect(Thread).to have_received(:new)
+          expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new) do |args|
+            expect(args[:visitor_id]).to eq('fake_visitor_id')
+            args[:assignments].first.tap do |assignment|
+              expect(assignment.split_name).to eq('bar')
+              expect(assignment.variant).to eq('baz')
+            end
+          end
+        end
+
         it "does not notify unsynced assignments if there are no new assignments" do
           subject.manage {}
           expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
@@ -388,54 +405,36 @@ RSpec.describe TestTrack::Session do
     end
   end
 
-  describe "#notify_unsynced_assignments!" do
-    it "notifies in background thread" do
-      notifier_thread = subject.send(:notify_unsynced_assignments!)
-
-      expect(notifier_thread).to be_a(Thread)
-
-      # block until thread completes
-      notifier_thread.join
-
-      expect(TestTrack::UnsyncedAssignmentsNotifier).to have_received(:new).with(visitor_id: 'fake_visitor_id', assignments: [])
-
-      expect(unsynced_assignments_notifier).to have_received(:notify)
-    end
-
-    let(:notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier) }
-
-    it "passes along RequestStore contents to the background thread" do
-      RequestStore[:stashed_object] = 'stashed object'
-      found_object = nil
-
-      allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(notifier)
-      allow(notifier).to receive(:notify) do
-        found_object = RequestStore[:stashed_object]
-      end
-
-      notifier_thread = subject.send(:notify_unsynced_assignments!)
-
-      # block until thread completes
-      notifier_thread.join
-
-      expect(found_object).to eq 'stashed object'
-    end
-  end
-
   describe "#visitor_dsl_for" do
     before do
       allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
     end
 
-    context "when the controller's authenticated resource matches the identity" do
+    context "when the controller has no authenticated resource" do
+      before do
+        allow(controller).to receive(:current_clown).and_return(nil)
+      end
+
+      it "fetches a remote visitor by identity" do
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
+
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
+      end
+    end
+
+    context "when the controller's authenticated resource matches the requested identity" do
       before do
         allow(controller).to receive(:current_clown).and_return(identity)
       end
 
-      it "doesn't fetch a remote visitor" do
-        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+      it "fetches the remote visitor by identity instead of by visitor_id for security" do
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
 
-        expect(TestTrack::Remote::Visitor).not_to have_received(:from_identifier)
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
       end
     end
 
@@ -446,32 +445,13 @@ RSpec.describe TestTrack::Session do
         allow(controller).to receive(:current_clown).and_return(other_identity)
       end
 
-      it "fetches a remote visitor" do
-        expect(subject.visitor_dsl_for(identity)).to be_a TestTrack::VisitorDSL
+      it "fetches a remote visitor by identity" do
+        visitor_dsl = subject.visitor_dsl_for(identity)
+        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
       end
-    end
-  end
-
-  describe "#visitors_by_identity" do
-    let(:identity) { double(test_track_identifier_type: "foo_user_id", test_track_identifier_value: "123") }
-
-    before do
-      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_call_original
-    end
-
-    it "fetches a remote visitor on demand given an identity" do
-      expect(subject.visitors_by_identity[identity]).to be_a TestTrack::Visitor
-
-      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123")
-    end
-
-    it "only fetches a remote visitor once for the same identity" do
-      subject.visitors_by_identity[identity]
-      subject.visitors_by_identity[identity]
-
-      expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with("foo_user_id", "123").exactly(:once)
     end
   end
 
@@ -486,12 +466,49 @@ RSpec.describe TestTrack::Session do
 
       expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
     end
+
+    context "with authentication disabled" do
+      before do
+        controller.class.test_track_identity = :none
+      end
+
+      it "returns a visitor-seeded DSL" do
+        allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+        allow(TestTrack::Visitor).to receive(:new).and_return(visitor)
+
+        subject.visitor_dsl
+
+        expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
+      end
+    end
+
+    context "with a current identity" do
+      let(:clown) { double(test_track_identifier_type: 'clown_id', test_track_identifier_value: '132') }
+      let(:visitor) { instance_double(TestTrack::Remote::Visitor, id: 'an id for real', assignments: {}) }
+
+      before do
+        my_clown = clown
+        controller_class.class_eval do
+          define_method(:current_clown) do
+            my_clown
+          end
+        end
+
+        allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_return(visitor)
+      end
+
+      it "returns a visitor looked up by identity" do
+        subject.visitor_dsl.id
+
+        expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', '132')
+      end
+    end
   end
 
   describe "#state_hash" do
     let(:visitor) { instance_double(TestTrack::Visitor, split_registry: "split registry", assignment_json: "assignments") }
     before do
-      allow(subject).to receive(:visitor).and_return(visitor)
+      allow(subject).to receive(:current_visitor).and_return(visitor)
     end
 
     it "includes the test track URL" do
@@ -529,15 +546,15 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#log_in!" do
-    let(:visitor) { subject.send(:visitor) }
+    let(:visitor) { subject.send(:current_visitor) }
 
     before do
-      allow(visitor).to receive(:link_identifier!).and_call_original
+      allow(visitor).to receive(:link_identity!).and_call_original
     end
 
-    it "calls link_identifier! on the visitor" do
+    it "calls link_identity! on the visitor" do
       subject.log_in!(identity)
-      expect(visitor).to have_received(:link_identifier!).with('clown_id', 1234)
+      expect(visitor).to have_received(:link_identity!).with(identity)
     end
 
     it "returns true" do
@@ -546,63 +563,19 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#sign_up!" do
-    let(:visitor) { subject.send(:visitor) }
+    let(:visitor) { subject.send(:current_visitor) }
 
     before do
-      allow(visitor).to receive(:link_identifier!).and_call_original
+      allow(visitor).to receive(:link_identity!).and_call_original
     end
 
-    it "calls link_identifier! on the visitor" do
+    it "calls link_identity! on the visitor" do
       subject.sign_up!(identity)
-      expect(visitor).to have_received(:link_identifier!).with('clown_id', 1234)
+      expect(visitor).to have_received(:link_identity!).with(identity)
     end
 
     it "returns true" do
       expect(subject.sign_up!(identity)).to eq true
-    end
-  end
-
-  describe "#has_matching_identity?" do
-    context "when the controller's authenticated resource matches the identity" do
-      before do
-        allow(controller).to receive(:current_clown).and_return(identity)
-      end
-
-      it "returns true" do
-        expect(subject.has_matching_identity?(identity)).to eq true
-      end
-    end
-
-    context "when the controller's authenticated resource does not match the identity" do
-      let(:other_identity) { Clown.new(id: 9876) }
-
-      before do
-        allow(controller).to receive(:current_clown).and_return(other_identity)
-      end
-
-      it "returns false" do
-        expect(subject.has_matching_identity?(identity)).to eq false
-      end
-    end
-
-    context "when the identity matches a previously logged in identity" do
-      it "returns true" do
-        expect(subject.has_matching_identity?(identity)).to eq false
-
-        subject.log_in!(identity)
-
-        expect(subject.has_matching_identity?(identity)).to eq true
-      end
-    end
-
-    context "when the identity matches a previously signed up identity" do
-      it "returns true" do
-        expect(subject.has_matching_identity?(identity)).to eq false
-
-        subject.sign_up!(identity)
-
-        expect(subject.has_matching_identity?(identity)).to eq true
-      end
     end
   end
 end
