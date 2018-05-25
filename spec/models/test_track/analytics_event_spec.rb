@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::AnalyticsEvent do
+  let(:visitor_id) { 34 }
   let(:assignment) do
     instance_double(
       TestTrack::Assignment,
-      visitor_id: 34,
       split_name: "foo_experiment",
       variant: "treatment",
       context: "home_page",
@@ -12,7 +12,7 @@ RSpec.describe TestTrack::AnalyticsEvent do
     )
   end
 
-  subject { described_class.new(assignment) }
+  subject { described_class.new(visitor_id, assignment) }
 
   describe "#assignment" do
     it "returns the analytics_event's assignment" do
@@ -21,7 +21,7 @@ RSpec.describe TestTrack::AnalyticsEvent do
   end
 
   describe "#visitor_id" do
-    it "returns the assignment's visitor_id" do
+    it "returns the supplied visitor_id" do
       expect(subject.visitor_id).to eq 34
     end
   end
@@ -35,7 +35,6 @@ RSpec.describe TestTrack::AnalyticsEvent do
       let(:assignment) do
         instance_double(
           TestTrack::Assignment,
-          visitor_id: 34,
           split_name: "foo_enabled",
           variant: "true",
           context: "home_page",

@@ -27,7 +27,7 @@ class TestTrack::NotifyAssignmentJob
 
   def track
     return "failure" unless TestTrack.enabled?
-    result = TestTrack.analytics.track(TestTrack::AnalyticsEvent.new(assignment))
+    result = TestTrack.analytics.track(TestTrack::AnalyticsEvent.new(visitor_id, assignment))
     result ? "success" : "failure"
   end
 end

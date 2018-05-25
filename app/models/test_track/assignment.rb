@@ -23,10 +23,6 @@ class TestTrack::Assignment
     split_name.end_with?('_enabled')
   end
 
-  def visitor_id
-    visitor.id
-  end
-
   private
 
   def _variant
