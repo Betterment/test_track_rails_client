@@ -9,6 +9,10 @@ class TestTrack::Remote::Assignment
     unsynced || variant_changed?
   end
 
+  def feature_gate?
+    split_name.end_with?('_enabled')
+  end
+
   def self.fake_instance_attributes(id)
     {
       split_name: "split_#{id}",
