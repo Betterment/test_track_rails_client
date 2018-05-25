@@ -1,12 +1,16 @@
 class TestTrack::Remote::Assignment
   include TestTrack::RemoteModel
 
-  attributes :visitor_id, :split_name, :variant, :context, :unsynced
+  attributes :split_name, :variant, :context, :unsynced
 
-  validates :visitor_id, :split_name, :variant, :mixpanel_result, presence: true
+  validates :split_name, :variant, :mixpanel_result, presence: true
 
   def unsynced?
     unsynced || variant_changed?
+  end
+
+  def feature_gate?
+    split_name.end_with?('_enabled')
   end
 
   def self.fake_instance_attributes(id)

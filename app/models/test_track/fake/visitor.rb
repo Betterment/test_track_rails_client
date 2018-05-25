@@ -1,7 +1,7 @@
 class TestTrack::Fake::Visitor
   attr_reader :id
 
-  Assignment = Struct.new(:split_name, :variant, :unsynced, :context, :visitor_id)
+  Assignment = Struct.new(:split_name, :variant, :unsynced, :context)
 
   def self.instance
     @instance ||= new(TestTrack::FakeServer.seed)
@@ -28,7 +28,7 @@ class TestTrack::Fake::Visitor
   def _assignments
     split_registry.keys.map do |split_name|
       variant = TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant
-      Assignment.new(split_name, variant, false, "the_context", id)
+      Assignment.new(split_name, variant, false, "the_context")
     end
   end
 end

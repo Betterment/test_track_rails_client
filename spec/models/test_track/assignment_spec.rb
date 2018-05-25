@@ -62,4 +62,22 @@ RSpec.describe TestTrack::Assignment do
       end
     end
   end
+
+  describe "#feature_gate?" do
+    context "when the split name ends with '_enabled'" do
+      subject { described_class.new(visitor: visitor, split_name: :feature_enabled) }
+
+      it "returns true" do
+        expect(subject.feature_gate?).to eq true
+      end
+    end
+
+    context "when the split name ends with something else" do
+      subject { described_class.new(visitor: visitor, split_name: :feature_experiment) }
+
+      it "returns false" do
+        expect(subject.feature_gate?).to eq false
+      end
+    end
+  end
 end

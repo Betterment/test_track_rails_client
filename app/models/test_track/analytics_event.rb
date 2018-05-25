@@ -1,10 +1,9 @@
 module TestTrack
   class AnalyticsEvent
-    attr_reader :assignment
+    attr_reader :visitor_id, :assignment
 
-    delegate :visitor_id, to: :assignment
-
-    def initialize(assignment)
+    def initialize(visitor_id, assignment)
+      @visitor_id = visitor_id
       @assignment = assignment
     end
 
