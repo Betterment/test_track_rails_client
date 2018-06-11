@@ -10,7 +10,7 @@ RSpec.describe TestTrack::Controller do
 
     def index
       render json: {
-        split_registry: test_track_session.state_hash[:registry],
+        v1_split_registry: test_track_session.state_hash[:registry],
         assignments: test_track_session.state_hash[:assignments]
       }
     end
@@ -30,7 +30,9 @@ RSpec.describe TestTrack::Controller do
   end
 
   let(:existing_visitor_id) { SecureRandom.uuid }
-  let(:split_registry) { { 'time' => { 'beer_thirty' => 100 } } }
+  let(:split_registry) do
+    { 'splits' => { 'time' => { 'weights' => { 'beer_thirty' => 100 }, 'feature_gate' => false } }, 'experience_sampling_weight' => 1 }
+  end
   let(:remote_visitor) { { id: existing_visitor_id, assignments: [{ split_name: 'time', variant: 'beer_thirty', unsynced: false }] } }
   let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: true) }
 
@@ -55,7 +57,7 @@ RSpec.describe TestTrack::Controller do
 
   it "returns the split registry" do
     get :index
-    expect(response_json['split_registry']).to eq(split_registry)
+    expect(response_json['v1_split_registry']).to eq('time' => { 'beer_thirty' => 100 })
   end
 
   it "returns an empty assignment hash for a generated visitor" do

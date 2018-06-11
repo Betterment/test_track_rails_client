@@ -15,16 +15,25 @@ RSpec.describe TestTrack::ABConfiguration do
 
   let(:split_registry) do
     {
-      'button_color' => {
-        'red' => 50,
-        'blue' => 50
+      'splits' => {
+        'button_color' => {
+          'weights' => {
+            'red' => 50,
+            'blue' => 50
+          },
+          'feature_gate' => false
+        },
+        'button_size' => {
+          'weights' => {
+            'one' => 100,
+            'two' => 0,
+            'three' => 0,
+            'four' => 0
+          },
+          'feature_gate' => false
+        }
       },
-      'button_size' => {
-        'one' => 100,
-        'two' => 0,
-        'three' => 0,
-        'four' => 0
-      }
+      'experience_sampling_weight' => 1
     }
   end
 

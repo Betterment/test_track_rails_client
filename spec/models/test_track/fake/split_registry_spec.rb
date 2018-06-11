@@ -8,15 +8,24 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
       it 'returns a hash containing all splits with deterministic weights' do
         expect(subject.to_h).to eq(
           {
-            buy_one_get_one_promotion_enabled: {
-              false: 100,
-              true: 0
+            splits: {
+              buy_one_get_one_promotion_enabled: {
+                weights: {
+                  false: 100,
+                  true: 0
+                },
+                feature_gate: true
+              },
+              banner_color: {
+                weights: {
+                  blue: 100,
+                  white: 0,
+                  red: 0
+                },
+                feature_gate: false
+              }
             },
-            banner_color: {
-              blue: 100,
-              white: 0,
-              red: 0
-            }
+            experience_sampling_weight: 1
           }.with_indifferent_access
         )
       end
@@ -38,8 +47,8 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
     end
 
     describe '#to_h' do
-      it 'returns an empty hash' do
-        expect(subject.to_h).to eq({})
+      it 'returns an empty split registry' do
+        expect(subject.to_h).to eq('splits' => {}, 'experience_sampling_weight' => 1)
       end
     end
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Tt::Api::V1::SplitRegistriesController do
+RSpec.describe Tt::Api::V2::SplitRegistriesController do
   describe '#show' do
     it 'returns fake split registry' do
       get :show, format: :json

@@ -13,16 +13,25 @@ RSpec.describe TestTrack::VaryDSL do
   end
   let(:split_registry) do
     {
-      'button_size' => {
-        'one' => 100,
-        'two' => 0,
-        'three' => 0,
-        'four' => 0
+      'splits' => {
+        'button_size' => {
+          'weights' => {
+            'one' => 100,
+            'two' => 0,
+            'three' => 0,
+            'four' => 0
+          },
+          'feature_gate' => 'false'
+        },
+        'time' => {
+          'weights' => {
+            'hammertime' => 50,
+            'clobberin_time' => 50
+          },
+          'feature_gate' => 'false'
+        }
       },
-      'time' => {
-        'hammertime' => 50,
-        'clobberin_time' => 50
-      }
+      'experience_sampling_weight' => 1
     }
   end
   let(:noop) { -> {} }

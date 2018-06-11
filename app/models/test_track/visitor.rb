@@ -66,6 +66,12 @@ class TestTrack::Visitor
     @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
 
+  def v1_split_registry
+    @v1_split_registry ||= split_registry && split_registry['splits'].each_with_object({}) do |(k, v), result|
+      result[k] = v['weights']
+    end
+  end
+
   def link_identity!(identity)
     opts = identifier_opts(identity)
     begin

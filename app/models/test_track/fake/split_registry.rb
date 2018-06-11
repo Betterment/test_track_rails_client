@@ -5,13 +5,17 @@ class TestTrack::Fake::SplitRegistry
     @instance ||= new
   end
 
+  def self.reset!
+    @instance = nil
+  end
+
   def to_h
-    @to_h ||= splits_with_deterministic_weights
+    @to_h ||= split_registry_with_deterministic_weights
   end
 
   def splits
-    to_h.map do |split, registry|
-      Split.new(split, registry)
+    to_h['splits'].map do |split_name, registry|
+      Split.new(split_name, registry['weights'])
     end
   end
 
@@ -42,8 +46,8 @@ class TestTrack::Fake::SplitRegistry
     ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db', 'test_track_schema.yml')
   end
 
-  def splits_with_deterministic_weights
-    split_hash.each_with_object({}) do |(split_name, weighting_registry), split_registry|
+  def split_registry_with_deterministic_weights
+    splits = split_hash.each_with_object({}) do |(split_name, weighting_registry), result|
       default_variant = weighting_registry.keys.sort.first
 
       adjusted_weights = { default_variant => 100 }
@@ -51,7 +55,8 @@ class TestTrack::Fake::SplitRegistry
         adjusted_weights[variant] = 0
       end
 
-      split_registry[split_name] = adjusted_weights
+      result[split_name] = { 'weights' => adjusted_weights, 'feature_gate' => split_name.end_with?('_enabled') }
     end
+    { 'splits' => splits, 'experience_sampling_weight' => 1 }
   end
 end

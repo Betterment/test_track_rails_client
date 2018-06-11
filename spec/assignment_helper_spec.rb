@@ -15,7 +15,9 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
     it "overrides split registry with a trivial split set" do
       stub_test_track_assignments(foo: :bar)
 
-      expect(TestTrack::Remote::SplitRegistry.to_hash).to include('foo' => { 'bar' => 100 })
+      expect(TestTrack::Remote::SplitRegistry.to_hash['splits']).to include(
+        'foo' => { 'weights' => { 'bar' => 100 }, 'feature_gate' => false }
+      )
     end
 
     it 'raises if test track is enabled' do
