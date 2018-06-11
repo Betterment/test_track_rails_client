@@ -1,4 +1,4 @@
-class Tt::Api::V1::ResetsController < Tt::Api::V1::ApplicationController
+class Tt::Api::V1::ResetsController < Tt::Api::ApplicationController
   def update
     TestTrack::FakeServer.reset!(seed)
     head :no_content
