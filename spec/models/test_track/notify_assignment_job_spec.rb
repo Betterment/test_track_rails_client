@@ -17,6 +17,25 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       assignment: assignment
     }
   end
+  let(:split_registry_url) { "http://testtrack.dev/api/v2/split_registry" }
+
+  around do |example|
+    stub_request(:get, split_registry_url)
+      .with(basic_auth: %w(dummy fakepassword))
+      .to_return(status: 200, body: {
+        splits: {
+          time: {
+            weights: {
+              back_in_time: 100,
+              power_of_love: 0
+            },
+            feature_gate: false
+          }
+        },
+        experience_sampling_weight: 1
+      }.to_json)
+    example.run
+  end
 
   subject { described_class.new(params) }
 
@@ -53,6 +72,22 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
     end
 
+    it "sends analytics events when feature gate events are disabled" do
+      allow(subject).to receive(:experience_sampling_weight).and_return(0)
+
+      with_test_track_enabled { subject.perform }
+
+      expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
+    end
+
+    it "sends analytics events when rand returns something other than zero" do
+      allow(Kernel).to receive(:rand).with(1).and_return(1) # this is nonsensical, but an easy test setup
+
+      with_test_track_enabled { subject.perform }
+
+      expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
+    end
+
     it "sends test_track assignment" do
       with_test_track_enabled { subject.perform }
 
@@ -77,6 +112,22 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
         with_test_track_enabled { subject.perform }
 
         expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
+      end
+
+      it "doesn't send analytics events when feature gate events are disabled" do
+        allow(subject).to receive(:experience_sampling_weight).and_return(0)
+
+        with_test_track_enabled { subject.perform }
+
+        expect(TestTrack.analytics).not_to have_received(:track)
+      end
+
+      it "doesn't send analytics events when rand returns something other than zero" do
+        allow(Kernel).to receive(:rand).with(1).and_return(1) # this is nonsensical, but an easy test setup
+
+        with_test_track_enabled { subject.perform }
+
+        expect(TestTrack.analytics).not_to have_received(:track)
       end
     end
 
