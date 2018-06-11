@@ -32,7 +32,7 @@ RSpec.describe TestTrack::Fake::Visitor do
 
   context 'when splits do not exist' do
     before do
-      allow(TestTrack::Fake::SplitRegistry.instance).to receive(:to_h).and_return({})
+      allow(TestTrack::Fake::SplitRegistry.instance).to receive(:to_h).and_return('splits' => {})
     end
 
     describe '#assignments' do

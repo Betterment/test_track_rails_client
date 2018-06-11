@@ -9,6 +9,7 @@ class TestTrack::Fake::Visitor
 
   def self.reset!
     @instance = nil
+    TestTrack::Fake::SplitRegistry.reset!
   end
 
   def initialize(id)
@@ -26,7 +27,7 @@ class TestTrack::Fake::Visitor
   private
 
   def _assignments
-    split_registry.keys.map do |split_name|
+    split_registry['splits'].keys.map do |split_name|
       variant = TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant
       Assignment.new(split_name, variant, false, "the_context")
     end

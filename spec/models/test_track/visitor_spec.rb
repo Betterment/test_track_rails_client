@@ -15,18 +15,30 @@ RSpec.describe TestTrack::Visitor do
   end
   let(:split_registry) do
     {
-      'dummy.blue_button' => {
-        'false' => 50,
-        'true' => 50
+      'splits' => {
+        'dummy.blue_button' => {
+          'weights' => {
+            'false' => 50,
+            'true' => 50
+          },
+          'feature_gate' => 'false'
+        },
+        'quagmire' => {
+          'weights' => {
+            'untenable' => 50,
+            'manageable' => 50
+          },
+          'feature_gate' => 'false'
+        },
+        'time' => {
+          'weights' => {
+            'hammertime' => 100,
+            'clobberin_time' => 0
+          },
+          'feature_gate' => 'false'
+        }
+      'experience_sampling_weight' => 1
       },
-      'quagmire' => {
-        'untenable' => 50,
-        'manageable' => 50
-      },
-      'time' => {
-        'hammertime' => 100,
-        'clobberin_time' => 0
-      }
     }
   end
 

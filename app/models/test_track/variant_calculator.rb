@@ -31,7 +31,8 @@ class TestTrack::VariantCalculator
   end
 
   def weighting
-    @weighting ||= split_registry[split_name] || raise("TestTrack split '#{split_name}' not found. Need to write/run a migration?")
+    @weighting ||= (split_registry['splits'][split_name] && split_registry['splits'][split_name]['weights']) ||
+      raise("TestTrack split '#{split_name}' not found. Need to write/run a migration?")
   end
 
   def assignment_bucket

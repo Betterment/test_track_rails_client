@@ -1,7 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::SplitRegistry do
-  let(:split_registry) { { 'time' => { 'back_in_time' => 100, 'power_of_love' => 0 } } }
+  let(:split_registry) do
+    {
+      'splits' => {
+        'time' => {
+          'weights' => {
+            'back_in_time' => 100,
+            'power_of_love' => 0
+          },
+          'feature_gate' => false
+        }
+      },
+      'experience_sampling_weight' => 1
+    }
+  end
 
   before do
     allow(described_class).to receive(:instance).and_call_original
@@ -16,16 +29,22 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
 
   describe "#to_hash" do
     context 'with api enabled' do
-      let(:url) { "http://testtrack.dev/api/v1/split_registry" }
+      let(:url) { "http://testtrack.dev/api/v2/split_registry" }
       around do |example|
         with_test_track_enabled do
           stub_request(:get, url)
             .with(basic_auth: %w(dummy fakepassword))
             .to_return(status: 200, body: {
-              time: {
-                back_in_time: 100,
-                power_of_love: 0
-              }
+              splits: {
+                time: {
+                  weights: {
+                    back_in_time: 100,
+                    power_of_love: 0
+                  },
+                  feature_gate: false
+                }
+              },
+              experience_sampling_weight: 1
             }.to_json)
           example.run
         end
@@ -60,25 +79,47 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
 
   describe ".instance" do
     subject { described_class.instance }
-    let(:url) { "http://testtrack.dev/api/v1/split_registry" }
+    let(:url) { "http://testtrack.dev/api/v2/split_registry" }
 
     before do
       stub_request(:get, url)
         .with(basic_auth: %w(dummy fakepassword))
         .to_return(status: 200, body: {
-          remote_split: { variant1: 50, variant2: 50 }
+          splits: {
+            remote_split: {
+              weights: { variant1: 50, variant2: 50 },
+              feature_gate: false
+            }
+          },
+          experience_sampling_weight: 1
         }.to_json)
     end
 
     it "instantiates a SplitRegistry with fake instance attributes" do
       expect(subject.attributes).to eq(
-        'time' => { 'back_in_time' => 100, 'power_of_love' => 0 }
+        'splits' => {
+          'time' => {
+            'weights' => {
+              'back_in_time' => 100, 'power_of_love' => 0
+            },
+            'feature_gate' => false
+          }
+        },
+        'experience_sampling_weight' => 1
       )
     end
 
     it "it fetches attributes from the test track server when enabled" do
       with_test_track_enabled do
-        expect(subject.attributes).to eq("remote_split" => { "variant1" => 50, "variant2" => 50 })
+        expect(subject.attributes).to eq(
+          "splits" => {
+            "remote_split" => {
+              "weights" => { "variant1" => 50, "variant2" => 50 },
+              "feature_gate" => false
+            }
+          },
+          "experience_sampling_weight" => 1
+        )
       end
     end
   end

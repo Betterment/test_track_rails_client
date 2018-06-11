@@ -3,8 +3,6 @@ Rails.application.routes.draw do
     namespace :tt do
       namespace :api do
         namespace :v1 do
-          resource :split_registry, only: :show
-
           resource :assignment, only: :create
 
           resource :identifier, only: :create
@@ -24,6 +22,10 @@ Rails.application.routes.draw do
           resource :identifier_type, only: :create
 
           resource :reset, only: :update
+        end
+
+        namespace :v2 do
+          resource :split_registry, only: :show
         end
       end
     end
