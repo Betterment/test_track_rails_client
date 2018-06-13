@@ -23,10 +23,6 @@ Rails.application.routes.draw do
 
           resource :reset, only: :update
         end
-
-        namespace :v2 do
-          resource :split_registry, only: :show
-        end
       end
     end
   end
