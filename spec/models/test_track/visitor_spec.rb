@@ -297,6 +297,13 @@ RSpec.describe TestTrack::Visitor do
     end
   end
 
+  describe "#split_registry" do
+    it "memoizes the global SplitRegistry hash" do
+      2.times { existing_visitor.split_registry }
+      expect(TestTrack::Remote::SplitRegistry).to have_received(:to_hash).exactly(:once)
+    end
+  end
+
   describe "#link_identity!" do
     subject { described_class.new(id: "fake_visitor_id") }
     let(:delayed_identifier_proxy) { double(create!: "fake visitor") }

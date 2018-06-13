@@ -8,7 +8,8 @@ RSpec.describe TestTrack::ABConfiguration do
   let(:initialize_options) do
     {
       split_name: :button_color,
-      true_variant: :red
+      true_variant: :red,
+      split_registry: split_registry
     }
   end
 
@@ -40,7 +41,6 @@ RSpec.describe TestTrack::ABConfiguration do
 
   before do
     allow(TestTrack::MisconfigurationNotifier).to receive(:new).and_return(notifier)
-    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
   end
 
   describe "#initialize" do
@@ -56,10 +56,22 @@ RSpec.describe TestTrack::ABConfiguration do
       }.to raise_error("Must provide true_variant")
     end
 
+    it "raises when missing a split_registry" do
+      expect {
+        described_class.new initialize_options.except(:split_registry)
+      }.to raise_error("Must provide split_registry")
+    end
+
     it "raises when given an unknown option" do
       expect {
         described_class.new initialize_options.merge(unwelcome: "option")
       }.to raise_error("unknown opts: unwelcome")
+    end
+
+    it "allows a nil split_registry" do
+      expect {
+        described_class.new initialize_options.merge(split_registry: nil)
+      }.not_to raise_error
     end
 
     it "raises a descriptive error when the split is not in the split_registry" do
@@ -116,6 +128,11 @@ RSpec.describe TestTrack::ABConfiguration do
     context "false variant" do
       it "is the variant of the split that is not the true_variant" do
         expect(subject.variants).to include(false: "blue")
+      end
+
+      it "is false when there is no split_registry" do
+        ab_configuration = described_class.new initialize_options.merge(split_registry: nil)
+        expect(ab_configuration.variants).to include(false: false)
       end
 
       it "is always the same if the split has more than two variants" do
