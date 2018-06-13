@@ -31,7 +31,7 @@ class TestTrack::Session
       url: TestTrack.url,
       cookieDomain: cookie_domain,
       cookieName: visitor_cookie_name,
-      registry: TestTrack::Remote::SplitRegistry.to_v1_hash,
+      registry: current_visitor.v1_split_registry,
       assignments: current_visitor.assignment_json
     }
   end

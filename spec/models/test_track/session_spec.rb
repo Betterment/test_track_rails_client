@@ -524,10 +524,9 @@ RSpec.describe TestTrack::Session do
       }
     end
 
-    let(:visitor) { instance_double(TestTrack::Visitor, assignment_json: "assignments") }
+    let(:visitor) { instance_double(TestTrack::Visitor, v1_split_registry: v1_split_registry, assignment_json: "assignments") }
     before do
       allow(subject).to receive(:current_visitor).and_return(visitor)
-      allow(TestTrack::Remote::SplitRegistry).to receive(:to_v1_hash).and_return(v1_split_registry)
     end
 
     it "includes the test track URL" do
@@ -552,7 +551,7 @@ RSpec.describe TestTrack::Session do
     end
 
     it "includes a nil :registry if visitor returns a nil split_registry" do
-      allow(TestTrack::Remote::SplitRegistry).to receive(:to_v1_hash).and_return(nil)
+      allow(visitor).to receive(:v1_split_registry).and_return(nil)
       expect(subject.state_hash).to have_key(:registry)
       expect(subject.state_hash[:registry]).to eq(nil)
     end
