@@ -34,4 +34,8 @@ class TestTrack::Remote::SplitRegistry
     Rails.logger.error "TestTrack failed to load split registry. #{e}"
     nil # if we can't get a split registry
   end
+
+  def self.experience_sampling_weight
+    to_hash.fetch('experience_sampling_weight')
+  end
 end

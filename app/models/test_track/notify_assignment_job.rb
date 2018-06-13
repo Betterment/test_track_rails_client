@@ -45,7 +45,7 @@ class TestTrack::NotifyAssignmentJob
   end
 
   def experience_sampling_weight
-    @experience_sampling_weight ||= TestTrack::Remote::SplitRegistry.to_hash['experience_sampling_weight']
+    @experience_sampling_weight ||= TestTrack::Remote::SplitRegistry.experience_sampling_weight
   end
 
   def sample_event?
