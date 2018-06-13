@@ -5,8 +5,6 @@ class TestTrack::VariantCalculator
 
   attr_reader :visitor, :split_name
 
-  delegate :split_registry, to: :visitor
-
   def initialize(opts = {})
     @visitor = require_option!(opts, :visitor)
     @split_name = require_option!(opts, :split_name)
@@ -14,7 +12,7 @@ class TestTrack::VariantCalculator
   end
 
   def variant
-    return nil unless split_registry
+    return nil unless TestTrack::Remote::SplitRegistry.loaded?
     @variant ||= _variant || raise("Assignment bucket out of range. #{assignment_bucket} unmatched in #{split_name}: #{weighting}")
   end
 
@@ -31,7 +29,7 @@ class TestTrack::VariantCalculator
   end
 
   def weighting
-    @weighting ||= (split_registry['splits'][split_name] && split_registry['splits'][split_name]['weights']) ||
+    @weighting ||= TestTrack::Remote::SplitRegistry.weights_for(split_name) ||
       raise("TestTrack split '#{split_name}' not found. Need to write/run a migration?")
   end
 

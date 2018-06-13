@@ -23,7 +23,7 @@ class TestTrack::Visitor
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
-    v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), context: context, split_registry: split_registry)
+    v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), context: context)
     yield v
     v.send :run
   end
@@ -35,7 +35,7 @@ class TestTrack::Visitor
     context = require_option!(opts, :context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
-    ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
+    ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant
 
     vary(split_name, context: context) do |v|
       v.when ab_configuration.variants[:true] do
@@ -60,16 +60,6 @@ class TestTrack::Visitor
   def assignment_json
     assignment_registry.values.each_with_object({}) do |assignment, hsh|
       hsh[assignment.split_name] = assignment.variant
-    end
-  end
-
-  def split_registry
-    @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
-  end
-
-  def v1_split_registry
-    @v1_split_registry ||= split_registry && split_registry['splits'].each_with_object({}) do |(k, v), result|
-      result[k] = v['weights']
     end
   end
 
