@@ -4,7 +4,6 @@ RSpec.describe TestTrack::VaryDSL do
   subject do
     described_class.new(
       assignment: assignment,
-      split_registry: split_registry,
       context: "the_context"
     )
   end
@@ -41,6 +40,7 @@ RSpec.describe TestTrack::VaryDSL do
   before do
     allow(TestTrack::MisconfigurationNotifier).to receive(:new).and_return(notifier)
     allow(assignment).to receive(:context=)
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
   end
 
   it "isn't defaulted by default" do
@@ -52,7 +52,6 @@ RSpec.describe TestTrack::VaryDSL do
       expect {
         described_class.new(
           assignment: assignment,
-          split_registry: split_registry,
           context: "the_context",
           one_of_these_things_is_not_like_the_other: "hint: its me!"
         )
@@ -61,9 +60,7 @@ RSpec.describe TestTrack::VaryDSL do
 
     it "raises when missing a required option" do
       expect {
-        described_class.new(
-          split_registry: split_registry
-        )
+        described_class.new
       }.to raise_error("Must provide assignment")
     end
 
@@ -76,7 +73,6 @@ RSpec.describe TestTrack::VaryDSL do
         expect {
           described_class.new(
             assignment: assignment,
-            split_registry: split_registry,
             context: "the_context"
           )
         }.to raise_error("unknown split: not_a_real_split.")
@@ -88,7 +84,6 @@ RSpec.describe TestTrack::VaryDSL do
           expect {
             described_class.new(
               assignment: assignment,
-              split_registry: split_registry,
               context: "the_context"
             )
           }.to raise_error("unknown split: not_a_real_split. You may need to run rake test_track:schema:load.")

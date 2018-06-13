@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe TestTrack::VariantCalculator do
   let(:params) { { visitor: visitor, split_name: 'blue_button' } }
 
-  let(:visitor) { instance_double(TestTrack::Visitor, id: fake_visitor_id, split_registry: split_registry) }
+  let(:visitor) { instance_double(TestTrack::Visitor, id: fake_visitor_id) }
 
   let(:fake_visitor_id) { "00000000-0000-0000-0000-000000000000" }
 
@@ -20,6 +20,10 @@ RSpec.describe TestTrack::VariantCalculator do
       },
       'experience_sampling_weight' => 1
     }
+  end
+
+  before do
+    allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
   end
 
   subject { described_class.new(params) }
