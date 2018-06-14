@@ -73,7 +73,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     end
 
     it "sends analytics events when feature gate events are disabled" do
-      allow(subject).to receive(:experience_sampling_weight).and_return(0)
+      allow(TestTrack::Remote::SplitRegistry).to receive(:experience_sampling_weight).and_return(0)
 
       with_test_track_enabled { subject.perform }
 
@@ -115,7 +115,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
       end
 
       it "doesn't send analytics events when feature gate events are disabled" do
-        allow(subject).to receive(:experience_sampling_weight).and_return(0)
+        allow(TestTrack::Remote::SplitRegistry).to receive(:experience_sampling_weight).and_return(0)
 
         with_test_track_enabled { subject.perform }
 
