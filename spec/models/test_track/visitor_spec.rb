@@ -207,10 +207,6 @@ RSpec.describe TestTrack::Visitor do
         expect { new_visitor.vary(:blue_button, context: :spec) }.to raise_error("must provide block to `vary` for blue_button")
       end
 
-      it "requires a context" do
-        expect { new_visitor.vary(:blue_button) }.to raise_error("Must provide context")
-      end
-
       it "requires less than two defaults" do
         expect {
           new_visitor.vary(:blue_button, context: :spec) do |v|
@@ -238,10 +234,6 @@ RSpec.describe TestTrack::Visitor do
   end
 
   describe "#ab" do
-    it "requires a context" do
-      expect { new_visitor.ab("blue_button") }.to raise_error("Must provide context")
-    end
-
     it "leverages vary to configure the split" do
       allow(new_visitor).to receive(:vary).and_call_original
       new_visitor.ab "quagmire", true_variant: "manageable", context: :spec

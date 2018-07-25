@@ -3,7 +3,7 @@ class TestTrack::Remote::AssignmentEvent
 
   collection_path '/api/v1/assignment_event'
 
-  attributes :visitor_id, :split_name, :unsynced
+  attributes :visitor_id, :split_name, :unsynced, :context
 
   validates :visitor_id, :split_name, :mixpanel_result, presence: true
 

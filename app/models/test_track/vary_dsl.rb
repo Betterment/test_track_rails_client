@@ -6,7 +6,7 @@ class TestTrack::VaryDSL
 
   def initialize(opts = {})
     @assignment = require_option!(opts, :assignment)
-    @context = require_option!(opts, :context)
+    @context = opts.delete(:context)
     @split_registry = require_option!(opts, :split_registry, allow_nil: true)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
