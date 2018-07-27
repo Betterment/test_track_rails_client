@@ -1,6 +1,4 @@
 class TestTrack::Visitor
-  include TestTrack::RequiredOptions
-
   attr_reader :id
 
   def initialize(opts = {})
@@ -18,7 +16,7 @@ class TestTrack::Visitor
   def vary(split_name, opts = {})
     opts = opts.dup
     split_name = split_name.to_s
-    context = require_option!(opts, :context)
+    context = opts.delete(:context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
@@ -31,7 +29,7 @@ class TestTrack::Visitor
     opts = opts.dup
     split_name = split_name.to_s
     true_variant = opts.delete(:true_variant)
-    context = require_option!(opts, :context)
+    context = opts.delete(:context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
