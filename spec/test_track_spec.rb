@@ -105,9 +105,6 @@ RSpec.describe TestTrack do
       end
 
       it "raises an error" do
-        Rails.logger.info "It should raise an error"
-        Rails.logger.info TestTrack.app_name
-        Rails.logger.info "Just logged app_name"
         expect { TestTrack.app_ab(:dummy_feature, context: 'test_context') }
           .to raise_error("must configure TestTrack.app_name on application initialization")
       end
