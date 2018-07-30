@@ -62,7 +62,7 @@ module TestTrack
     enabled_override.nil? ? !Rails.env.test? : enabled_override
   end
 
-  def feature_enabled?(split_name, context:)
+  def app_ab(split_name, context:)
     app.test_track_ab(split_name, context: context)
   end
 end

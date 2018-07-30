@@ -1,8 +1,7 @@
 class TestTrack::ApplicationIdentity
   include Singleton
-  include TestTrack::Identity
 
-  test_track_identifier :app_id, :app_name
+  delegate :test_track_ab, to: :private_identity
 
   private
 
@@ -10,4 +9,24 @@ class TestTrack::ApplicationIdentity
     raise 'must configure TestTrack.app_name on application initialization' if TestTrack.app_name.blank?
     TestTrack.app_name
   end
+
+  def private_identity
+    PrivateIdentity.new(app_name)
+  end
+
+  class PrivateIdentity
+    include TestTrack::Identity
+
+    test_track_identifier :app_id, :app_name
+
+    def initialize(app_name)
+      @app_name = app_name
+    end
+
+    private
+
+    attr_reader :app_name
+  end
+
+  private_constant :PrivateIdentity
 end

@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'test_track_rails_client/rspec_helpers'
 
 RSpec.describe TestTrack do
   describe ".update_config" do
@@ -66,7 +67,7 @@ RSpec.describe TestTrack do
     end
   end
 
-  describe ".feature_enabled?" do
+  describe ".app_ab" do
     around do |example|
       original_app_name = TestTrack.instance_variable_get("@app_name")
       example.run
@@ -81,7 +82,7 @@ RSpec.describe TestTrack do
           stub_test_track_assignments(dummy_feature: 'true')
         end
         it "returns true" do
-          expect(TestTrack.feature_enabled?(:dummy_feature, context: 'test_context')).to eq true
+          expect(TestTrack.app_ab(:dummy_feature, context: 'test_context')).to eq true
         end
       end
 
@@ -91,7 +92,7 @@ RSpec.describe TestTrack do
         end
 
         it "returns false" do
-          expect(TestTrack.feature_enabled?(:dummy_feature, context: 'test_context')).to eq false
+          expect(TestTrack.app_ab(:dummy_feature, context: 'test_context')).to eq false
         end
       end
       it "returns the result of the application user's assignment to a feature" do
@@ -99,10 +100,15 @@ RSpec.describe TestTrack do
     end
 
     context "when app_name is not specified" do
-      before { TestTrack.app_name = nil }
+      before do 
+        TestTrack.app_name = nil 
+      end
 
       it "raises an error" do
-        expect { TestTrack.feature_enabled?(:dummy_feature, context: 'test_context') }
+        Rails.logger.info "It should raise an error"
+        Rails.logger.info TestTrack.app_name
+        Rails.logger.info "Just logged app_name"
+        expect { TestTrack.app_ab(:dummy_feature, context: 'test_context') }
           .to raise_error("must configure TestTrack.app_name on application initialization")
       end
     end
