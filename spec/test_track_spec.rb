@@ -100,8 +100,8 @@ RSpec.describe TestTrack do
     end
 
     context "when app_name is not specified" do
-      before do 
-        TestTrack.app_name = nil 
+      before do
+        TestTrack.app_name = nil
       end
 
       it "raises an error" do
