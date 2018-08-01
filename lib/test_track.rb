@@ -16,7 +16,7 @@ module TestTrack
 
   SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
 
-  mattr_accessor :enabled_override
+  mattr_accessor :enabled_override, :app_name
 
   class << self
     def analytics
@@ -35,6 +35,10 @@ module TestTrack
 
     def mixpanel
       TestTrack::Analytics::MixpanelClient.new
+    end
+
+    def app
+      TestTrack::ApplicationIdentity.instance
     end
   end
 
@@ -56,5 +60,9 @@ module TestTrack
 
   def enabled?
     enabled_override.nil? ? !Rails.env.test? : enabled_override
+  end
+
+  def app_ab(split_name, context:)
+    app.test_track_ab(split_name, context: context)
   end
 end

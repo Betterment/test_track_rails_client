@@ -267,6 +267,28 @@ class User
   test_track_identifier :myapp_user_id, :id # `id` is a column on User model which is what we're using as the identifier value in this example.
 end
 ```
+### Varying app behavior globally
+
+The `TestTrack.app_ab` method uses an "app" identifier type to be able to globally access "Feature Gate" splits. This is useful when a visitor context is not handy, and when you don't care about visitor specific assignments.
+
+In order to use this feature, you need to set `TestTrack.app_name`, preferably in an app initializer.
+
+```ruby
+# config/initializers/test_track.rb
+TestTrack.app_name = "MyApp"
+```
+
+```ruby
+class BackgroundWorkJob
+  def perform
+    if TestTrack.app_ab(:fancy_new_api_enabled, context: 'BackgroundWorkJob')
+      FancyNewApi.do_thing
+    else
+      CruftyOldApi.do_thing
+    end
+  end
+end
+``` 
 
 ## Tracking visitor logins
 
