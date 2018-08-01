@@ -1,7 +1,7 @@
 class TestTrack::ApplicationIdentity
   include Singleton
 
-  delegate :test_track_ab, to: :private_identity
+  delegate :test_track_ab, to: :identity
 
   private
 
@@ -10,11 +10,11 @@ class TestTrack::ApplicationIdentity
     TestTrack.app_name
   end
 
-  def private_identity
-    PrivateIdentity.new(app_name)
+  def identity
+    Identity.new(app_name)
   end
 
-  class PrivateIdentity
+  class Identity
     include TestTrack::Identity
 
     test_track_identifier :app_id, :app_name
@@ -28,5 +28,5 @@ class TestTrack::ApplicationIdentity
     attr_reader :app_name
   end
 
-  private_constant :PrivateIdentity
+  private_constant :Identity
 end
