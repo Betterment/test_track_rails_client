@@ -271,6 +271,13 @@ end
 
 The `TestTrack.app_ab` method uses an "app" identifier type to be able to globally access "Feature Gate" splits. This is useful when a visitor context is not handy, and when you don't care about visitor specific assignments.
 
+In order to use this feature, you need to set `TestTrack.app_name`, preferably in an app initializer.
+
+```ruby
+# config/initializers/test_track.rb
+TestTrack.app_name = "MyApp"
+```
+
 ```ruby
 class BackgroundWorkJob
   def perform
