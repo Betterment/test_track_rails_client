@@ -47,8 +47,8 @@ RSpec.describe TestTrack::LazyVisitorByIdentity do
       allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_raise(Faraday::TimeoutError)
     end
 
-    it 'reraises as a TestTrackRailsClient::UnrecoverableConnectivityError' do
-      expect { subject.assignments }.to raise_error(TestTrackRailsClient::UnrecoverableConnectivityError)
+    it 'reraises as a TestTrack::UnrecoverableConnectivityError' do
+      expect { subject.assignments }.to raise_error(TestTrack::UnrecoverableConnectivityError)
     end
   end
 end
