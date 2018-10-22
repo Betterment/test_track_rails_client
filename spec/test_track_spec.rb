@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'test_track_rails_client/rspec_helpers'
 
 RSpec.describe TestTrack do
   describe ".update_config" do
@@ -62,6 +63,50 @@ RSpec.describe TestTrack do
         expect(TestTrack.analytics.underlying).to eq fake_client
       ensure
         TestTrack.analytics = default_client
+      end
+    end
+  end
+
+  describe ".app_ab" do
+    around do |example|
+      original_app_name = TestTrack.instance_variable_get("@app_name")
+      example.run
+      TestTrack.app_name = original_app_name
+    end
+
+    context "when app_name is specified" do
+      before { TestTrack.app_name = 'test_track_spec' }
+
+      context "when the ApplicationIdentity is assigned to the feature" do
+        before do
+          stub_test_track_assignments(dummy_feature: 'true')
+        end
+        it "returns true" do
+          expect(TestTrack.app_ab(:dummy_feature, context: 'test_context')).to eq true
+        end
+      end
+
+      context "when the ApplicationIdentity is not assigned to the feature" do
+        before do
+          stub_test_track_assignments(dummy_feature: 'false')
+        end
+
+        it "returns false" do
+          expect(TestTrack.app_ab(:dummy_feature, context: 'test_context')).to eq false
+        end
+      end
+      it "returns the result of the application user's assignment to a feature" do
+      end
+    end
+
+    context "when app_name is not specified" do
+      before do
+        TestTrack.app_name = nil
+      end
+
+      it "raises an error" do
+        expect { TestTrack.app_ab(:dummy_feature, context: 'test_context') }
+          .to raise_error("must configure TestTrack.app_name on application initialization")
       end
     end
   end
