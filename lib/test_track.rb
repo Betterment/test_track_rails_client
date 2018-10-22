@@ -10,6 +10,7 @@ require 'mixpanel-ruby'
 require 'resolv'
 require 'faraday_middleware'
 require 'request_store'
+require 'test_track_rails_client/unrecoverable_connectivity_error'
 
 module TestTrack
   module_function

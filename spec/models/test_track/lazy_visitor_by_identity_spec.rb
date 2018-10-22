@@ -38,4 +38,17 @@ RSpec.describe TestTrack::LazyVisitorByIdentity do
       expect(subject.respond_to?(:fooblitz)).to eq false
     end
   end
+
+  context 'when cannot connect to test track server' do
+    let(:identity) { double(test_track_identifier_type: "clown_id", test_track_identifier_value: "123", assignments: []) }
+    subject { described_class.new(identity) }
+
+    before do
+      allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_raise(Faraday::TimeoutError)
+    end
+
+    it 'reraises as a TestTrackRailsClient::UnrecoverableConnectivityError' do
+      expect { subject.assignments }.to raise_error(TestTrackRailsClient::UnrecoverableConnectivityError)
+    end
+  end
 end
