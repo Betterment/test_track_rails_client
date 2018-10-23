@@ -34,5 +34,7 @@ class TestTrack::LazyVisitorByIdentity
       id: remote_visitor.id,
       assignments: remote_visitor.assignments
     )
+  rescue *TestTrack::SERVER_ERRORS => e
+    raise TestTrack::UnrecoverableConnectivityError, e
   end
 end
