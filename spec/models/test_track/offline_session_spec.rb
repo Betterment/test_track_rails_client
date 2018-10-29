@@ -90,6 +90,16 @@ RSpec.describe TestTrack::OfflineSession do
         expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
       end
     end
+
+    context 'when cannot connect to TestTrack server' do
+      before do
+        allow(TestTrack::Remote::Visitor).to receive(:from_identifier).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'reraises as a TestTrack::UnrecoverableConnectivityError' do
+        expect { described_class.with_visitor_for("clown_id", 1234) {} }.to raise_error(TestTrack::UnrecoverableConnectivityError)
+      end
+    end
   end
 
   describe '.with_visitor_id' do
@@ -167,6 +177,15 @@ RSpec.describe TestTrack::OfflineSession do
         described_class.with_visitor_id(1234) {}
 
         expect(TestTrack::UnsyncedAssignmentsNotifier).not_to have_received(:new)
+      end
+    end
+    context 'when cannot connect to TestTrack server' do
+      before do
+        allow(TestTrack::Remote::Visitor).to receive(:find).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'reraises as a TestTrack::UnrecoverableConnectivityError' do
+        expect { described_class.with_visitor_id(1234) {} }.to raise_error(TestTrack::UnrecoverableConnectivityError)
       end
     end
   end
