@@ -11,8 +11,6 @@ class TestTrack::OfflineSession
     new(remote_visitor).send :manage do |visitor_dsl|
       yield visitor_dsl
     end
-  rescue *TestTrack::SERVER_ERRORS => e
-    raise TestTrack::UnrecoverableConnectivityError, e
   end
 
   def self.with_visitor_id(visitor_id)
@@ -23,8 +21,6 @@ class TestTrack::OfflineSession
     new(remote_visitor).send :manage do |visitor_dsl|
       yield visitor_dsl
     end
-  rescue *TestTrack::SERVER_ERRORS => e
-    raise TestTrack::UnrecoverableConnectivityError, e
   end
 
   private
