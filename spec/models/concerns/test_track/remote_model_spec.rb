@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::Identity do
+RSpec.describe TestTrack::RemoteModel do
   context 'handling server timeouts' do
     describe 'for get requests' do
       before do
