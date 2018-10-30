@@ -31,7 +31,7 @@ module Her
           return {} unless data[data_key]
 
           klass = klass.her_nearby_class(association[:class_name])
-          { association[:name] => Her::Model::Attributes.initialize_collection(klass, :data => data[data_key]) }
+          { association[:name] => klass.instantiate_collection(klass, :data => data[data_key]) }
         end
 
         # Initialize a new object with a foreign key to the parent
@@ -85,14 +85,14 @@ module Her
         def fetch
           super.tap do |o|
             inverse_of = @opts[:inverse_of] || @parent.singularized_resource_name
-            o.each { |entry| entry.send("#{inverse_of}=", @parent) }
+            o.each { |entry| entry.attributes[inverse_of] = @parent }
           end
         end
 
         # @private
         def assign_nested_attributes(attributes)
           data = attributes.is_a?(Hash) ? attributes.values : attributes
-          @parent.attributes[@name] = Her::Model::Attributes.initialize_collection(@klass, :data => data)
+          @parent.attributes[@name] = @klass.instantiate_collection(@klass, :data => data)
         end
       end
     end

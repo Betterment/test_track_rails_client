@@ -10,7 +10,7 @@ module Her
       #   @user.to_params
       #   # => { :id => 1, :name => 'John Smith' }
       def to_params
-        self.class.to_params(self.attributes, self.changes)
+        self.class.to_params(attributes, changes)
       end
 
       module ClassMethods
@@ -31,14 +31,21 @@ module Her
         end
 
         # @private
-        def to_params(attributes, changes={})
-          filtered_attributes = attributes.dup.symbolize_keys
-          filtered_attributes.merge!(embeded_params(attributes))
-          if her_api.options[:send_only_modified_attributes]
-            filtered_attributes = changes.symbolize_keys.keys.inject({}) do |hash, attribute|
-              hash[attribute] = filtered_attributes[attribute]
-              hash
+        def to_params(attributes, changes = {})
+          filtered_attributes = attributes.each_with_object({}) do |(key, value), memo|
+            case value
+            when Her::Model
+            when ActiveModel::Serialization
+              value = value.serializable_hash.symbolize_keys
             end
+
+            memo[key.to_sym] = value
+          end
+
+          filtered_attributes.merge!(embeded_params(attributes))
+
+          if her_api.options[:send_only_modified_attributes]
+            filtered_attributes.slice! *changes.keys.map(&:to_sym)
           end
 
           if include_root_in_json?
@@ -52,20 +59,16 @@ module Her
           end
         end
 
-
         # @private
-        # TODO: Handle has_one
         def embeded_params(attributes)
-          associations[:has_many].select { |a| attributes.include?(a[:data_key])}.compact.inject({}) do |hash, association|
-            params = attributes[association[:data_key]].map(&:to_params)
-            next hash if params.empty?
-            if association[:class_name].constantize.include_root_in_json?
-              root = association[:class_name].constantize.root_element
-              hash[association[:data_key]] = params.map { |n| n[root] }
-            else
-              hash[association[:data_key]] = params
-            end
-            hash
+          associations.values.flatten.each_with_object({}) do |definition, hash|
+            value = case association = attributes[definition[:name]]
+                    when Her::Collection, Array
+                      association.map { |a| a.to_params }.reject(&:empty?)
+                    when Her::Model
+                      association.to_params
+                    end
+            hash[definition[:data_key]] = value if value.present?
           end
         end
 
@@ -127,11 +130,11 @@ module Her
         #   user.name # => "Tobias"
         def root_element(value = nil)
           if value.nil?
-            if json_api_format?
-              @_her_root_element ||= self.name.split("::").last.pluralize.underscore.to_sym
-            else
-              @_her_root_element ||= self.name.split("::").last.underscore.to_sym
-            end
+            @_her_root_element ||= if json_api_format?
+                                     name.split("::").last.pluralize.underscore.to_sym
+                                   else
+                                     name.split("::").last.underscore.to_sym
+                                   end
           else
             @_her_root_element = value.to_sym
           end
@@ -139,7 +142,8 @@ module Her
 
         # @private
         def root_element_included?(data)
-          data.keys.to_s.include? @_her_root_element.to_s
+          element = data[parsed_root_element]
+          element.is_a?(Hash) || element.is_a?(Array)
         end
 
         # @private
@@ -198,17 +202,20 @@ module Her
 
         # @private
         def request_new_object_on_build?
-          @_her_request_new_object_on_build || (superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?)
+          return @_her_request_new_object_on_build unless @_her_request_new_object_on_build.nil?
+          superclass.respond_to?(:request_new_object_on_build?) && superclass.request_new_object_on_build?
         end
 
         # @private
         def include_root_in_json?
-          @_her_include_root_in_json || (superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?)
+          return @_her_include_root_in_json unless @_her_include_root_in_json.nil?
+          superclass.respond_to?(:include_root_in_json?) && superclass.include_root_in_json?
         end
 
         # @private
         def parse_root_in_json?
-          @_her_parse_root_in_json || (superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?)
+          return @_her_parse_root_in_json unless @_her_parse_root_in_json.nil?
+          superclass.respond_to?(:parse_root_in_json?) && superclass.parse_root_in_json?
         end
       end
     end
