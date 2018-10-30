@@ -2,6 +2,7 @@ module Her
   # This class is where all HTTP requests are made. Before using Her, you must configure it
   # so it knows where to make those requests. In Rails, this is usually done in `config/initializers/her.rb`:
   class API
+
     # @private
     attr_reader :connection, :options
 
@@ -9,7 +10,7 @@ module Her
     FARADAY_OPTIONS = [:request, :proxy, :ssl, :builder, :url, :parallel_manager, :params, :headers, :builder_class, :timeout, :open_timeout].freeze
 
     # Setup a default API connection. Accepted arguments and options are the same as {API#setup}.
-    def self.setup(opts={}, &block)
+    def self.setup(opts = {}, &block)
       @default_api = new(opts, &block)
     end
 
@@ -68,11 +69,11 @@ module Her
     #     connection.use MyCustomParser
     #     connection.use Faraday::Adapter::NetHttp
     #   end
-    def setup(opts={}, &blk)
+    def setup(opts = {}, &blk)
       opts[:url] = opts.delete(:base_uri) if opts.include?(:base_uri) # Support legacy :base_uri option
       @options = opts
 
-      faraday_options = @options.reject { |key, value| !FARADAY_OPTIONS.include?(key.to_sym) }
+      faraday_options = @options.select { |key, _| FARADAY_OPTIONS.include?(key.to_sym) }
       @connection = Faraday.new(faraday_options) do |connection|
         yield connection if block_given?
       end
@@ -84,35 +85,42 @@ module Her
     # and a metadata Hash.
     #
     # @private
-    def request(params={})
-      method = params.delete(:_method)
-      path = params.delete(:_path)
-      headers = params.delete(:_headers)
-      options = params.delete(:_options) || {}
-      params.delete_if { |key, value| key.to_s =~ /^_/ } # Remove all internal parameters
-      response = @connection.send method do |request|
+    def request(opts = {})
+      method = opts.delete(:_method)
+      path = opts.delete(:_path)
+      headers = opts.delete(:_headers)
+      options = opts.delete(:_options) || {}
+      opts.delete_if { |key, _| key.to_s =~ /^_/ } # Remove all internal parameters
+      if method == :options
+        # Faraday doesn't support the OPTIONS verb because of a name collision with an internal options method
+        # so we need to call run_request directly.
         request.headers.merge!(headers) if headers
+        response = @connection.run_request method, path, opts, headers
+      else
+        response = @connection.send method do |request|
+          request.headers.merge!(headers) if headers
 
-        timeout = options.delete(:timeout)
-        raise "options not implemented: #{options.keys.join(', ')}" unless options.empty?
-        request.options[:timeout] = timeout if timeout
+          timeout = options.delete(:timeout)
+          raise "options not implemented: #{options.keys.join(', ')}" unless options.empty?
+          request.options[:timeout] = timeout if timeout
 
-        if method == :get
-          # For GET requests, treat additional parameters as querystring data
-          request.url path, params
-        else
-          # For POST, PUT and DELETE requests, treat additional parameters as request body
-          request.url path
-          request.body = params
+          if method == :get
+            # For GET requests, treat additional parameters as querystring data
+            request.url path, opts
+          else
+            # For POST, PUT and DELETE requests, treat additional parameters as request body
+            request.url path
+            request.body = opts
+          end
         end
       end
-
       { :parsed_data => response.env[:body], :response => response }
     end
 
     private
+
     # @private
-    def self.default_api(opts={})
+    def self.default_api(opts = {})
       defined?(@default_api) ? @default_api : nil
     end
   end

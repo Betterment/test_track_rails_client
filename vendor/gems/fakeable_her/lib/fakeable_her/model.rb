@@ -17,10 +17,7 @@ module FakeableHer
               response_attrs = fake_save_response_attributes
               assign_attributes(response_attrs) if response_attrs.present?
 
-              if self.changed_attributes.present?
-                @previously_changed = self.changed_attributes.clone
-                self.changed_attributes.clear
-              end
+              changes_applied
             end
           end
           true
@@ -46,19 +43,6 @@ module FakeableHer
     def fake_save_response_attributes
       raise "You must define `#fake_save_response_attributes` to provide default values for #{self.class.name} during development. For more details, refer to the Retail app README."
     end
-
-    unless method_defined?(:clear_changes_information)
-      def clear_changes_information
-        if respond_to?(:reset_changes)
-          reset_changes
-        else
-          @previously_changed = ActiveSupport::HashWithIndifferentAccess.new
-          @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new
-        end
-      end
-    end
-
-    private :clear_changes_information
 
     module ClassMethods
       def faked?
@@ -120,7 +104,7 @@ module FakeableHer
         if @parent.faked?
           args = ids
           args << @params if @params.present?
-          @parent.new(@parent.fake_instance_attributes(*args)).tap { |p| p.send(:clear_changes_information) }
+          @parent.new(@parent.fake_instance_attributes(*args)).tap { |p| p.send(:changes_applied) }
         else
           super
         end
@@ -133,16 +117,15 @@ module FakeableHer
 
         if id_param && !id_param.is_a?(Array)
           @params.delete(@parent.primary_key)
-          @parent.new(@parent.fake_instance_attributes(id_param, @params)).tap { |p| p.send(:clear_changes_information) }
+          @parent.new(@parent.fake_instance_attributes(id_param, @params)).tap { |p| p.send(:changes_applied) }
         else
           fetch_collection.first
         end
       end
 
       def fetch_collection
-        Her::Collection.new @parent.fake_collection_attributes(@params).map { |attrs| @parent.new(attrs).tap { |p| p.send(:clear_changes_information) } }
+        Her::Collection.new @parent.fake_collection_attributes(@params).map { |attrs| @parent.new(attrs).tap { |p| p.send(:changes_applied) } }
       end
     end
   end
 end
-
