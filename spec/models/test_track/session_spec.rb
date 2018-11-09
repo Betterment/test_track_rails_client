@@ -235,16 +235,10 @@ RSpec.describe TestTrack::Session do
         end
       end
 
-      it "checks for a valid domain" do
-        allow(request).to receive(:host).and_return("a.bad.actor;did-this<luzer>")
-        expect { subject.manage {} }.to raise_error PublicSuffix::DomainInvalid
-      end
-
-      it "checks for a valid domain when fully qualified cookie domains are enabled" do
-        with_env TEST_TRACK_FULLY_QUALIFIED_COOKIE_DOMAIN_ENABLED: 1 do
-          allow(request).to receive(:host).and_return("a.bad.actor;did-this<luzer>")
-          expect { subject.manage {} }.to raise_error PublicSuffix::DomainInvalid
-        end
+      it "works with localhost" do
+        allow(request).to receive(:host).and_return("localhost")
+        subject.manage {}
+        expect(cookies['tt_visitor_id'][:domain]).to eq ".localhost"
       end
 
       it "doesn't munge an IPv4 hostname" do
