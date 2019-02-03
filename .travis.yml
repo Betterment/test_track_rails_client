@@ -3,7 +3,6 @@ language: ruby
 rvm:
 - 2.3.1
 - 2.4.2
-- jruby-9.1.13.0
 
 before_install:
 - gem update --system
@@ -13,7 +12,5 @@ before_script:
 - RAILS_ENV=test bundle exec rake db:setup
 
 gemfile:
-  - gemfiles/rails_4_2.gemfile
-  - gemfiles/rails_5_0.gemfile
   - gemfiles/rails_5_1.gemfile
   - gemfiles/rails_5_2.gemfile
