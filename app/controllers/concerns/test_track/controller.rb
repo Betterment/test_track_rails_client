@@ -9,6 +9,16 @@ module TestTrack::Controller
     around_action :manage_test_track_session
   end
 
+  class_methods do
+    def require_feature_flag(feature_flag, *args)
+      before_action(*args) do
+        unless test_track_visitor.ab(feature_flag, context: self.class.name.demodulize.underscore)
+          raise ActionController::RoutingError, 'Not Found'
+        end
+      end
+    end
+  end
+
   private
 
   def test_track_session

@@ -5,6 +5,7 @@ RSpec.describe TestTrack::Controller do
 
   controller(ApplicationController) do
     include mixin
+    require_feature_flag :cool_feature_enabled
 
     self.test_track_identity = :current_clown
 
@@ -30,8 +31,21 @@ RSpec.describe TestTrack::Controller do
   end
 
   let(:existing_visitor_id) { SecureRandom.uuid }
-  let(:split_registry) { { 'time' => { 'beer_thirty' => 100 } } }
-  let(:remote_visitor) { { id: existing_visitor_id, assignments: [{ split_name: 'time', variant: 'beer_thirty', unsynced: false }] } }
+  let(:split_registry) do
+    {
+      'time' => { 'beer_thirty' => 100 },
+      'cool_feature_enabled' => { 'true' => 0, 'false' => 100 }
+    }
+  end
+  let(:remote_visitor) do
+    {
+      id: existing_visitor_id,
+      assignments: [
+        { split_name: 'time', variant: 'beer_thirty', unsynced: false },
+        { split_name: 'cool_feature_enabled', variant: true, unsynced: false }
+      ]
+    }
+  end
   let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: true) }
 
   before do
@@ -67,7 +81,7 @@ RSpec.describe TestTrack::Controller do
   it "returns a server-provided assignment hash for an existing visitor" do
     request.cookies['tt_visitor_id'] = existing_visitor_id
     get :index
-    expect(response_json['assignments']).to eq("time" => "beer_thirty")
+    expect(response_json['assignments']).to eq("time" => "beer_thirty", "cool_feature_enabled" => true)
   end
 
   it "sets a UUID tt_visitor_id cookie if unset" do
@@ -92,5 +106,12 @@ RSpec.describe TestTrack::Controller do
   it "stores the session in RequestStore" do
     get :show, id: "1234"
     expect(RequestStore).to have_received(:[]=).with(:test_track_session, instance_of(TestTrack::Session))
+  end
+
+  it "raises a RoutingError when a feature flag is required and the ab value is false" do
+    allow(TestTrack::VisitorDSL).to receive(:new).and_return(
+      instance_double(TestTrack::VisitorDSL, ab: false)
+    )
+    expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
   end
 end
