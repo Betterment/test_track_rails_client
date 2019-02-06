@@ -1,10 +1,12 @@
 require 'faraday_middleware'
+require 'test_track/server_error_middleware'
 
 TestTrack::TestTrackApi = Her::API.new.setup url: ENV['TEST_TRACK_API_URL'] do |c|
   # request
   c.request :json
 
   # response
+  c.use TestTrack::ServerErrorMiddleware
   c.use Her::Middleware::DefaultParseJSON
 
   c.adapter Faraday.default_adapter

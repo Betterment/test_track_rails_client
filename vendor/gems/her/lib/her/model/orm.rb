@@ -1,4 +1,5 @@
 # coding: utf-8
+
 module Her
   module Model
     # This module adds ORM-like capabilities to the model
@@ -40,20 +41,13 @@ module Her
           callback = new? ? :create : :update
           method = self.class.method_for(callback)
 
-          run_callbacks callback do
-            run_callbacks :save do
-              params = to_params
+          run_callbacks :save do
+            run_callbacks callback do
               self.class.request(to_params.merge(:_method => method, :_path => request_path, :_headers => request_headers, :_options => request_options)) do |parsed_data, response|
-                assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-                @metadata = parsed_data[:metadata]
-                @response_errors = parsed_data[:errors]
-                self.assign_attributes(status_code: response.status)
-
+                load_from_parsed_data(parsed_data)
+                assign_attributes(status_code: response.status)
                 return false if !response.success? || @response_errors.any?
-                if self.changed_attributes.present?
-                  @previously_changed = self.changed_attributes.clone
-                  self.changed_attributes.clear
-                end
+                changes_applied
               end
             end
           end
@@ -87,9 +81,7 @@ module Her
         run_callbacks :destroy do
           self.class.request(params.merge(:_method => method, :_path => request_path, :_headers => request_headers, :_options => request_options)) do |parsed_data, response|
             raise Her::Errors::ResponseError.for(response.status).new("Request against #{self.class} returned a #{response.status}") if response.status >= 400
-            assign_attributes(self.class.parse(parsed_data[:data])) if parsed_data[:data].any?
-            @metadata = parsed_data[:metadata]
-            @response_errors = parsed_data[:errors]
+            load_from_parsed_data(parsed_data)
             @destroyed = response.success?
           end
         end
@@ -97,9 +89,88 @@ module Her
       end
 
       def full_error_messages
-        self.response_errors.map do |field, messages|
+        response_errors.map do |field, messages|
           "#{field} #{messages.join(', ')}"
         end.join('. ')
+      end
+
+      # Initializes +attribute+ to zero if +nil+ and adds the value passed as
+      # +by+ (default is 1). The increment is performed directly on the
+      # underlying attribute, no setter is invoked. Only makes sense for
+      # number-based attributes. Returns +self+.
+      def increment(attribute, by = 1)
+        attributes[attribute] ||= 0
+        attributes[attribute] += by
+        self
+      end
+
+      # Wrapper around #increment that saves the resource. Saving is subjected
+      # to validation checks. Returns +self+.
+      def increment!(attribute, by = 1)
+        increment(attribute, by) && save
+        self
+      end
+
+      # Initializes +attribute+ to zero if +nil+ and substracts the value passed as
+      # +by+ (default is 1). The decrement is performed directly on the
+      # underlying attribute, no setter is invoked. Only makes sense for
+      # number-based attributes. Returns +self+.
+      def decrement(attribute, by = 1)
+        increment(attribute, -by)
+      end
+
+      # Wrapper around #decrement that saves the resource. Saving is subjected
+      # to validation checks. Returns +self+.
+      def decrement!(attribute, by = 1)
+        increment!(attribute, -by)
+      end
+
+      # Assigns to +attribute+ the boolean opposite of <tt>attribute?</tt>. So
+      # if the predicate returns +true+ the attribute will become +false+. This
+      # method toggles directly the underlying value without calling any setter.
+      # Returns +self+.
+      #
+      # @example
+      #   user = User.first
+      #   user.admin? # => false
+      #   user.toggle(:admin)
+      #   user.admin? # => true
+      def toggle(attribute)
+        attributes[attribute] = !public_send("#{attribute}?")
+        self
+      end
+
+      # Wrapper around #toggle that saves the resource. Saving is subjected to
+      # validation checks. Returns +true+ if the record could be saved.
+      def toggle!(attribute)
+        toggle(attribute) && save
+      end
+
+      # Refetches the resource
+      #
+      # This method finds the resource by its primary key (which could be
+      # assigned manually) and modifies the object in-place.
+      #
+      # @example
+      #   user = User.find(1)
+      #   # => #<User(users/1) id=1 name="Tobias Fünke">
+      #   user.name = "Oops"
+      #   user.reload # Fetched again via GET "/users/1"
+      #   # => #<User(users/1) id=1 name="Tobias Fünke">
+      def reload(options = nil)
+        fresh_object = self.class.find(id)
+        assign_attributes(fresh_object.attributes)
+        self
+      end
+
+      # Uses parsed response to assign attributes and metadata
+      #
+      # @private
+      def load_from_parsed_data(parsed_data)
+        data = parsed_data[:data]
+        assign_attributes(self.class.parse(data)) if data.any?
+        @metadata = parsed_data[:metadata]
+        @response_errors = parsed_data[:errors]
       end
 
       module ClassMethods
@@ -121,10 +192,8 @@ module Her
             instance_exec(*args, &code)
           end
 
-          # Add the scope method to the Relation class
-          Relation.instance_eval do
-            define_method(name) { |*args| instance_exec(*args, &code) }
-          end
+          # Add the scope method to the default/blank relation
+          scoped.define_singleton_method(name) { |*args| instance_exec(*args, &code) }
         end
 
         # @private
@@ -143,14 +212,15 @@ module Her
         #
         #   User.all # Called via GET "/users?admin=1"
         #   User.new.admin # => 1
-        def default_scope(block=nil)
+        def default_scope(block = nil)
           @_her_default_scope ||= (!respond_to?(:default_scope) && superclass.respond_to?(:default_scope)) ? superclass.default_scope : scoped
           @_her_default_scope = @_her_default_scope.instance_exec(&block) unless block.nil?
           @_her_default_scope
         end
 
         # Delegate the following methods to `scoped`
-        [:all, :where, :create, :create!, :build, :find, :find_by, :first, :first_or_create, :first_or_initialize].each do |method|
+        [:all, :where, :create, :create!, :build, :find, :find_by, :first, :find_or_create_by,
+         :find_or_initialize_by, :first_or_create, :first_or_initialize].each do |method|
           class_eval <<-RUBY, __FILE__, __LINE__ + 1
             def #{method}(*params)
               scoped.send(#{method.to_sym.inspect}, *params)
@@ -184,7 +254,9 @@ module Her
             data = parse(parsed_data[:data])
             metadata = parsed_data[:metadata]
             response_errors = parsed_data[:errors]
-            new(data.merge(:_destroyed => response.success?, :metadata => metadata, :response_errors => response_errors))
+            record = new(data.merge(:_destroyed => response.success?, :metadata => metadata))
+            record.response_errors = response_errors
+            record
           end
         end
 
@@ -206,23 +278,23 @@ module Her
         # If the request_new_object_on_build flag is set, the new object is requested via API.
         def build(attributes = {})
           params = attributes
-          return self.new(params) unless self.request_new_object_on_build?
+          return new(params) unless request_new_object_on_build?
 
-          path = self.build_request_path(params.merge(self.primary_key => 'new'))
-          method = self.method_for(:new)
+          path = build_request_path(params.merge(primary_key => 'new'))
+          method = method_for(:new)
 
           resource = nil
-          self.request(params.merge(:_method => method, :_path => path, :_headers => request_headers)) do |parsed_data, response|
+          request(params.merge(:_method => method, :_path => path, :_headers => request_headers)) do |parsed_data, response|
             if response.success?
-              resource = self.new_from_parsed_data(parsed_data)
+              resource = new_from_parsed_data(parsed_data)
             end
           end
           resource
         end
 
-        private
         # @private
         def blank_relation
+          @blank_relation ||= superclass.blank_relation.clone.tap { |r| r.parent = self } if superclass.respond_to?(:blank_relation)
           @blank_relation ||= Relation.new(self)
         end
       end
