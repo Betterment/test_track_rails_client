@@ -15,8 +15,7 @@ gem 'rspec-rails'
 
 gem 'rack', '~> 1.6' # Make sure travis can still run tests on older rubies
 
-gem 'sqlite3', platforms: :ruby
-gem 'activerecord-jdbcsqlite3-adapter', platforms: :jruby
+gem 'sqlite3', '~> 1.3.6'
 
 gem 'nokogiri', '~> 1.8.2'
 gem 'webmock', '< 2.3.1'

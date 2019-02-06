@@ -15,7 +15,7 @@ module TestTrack
 
       def create_migration_file
         create_file full_file_path, <<-FILE.strip_heredoc
-          class #{split_class_name} < ActiveRecord::Migration
+          class #{split_class_name} < #{migration_class}
             def change
               TestTrack.update_config do |c|
                 #{split_command_line}
@@ -23,6 +23,14 @@ module TestTrack
             end
           end
         FILE
+      end
+
+      def migration_class
+        if ActiveRecord::VERSION::MAJOR >= 5
+          ActiveRecord::Migration[5.0]
+        else
+          ActiveRecord::Migration
+        end
       end
 
       def split_command_line
