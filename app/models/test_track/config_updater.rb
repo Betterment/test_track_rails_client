@@ -7,8 +7,8 @@ class TestTrack::ConfigUpdater
     create_split(name, weighting_registry)
 
     name = name.to_s
+    splits.except!(*unpersisted_split_names)
     splits[name] = weighting_registry.stringify_keys
-    splits.except!(*(splits.keys - remote_splits.keys - [name]))
 
     persist_schema!
   end
@@ -72,6 +72,10 @@ class TestTrack::ConfigUpdater
 
   def identifier_types
     @identifier_types ||= Set.new(schema_file_hash["identifier_types"] || [])
+  end
+
+  def unpersisted_split_names
+    @unpersisted_splits ||= splits.keys - remote_splits.keys
   end
 
   def splits

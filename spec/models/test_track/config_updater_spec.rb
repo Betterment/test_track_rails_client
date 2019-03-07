@@ -81,6 +81,26 @@ RSpec.describe TestTrack::ConfigUpdater do
         YML
       end
 
+      it "persists multiple splits" do
+        subject.split(:name, foo: 20, bar: 80)
+        subject.split(:gnome, baz: 30, bop: 70)
+        subject.split(:nom, wibble: 40, wobble: 60)
+        expect_schema <<-YML.strip_heredoc
+          ---
+          identifier_types: []
+          splits:
+            gnome:
+              baz: 30
+              bop: 70
+            name:
+              bar: 80
+              foo: 20
+            nom:
+              wibble: 40
+              wobble: 60
+        YML
+      end
+
       it "does not overwrite existing splits" do
         given_schema <<-YML.strip_heredoc
           ---
