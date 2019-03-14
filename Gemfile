@@ -13,7 +13,7 @@ gem 'selenium-webdriver', '~> 2.5'
 
 gem 'rspec-rails'
 
-gem 'rack', '~> 1.6' # Make sure travis can still run tests on older rubies
+gem 'rack'
 
 gem 'sqlite3', '~> 1.3.6'
 
