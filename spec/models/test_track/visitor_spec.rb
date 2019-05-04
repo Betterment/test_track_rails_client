@@ -8,14 +8,14 @@ RSpec.describe TestTrack::Visitor do
     {
       id: existing_visitor_id,
       assignments: [
-        { split_name: 'blue_button', variant: 'true', unsynced: true, context: 'original_context' },
+        { split_name: 'dummy.blue_button', variant: 'true', unsynced: true, context: 'original_context' },
         { split_name: 'time', variant: 'waits_for_no_man', unsynced: false, context: 'original_context' }
       ]
     }
   end
   let(:split_registry) do
     {
-      'blue_button' => {
+      'dummy.blue_button' => {
         'false' => 50,
         'true' => 50
       },
@@ -59,7 +59,7 @@ RSpec.describe TestTrack::Visitor do
 
     it "returns the server-provided unsynced assignments for an existing visitor" do
       expect(existing_visitor.unsynced_assignments.count).to eq 1
-      expect(existing_visitor.unsynced_assignments.first.split_name).to eq "blue_button"
+      expect(existing_visitor.unsynced_assignments.first.split_name).to eq "dummy.blue_button"
     end
 
     it "doesn't get assignments from the server for a newly-generated visitor" do
@@ -94,7 +94,7 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "returns the server-provided assignments for an existing visitor" do
-      expect(existing_visitor.assignment_registry['blue_button'].variant).to eq 'true'
+      expect(existing_visitor.assignment_registry['dummy.blue_button'].variant).to eq 'true'
       expect(existing_visitor.assignment_registry['time'].variant).to eq 'waits_for_no_man'
     end
 
@@ -109,7 +109,7 @@ RSpec.describe TestTrack::Visitor do
 
   describe "#assignment_json" do
     it 'returns a json formatted hash of assignments' do
-      expect(existing_visitor.assignment_json).to eq("blue_button" => "true", "time" => "waits_for_no_man")
+      expect(existing_visitor.assignment_json).to eq("dummy.blue_button" => "true", "time" => "waits_for_no_man")
     end
   end
 
@@ -204,16 +204,16 @@ RSpec.describe TestTrack::Visitor do
 
     context "structure" do
       it "must be given a block" do
-        expect { new_visitor.vary(:blue_button, context: :spec) }.to raise_error("must provide block to `vary` for blue_button")
+        expect { new_visitor.vary("blue_button", context: :spec) }.to raise_error("must provide block to `vary` for dummy.blue_button")
       end
 
       it "requires a context" do
-        expect { new_visitor.vary(:blue_button) }.to raise_error("Must provide context")
+        expect { new_visitor.vary("blue_button") }.to raise_error("Must provide context")
       end
 
       it "requires less than two defaults" do
         expect {
-          new_visitor.vary(:blue_button, context: :spec) do |v|
+          new_visitor.vary("blue_button", context: :spec) do |v|
             v.when :true, &blue_block
             v.default :false, &red_block
             v.default :false, &red_block
@@ -223,13 +223,13 @@ RSpec.describe TestTrack::Visitor do
 
       it "requires more than zero defaults" do
         expect {
-          new_visitor.vary(:blue_button, context: :spec) { |v| v.when(:true, &blue_block) }
+          new_visitor.vary("dummy.blue_button", context: :spec) { |v| v.when(:true, &blue_block) }
         }.to raise_error("must provide exactly one `default`")
       end
 
       it "requires at least one when" do
         expect {
-          new_visitor.vary(:blue_button, context: :spec) do |v|
+          new_visitor.vary("dummy.blue_button", context: :spec) do |v|
             v.default :true, &red_block
           end
         }.to raise_error("must provide at least one `when`")
@@ -268,7 +268,7 @@ RSpec.describe TestTrack::Visitor do
 
       it "returns false when variant is false" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'false'))
-        expect(new_visitor.ab("blue_button", context: :spec)).to eq false
+        expect(new_visitor.ab("dummy.blue_button", context: :spec)).to eq false
       end
 
       it "returns false in production when split variants are not true and false" do
@@ -410,12 +410,12 @@ RSpec.describe TestTrack::Visitor do
 
       it "merges server-provided unsynced assignments into local unsynced assignments" do
         expect(subject.unsynced_assignments.count).to eq 1
-        expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
+        expect(subject.unsynced_assignments.first.split_name).to eq 'dummy.blue_button'
 
         subject.link_identity!(identity)
 
         expect(subject.unsynced_assignments.count).to eq 2
-        expect(subject.unsynced_assignments.first.split_name).to eq 'blue_button'
+        expect(subject.unsynced_assignments.first.split_name).to eq 'dummy.blue_button'
         expect(subject.unsynced_assignments.second.split_name).to eq 'bar'
       end
     end
