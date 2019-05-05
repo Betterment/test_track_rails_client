@@ -18,8 +18,8 @@ class TestTrack::Fake::SplitRegistry
   private
 
   def split_hash
-    if schema_yml.present?
-      schema_yml
+    if schema_registry.present?
+      schema_registry
     elsif legacy_test_track_schema_yml.present?
       legacy_test_track_schema_yml[:splits]
     else
@@ -27,12 +27,12 @@ class TestTrack::Fake::SplitRegistry
     end
   end
 
-  def schema_yml
-    @schema_yml = _schema_yml unless instance_variable_defined?(:@schema_yml)
-    @schema_yml
+  def schema_registry
+    @schema_registry = _schema_registry unless instance_variable_defined?(:@schema_registry)
+    @schema_registry
   end
 
-  def _schema_yml
+  def _schema_registry
     file = YAML.load_file(schema_yml_path)
     file && file['splits'].each_with_object(ActiveSupport::HashWithIndifferentAccess.new) do |split, h|
       h[split['name']] = split['weights']
