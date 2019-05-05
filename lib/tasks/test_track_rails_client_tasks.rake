@@ -26,7 +26,7 @@ namespace :test_track do
   end
 end
 
-unless Rails.env.test? || Rails.env.development?
+unless Rails.env.test? || (Rails.env.development? || !TesttrackCLI.instance.project_initialized?)
   task 'db:schema:load' => ['test_track:schema:load']
   task 'db:structure:load' => ['test_track:schema:load']
   task 'db:migrate' => ['test_track:migrate']
