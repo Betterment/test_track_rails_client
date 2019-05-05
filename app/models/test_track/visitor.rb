@@ -17,6 +17,7 @@ class TestTrack::Visitor
 
   def vary(split_name, opts = {})
     opts = opts.dup
+    split_name = maybe_prefix(split_name)
     split_name = split_name.to_s
     context = require_option!(opts, :context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
@@ -29,7 +30,7 @@ class TestTrack::Visitor
 
   def ab(split_name, opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     opts = opts.dup
-    split_name = split_name.to_s
+    split_name = maybe_prefix(split_name)
     true_variant = opts.delete(:true_variant)
     context = require_option!(opts, :context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
@@ -147,5 +148,12 @@ class TestTrack::Visitor
 
   def generate_assignment_for(split_name)
     assignment_registry[split_name] = TestTrack::Assignment.new(visitor: self, split_name: split_name)
+  end
+
+  def maybe_prefix(split_name)
+    app_name = URI.parse(TestTrack.private_url).user
+    split_name = split_name.to_s
+    prefixed = "#{app_name}.#{split_name}"
+    split_registry.key?(prefixed) ? prefixed : split_name
   end
 end
