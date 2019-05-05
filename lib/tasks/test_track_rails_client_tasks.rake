@@ -26,7 +26,7 @@ namespace :test_track do
   end
 end
 
-unless Rails.env.test? || (Rails.env.development? || !TesttrackCli.instance.project_initialized?)
+if !Rails.env.test? && !(Rails.env.development? && File.exist?(File.join('testtrack', 'schema.yml')))
   task 'db:schema:load' => ['test_track:schema:load']
   task 'db:structure:load' => ['test_track:schema:load']
   task 'db:migrate' => ['test_track:migrate']
