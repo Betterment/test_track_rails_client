@@ -18,27 +18,46 @@ class TestTrack::Fake::SplitRegistry
   private
 
   def split_hash
-    if test_track_schema_yml.present?
-      test_track_schema_yml[:splits]
+    if schema_yml.present?
+      schema_yml
+    elsif legacy_test_track_schema_yml.present?
+      legacy_test_track_schema_yml[:splits]
     else
       {}
     end
   end
 
-  def test_track_schema_yml
-    unless instance_variable_defined?(:@test_track_schema_yml)
-      @test_track_schema_yml = _test_track_schema_yml
-    end
-    @test_track_schema_yml
+  def schema_yml
+    @schema_yml = _schema_yml unless instance_variable_defined?(:@schema_yml)
+    @schema_yml
   end
 
-  def _test_track_schema_yml
-    YAML.load_file(test_track_schema_yml_path).with_indifferent_access
+  def _schema_yml
+    file = YAML.load_file(schema_yml_path)
+    file && file['splits'].each_with_object(ActiveSupport::HashWithIndifferentAccess.new) do |split, h|
+      h[split['name']] = split['weights']
+    end
+  end
+
+  def schema_yml_path
+    base = ENV['TEST_TRACK_SCHEMA_ROOT'] || Rails.root
+    File.join(base, 'testtrack', 'schema.yml')
+  end
+
+  def legacy_test_track_schema_yml
+    unless instance_variable_defined?(:@legacy_test_track_schema_yml)
+      @legacy_test_track_schema_yml = _legacy_test_track_schema_yml
+    end
+    @legacy_test_track_schema_yml
+  end
+
+  def _legacy_test_track_schema_yml
+    YAML.load_file(legacy_test_track_schema_yml_path).with_indifferent_access
   rescue
     nil
   end
 
-  def test_track_schema_yml_path
+  def legacy_test_track_schema_yml_path
     ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db', 'test_track_schema.yml')
   end
 
