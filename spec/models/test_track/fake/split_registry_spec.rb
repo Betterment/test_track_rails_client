@@ -34,8 +34,10 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
 
   context "when only legacy schema exists" do
     before do
-      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_return(nil)
-      allow(YAML).to receive(:load_file).with(Rails.root.join('db', 'test_track_schema.yml')).and_call_original
+      allow(File).to receive(:exist?).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_return(false)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_raise("foo")
+      allow(File).to receive(:exist?).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_return(true)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_call_original
     end
 
     describe '#to_h' do
@@ -68,8 +70,10 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
 
   context "when both schema.ymls don't exist" do
     before do
-      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_return(nil)
-      allow(YAML).to receive(:load_file).with(Rails.root.join('db', 'test_track_schema.yml')).and_return(nil)
+      allow(File).to receive(:exist?).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_return(false)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_raise("nope!")
+      allow(File).to receive(:exist?).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_return(false)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_raise("no indeed!")
     end
 
     describe '#to_h' do

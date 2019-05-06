@@ -33,7 +33,8 @@ class TestTrack::Fake::SplitRegistry
   end
 
   def _schema_registry
-    file = YAML.load_file(schema_yml_path)
+    file = File.exist?(schema_yml_path) &&
+      YAML.load_file(schema_yml_path)
     file && file['splits'].each_with_object(ActiveSupport::HashWithIndifferentAccess.new) do |split, h|
       h[split['name']] = split['weights']
     end
@@ -52,13 +53,14 @@ class TestTrack::Fake::SplitRegistry
   end
 
   def _legacy_test_track_schema_yml
-    YAML.load_file(legacy_test_track_schema_yml_path).with_indifferent_access
+    File.exist?(legacy_test_track_schema_yml_path) &&
+      YAML.load_file(legacy_test_track_schema_yml_path).with_indifferent_access
   rescue
     nil
   end
 
   def legacy_test_track_schema_yml_path
-    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db', 'test_track_schema.yml')
+    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db', 'test_track_schema.yml').to_s
   end
 
   def splits_with_deterministic_weights
