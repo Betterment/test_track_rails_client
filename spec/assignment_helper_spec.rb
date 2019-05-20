@@ -6,16 +6,9 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
     it "overrides assignment registry to match" do
       stub_test_track_assignments(foo: :bar)
 
-      TestTrack::Remote::Visitor.find(201).assignments.tap do |assignments|
-        assignments.first.tap do |assignment|
-          expect(assignment.split_name).to eq('foo')
-          expect(assignment.variant).to eq('bar')
-        end
-
-        assignments.second.tap do |assignment|
-          expect(assignment.split_name).to eq('dummy.foo')
-          expect(assignment.variant).to eq('bar')
-        end
+      TestTrack::Remote::Visitor.find(201).assignments.first.tap do |assignment|
+        expect(assignment.split_name).to eq('foo')
+        expect(assignment.variant).to eq('bar')
       end
     end
 
@@ -23,21 +16,21 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
       stub_test_track_assignments(foo: :bar)
 
       expect(TestTrack::Remote::SplitRegistry.to_hash).to include('foo' => { 'bar' => 100 })
-      expect(TestTrack::Remote::SplitRegistry.to_hash).to include('dummy.foo' => { 'bar' => 100 })
     end
 
-    it 'works with an already prefixed split name' do
-      stub_test_track_assignments('dummy.foo' => :bar)
+    context 'with a prefixed split name already in the split registry' do
+      let(:fake_split_registry) { instance_double(TestTrack::Fake::SplitRegistry, to_h: { 'dummy.foo' => { 'bar' => 100 } }) }
 
-      TestTrack::Remote::Visitor.find(201).assignments.tap do |assignments|
-        expect(assignments.count).to eq 1
-        assignments.first.tap do |assignment|
+      before { allow(TestTrack::Fake::SplitRegistry).to receive(:instance).and_return(fake_split_registry) }
+
+      it 'overrides assignment registry to match' do
+        stub_test_track_assignments(foo: :bar)
+
+        TestTrack::Remote::Visitor.find(201).assignments.first.tap do |assignment|
           expect(assignment.split_name).to eq('dummy.foo')
           expect(assignment.variant).to eq('bar')
         end
       end
-
-      expect(TestTrack::Remote::SplitRegistry.to_hash).to include('dummy.foo' => { 'bar' => 100 })
     end
 
     it 'raises if test track is enabled' do

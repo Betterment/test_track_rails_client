@@ -7,14 +7,13 @@ module TestTrackRailsClient::AssignmentHelper
     app_name = URI.parse(TestTrack.private_url).user
 
     assignment_registry.each do |split_name, variant|
-      split_registry[split_name] = { variant => 100 } unless split_registry[split_name]
-      assignments << { split_name: split_name.to_s, variant: variant.to_s, unsynced: false }
-
-      next if split_name.to_s.include?('.')
-
       prefixed_split_name = "#{app_name}.#{split_name}"
-      split_registry[prefixed_split_name] = { variant => 100 } unless split_registry[prefixed_split_name]
-      assignments << { split_name: prefixed_split_name, variant: variant.to_s, unsynced: false }
+      if split_registry.key?(prefixed_split_name)
+        assignments << { split_name: prefixed_split_name, variant: variant.to_s, unsynced: false }
+      else
+        split_registry[split_name] = { variant => 100 } unless split_registry[split_name]
+        assignments << { split_name: split_name.to_s, variant: variant.to_s, unsynced: false }
+      end
     end
 
     visitor_attributes = { id: "fake_visitor_id", assignments: assignments }
