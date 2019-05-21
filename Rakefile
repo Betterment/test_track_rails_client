@@ -48,45 +48,6 @@ task :vendor_deps do
       end
     end
   end
-
-  # Gems
-  FileUtils.module_eval do
-    cd "vendor/gems" do
-      rm_r Dir.glob('*')
-      %w(her fakeable_her).each do |repo|
-        `git clone --depth=1 git@github.com:Betterment/#{repo}.git && rm -rf #{repo}/.git`
-      end
-    end
-
-    cd "vendor/gems/her" do
-      rm_r(Dir.glob('.*') - %w(. ..))
-      rm_r Dir.glob('*.md')
-      rm_r %w(
-        Appraisals
-        Gemfile
-        Gemfile.lock
-        Rakefile
-        gemfiles
-        spec
-      ), force: true
-    end
-
-    cd "vendor/gems/fakeable_her" do
-      rm_r(Dir.glob('.*') - %w(. ..))
-      rm_r Dir.glob('*.md')
-      rm_r %w(
-        Appraisals
-        Gemfile
-        Gemfile.lock
-        Rakefile
-        bin
-        gemfiles
-        spec
-      ), force: true
-      `sed -E -i '' '/license/d' fakeable_her.gemspec`
-      `sed -E -i '' '/homepage/d' fakeable_her.gemspec`
-    end
-  end
 end
 
 task(:default).clear
