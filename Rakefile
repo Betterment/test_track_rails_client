@@ -32,6 +32,22 @@ task :vendor_deps do
   sh 'bower install'
   sh 'cp', 'bower_components/test_track_js_client/dist/testTrack.bundle.min.js', 'app/assets/javascripts'
 
+  # Download testtrack-cli
+  TEST_TRACK_CLI_VERSION = 'v0.9.7'.freeze
+
+  FileUtils.module_eval do
+    mkdir_p 'vendor/bin/testtrack-cli'
+    cd 'vendor/bin/testtrack-cli' do
+      rm_r Dir.glob('*')
+
+      %w(darwin linux).each do |arch|
+        `curl -L https://github.com/Betterment/testtrack-cli/releases/download/#{TEST_TRACK_CLI_VERSION}/testtrack.#{arch} \
+          > testtrack.#{arch}`
+        chmod 'u=wrx,go=rx', "testtrack.#{arch}"
+      end
+    end
+  end
+
   # Gems
   FileUtils.module_eval do
     cd "vendor/gems" do
