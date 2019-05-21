@@ -34,8 +34,17 @@ task :vendor_deps do
 
   # Download testtrack-cli
   TEST_TRACK_CLI_VERSION = 'v0.9.7'
-  %w(darwin linux).each do |arch|
-    `curl -L https://github.com/Betterment/testtrack-cli/releases/download/#{TEST_TRACK_CLI_VERSION}/testtrack.#{arch} > vendor/bin/testtrack-cli/testtrack.#{arch}`
+  FileUtils.module_eval do
+    mkdir_p 'vendor/bin/testtrack-cli'
+    cd 'vendor/bin/testtrack-cli' do
+      rm_r Dir.glob('*')
+
+      %w(darwin linux).each do |arch|
+        `curl -L https://github.com/Betterment/testtrack-cli/releases/download/#{TEST_TRACK_CLI_VERSION}/testtrack.#{arch} \
+          > testtrack.#{arch}`
+          chmod 0755, "testtrack.#{arch}"
+      end
+    end
   end
 
   # Gems
