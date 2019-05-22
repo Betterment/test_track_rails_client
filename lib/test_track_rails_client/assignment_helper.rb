@@ -8,10 +8,10 @@ module TestTrackRailsClient::AssignmentHelper
 
     assignment_registry.each do |split_name, variant|
       prefixed_split_name = "#{app_name}.#{split_name}"
-      if split_registry.key?(prefixed_split_name)
+      if split_registry['splits'].key?(prefixed_split_name)
         assignments << { split_name: prefixed_split_name, variant: variant.to_s, unsynced: false }
       else
-        split_registry[split_name] = { variant => 100 } unless split_registry[split_name]
+        split_registry['splits'][split_name] = { weights: { variant => 100 }, feature_gate: false } unless split_registry['splits'][split_name]
         assignments << { split_name: split_name.to_s, variant: variant.to_s, unsynced: false }
       end
     end
