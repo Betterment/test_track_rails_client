@@ -37,8 +37,8 @@ RSpec.describe TestTrack::Visitor do
           },
           'feature_gate' => 'false'
         }
-      'experience_sampling_weight' => 1
       },
+      'experience_sampling_weight' => 1
     }
   end
 
@@ -169,7 +169,7 @@ RSpec.describe TestTrack::Visitor do
       end
 
       def vary_blue_button_split
-        existing_visitor.vary :blue_button, context: :spec do |v|
+        existing_visitor.vary 'dummy.blue_button', context: :spec do |v|
           v.when :true, &blue_block
           v.default :false, &red_block
         end
@@ -216,16 +216,16 @@ RSpec.describe TestTrack::Visitor do
 
     context "structure" do
       it "must be given a block" do
-        expect { new_visitor.vary("blue_button", context: :spec) }.to raise_error("must provide block to `vary` for dummy.blue_button")
+        expect { new_visitor.vary("dummy.blue_button", context: :spec) }.to raise_error("must provide block to `vary` for dummy.blue_button")
       end
 
       it "requires a context" do
-        expect { new_visitor.vary("blue_button") }.to raise_error("Must provide context")
+        expect { new_visitor.vary("dummy.blue_button") }.to raise_error("Must provide context")
       end
 
       it "requires less than two defaults" do
         expect {
-          new_visitor.vary("blue_button", context: :spec) do |v|
+          new_visitor.vary("dummy.blue_button", context: :spec) do |v|
             v.when :true, &blue_block
             v.default :false, &red_block
             v.default :false, &red_block
@@ -275,7 +275,7 @@ RSpec.describe TestTrack::Visitor do
     context "with an implicit true_variant" do
       it "returns true when variant is true" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'true'))
-        expect(new_visitor.ab("blue_button", context: :spec)).to eq true
+        expect(new_visitor.ab("dummy.blue_button", context: :spec)).to eq true
       end
 
       it "returns false when variant is false" do
