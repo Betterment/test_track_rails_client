@@ -32,7 +32,8 @@ RSpec.describe TestTrack::Controller do
 
   let(:existing_visitor_id) { SecureRandom.uuid }
   let(:split_registry) do
-    { 'splits' =>
+    {
+      'splits' =>
       {
         'time' => { 'weights' => { 'beer_thirty' => 100 }, 'feature_gate' => false },
         'cool_feature_enabled' => { 'weights' => { 'true' => 0, 'false' => 100 }, 'feature_gate' => true }
@@ -72,7 +73,10 @@ RSpec.describe TestTrack::Controller do
 
   it "returns the split registry" do
     get :index
-    expect(response_json['v1_split_registry']).to eq('cool_feature_enabled' => { 'false' => 100, 'true' => 0 }, 'time' => { 'beer_thirty' => 100 })
+    expect(response_json['v1_split_registry']).to eq(
+      'cool_feature_enabled' => { 'false' => 100, 'true' => 0 },
+      'time' => { 'beer_thirty' => 100 }
+    )
   end
 
   it "returns an empty assignment hash for a generated visitor" do

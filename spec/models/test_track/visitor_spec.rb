@@ -216,7 +216,9 @@ RSpec.describe TestTrack::Visitor do
 
     context "structure" do
       it "must be given a block" do
-        expect { new_visitor.vary("dummy.blue_button", context: :spec) }.to raise_error("must provide block to `vary` for dummy.blue_button")
+        expect {
+          new_visitor.vary("dummy.blue_button", context: :spec)
+        }.to raise_error("must provide block to `vary` for dummy.blue_button")
       end
 
       it "requires a context" do

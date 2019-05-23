@@ -21,7 +21,9 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
     end
 
     context 'with a prefixed split name already in the split registry' do
-      let(:fake_split_registry) { instance_double(TestTrack::Fake::SplitRegistry, to_h: { 'splits' => { 'dummy.foo' => { 'weights' => { 'bar' => 100 } } } }) }
+      let(:fake_split_registry) do
+        instance_double(TestTrack::Fake::SplitRegistry, to_h: { 'splits' => { 'dummy.foo' => { 'weights' => { 'bar' => 100 } } } })
+      end
 
       before { allow(TestTrack::Fake::SplitRegistry).to receive(:instance).and_return(fake_split_registry) }
 
