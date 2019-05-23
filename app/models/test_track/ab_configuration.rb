@@ -4,12 +4,12 @@ class TestTrack::ABConfiguration
   def initialize(opts)
     @split_name = require_option!(opts, :split_name).to_s
     true_variant = require_option!(opts, :true_variant, allow_nil: true)
-    @split_registry = require_option!(opts, :split_registry, allow_nil: true)
+    @split_registry = require_option!(opts, :split_registry)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     @true_variant = true_variant.to_s if true_variant
 
-    raise ArgumentError, unknown_split_error_message if @split_registry && !split
+    raise ArgumentError, unknown_split_error_message if @split_registry.loaded? && !split
   end
 
   def variants
@@ -42,11 +42,11 @@ class TestTrack::ABConfiguration
   end
 
   def split
-    split_registry && split_registry['splits'][split_name] && split_registry['splits'][split_name]['weights']
+    @split ||= split_registry.weights_for(split_name)
   end
 
   def split_variants
-    @split_variants ||= split.keys if split_registry
+    @split_variants ||= split.keys if split
   end
 
   def non_true_variants

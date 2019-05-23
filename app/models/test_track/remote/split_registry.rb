@@ -34,10 +34,6 @@ class TestTrack::Remote::SplitRegistry
       fetch_cache { nil } # cache the missing registry for 5 seconds if we can't get one
     end
 
-    def experience_sampling_weight
-      to_hash.fetch('experience_sampling_weight')
-    end
-
     private
 
     def fetch_cache(&block)

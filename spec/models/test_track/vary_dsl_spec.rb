@@ -11,7 +11,8 @@ RSpec.describe TestTrack::VaryDSL do
   let(:assignment) do
     instance_double(TestTrack::Assignment, split_name: "button_size", variant: "one")
   end
-  let(:split_registry) do
+  let(:split_registry) { TestTrack::SplitRegistry.new(split_registry_hash) }
+  let(:split_registry_hash) do
     {
       'splits' => {
         'button_size' => {
@@ -106,8 +107,8 @@ RSpec.describe TestTrack::VaryDSL do
       expect(notifier).to have_received(:notify).with("vary for \"button_size\" does not configure variants three and four")
     end
 
-    context "with a nil split_registry" do
-      let(:split_registry) { nil }
+    context "with an unloaded split_registry" do
+      let(:split_registry_hash) { nil }
 
       before do
         subject.when(:one) { "hello!" }
@@ -170,7 +171,7 @@ RSpec.describe TestTrack::VaryDSL do
     end
 
     context "with a nil split_registry" do
-      let(:split_registry) { nil }
+      let(:split_registry_hash) { nil }
 
       it "assumes all variants are valid" do
         subject.when :something_random, &noop
@@ -218,7 +219,7 @@ RSpec.describe TestTrack::VaryDSL do
     end
 
     context "with a nil split_registry" do
-      let(:split_registry) { nil }
+      let(:split_registry_hash) { nil }
 
       it "assumes all variants are valid" do
         subject.default :something_random, &noop

@@ -14,7 +14,7 @@ class TestTrack::VariantCalculator
   end
 
   def variant
-    return nil unless split_registry
+    return nil unless split_registry.loaded?
     @variant ||= _variant || raise("Assignment bucket out of range. #{assignment_bucket} unmatched in #{split_name}: #{weighting}")
   end
 
@@ -31,8 +31,8 @@ class TestTrack::VariantCalculator
   end
 
   def weighting
-    @weighting ||= (split_registry['splits'][split_name] && split_registry['splits'][split_name]['weights']) ||
-      raise("TestTrack split '#{split_name}' not found. Need to write/run a migration?")
+    @weighting ||= split_registry.weights_for(split_name) ||
+      (raise("TestTrack split '#{split_name}' not found. Need to write/run a migration?"))
   end
 
   def assignment_bucket
