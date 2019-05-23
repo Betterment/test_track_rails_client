@@ -1,7 +1,4 @@
-require 'delayed_job'
-require 'delayed_job_active_record'
-
-class TestTrack::Session
+class TestTrack::WebSession
   COOKIE_LIFESPAN = 1.year # Used for visitor cookie
 
   def initialize(controller)

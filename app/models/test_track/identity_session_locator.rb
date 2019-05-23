@@ -8,8 +8,10 @@ class TestTrack::IdentitySessionLocator
   def with_visitor
     raise ArgumentError, "must provide block to `with_visitor`" unless block_given?
 
-    if web_context?
-      yield session.visitor_dsl_for(identity)
+    if web_session?
+      yield web_session.visitor_dsl_for(identity)
+    elsif background_session?
+      yield background_session.visitor_dsl_for(identity)
     else
       TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
         yield v
@@ -20,20 +22,28 @@ class TestTrack::IdentitySessionLocator
   def with_session
     raise ArgumentError, "must provide block to `with_session`" unless block_given?
 
-    if web_context?
-      yield session
+    if web_session?
+      yield web_session
     else
-      raise "#with_session called outside of web context"
+      raise "#with_session called outside of web session"
     end
   end
 
   private
 
-  def web_context?
-    session.present?
+  def web_session?
+    web_session.present?
   end
 
-  def session
-    @session ||= RequestStore[:test_track_session]
+  def web_session
+    @web_session ||= RequestStore[:test_track_web_session]
+  end
+
+  def background_session?
+    background_session.present?
+  end
+
+  def background_session
+    @background_session ||= RequestStore[:test_track_background_session]
   end
 end
