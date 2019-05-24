@@ -160,6 +160,6 @@ class TestTrack::Visitor
     app_name = URI.parse(TestTrack.private_url).user
     split_name = split_name.to_s
     prefixed = "#{app_name}.#{split_name}"
-    split_registry.key?(prefixed) ? prefixed : split_name
+    split_registry['splits'].key?(prefixed) ? prefixed : split_name
   end
 end
