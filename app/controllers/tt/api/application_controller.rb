@@ -1,4 +1,4 @@
-class Tt::Api::V1::ApplicationController < ActionController::Base
+class Tt::Api::ApplicationController < ActionController::Base
   before_action :return_json
 
   private

@@ -9,10 +9,16 @@ RSpec.describe TestTrack::VariantCalculator do
 
   let(:split_registry) do
     {
-      'blue_button' => {
-        'true' => 60,
-        'false' => 40
-      }
+      'splits' => {
+        'blue_button' => {
+          'weights' => {
+            'true' => 60,
+            'false' => 40
+          },
+          'feature_gate' => false
+        }
+      },
+      'experience_sampling_weight' => 1
     }
   end
 
@@ -104,14 +110,20 @@ RSpec.describe TestTrack::VariantCalculator do
     context "in logo_size split" do
       let(:split_registry) do
         {
-          'logo_size' => {
-            'extra_giant' => 0,
-            'giant' => 80,
-            'huge' => 1,
-            'leetle' => 0,
-            'miniscule' => 19,
-            'teeny' => 0
-          }
+          'splits' => {
+            'logo_size' => {
+              'weights' => {
+                'extra_giant' => 0,
+                'giant' => 80,
+                'huge' => 1,
+                'leetle' => 0,
+                'miniscule' => 19,
+                'teeny' => 0
+              },
+              'feature_gate' => false
+            }
+          },
+          'experience_sampling_weight' => 1
         }
       end
 
@@ -136,11 +148,17 @@ RSpec.describe TestTrack::VariantCalculator do
     context "with an incomplete weighting" do
       let(:split_registry) do
         {
-          'invalid_weighting' => {
-            'yes' => 33,
-            'maybe' => 33,
-            'no' => 33
-          }
+          'splits' => {
+            'invalid_weighting' => {
+              'weights' => {
+                'yes' => 33,
+                'maybe' => 33,
+                'no' => 33
+              },
+              'feature_gate' => false
+            }
+          },
+          'experience_sampling_weight' => 1
         }
       end
 

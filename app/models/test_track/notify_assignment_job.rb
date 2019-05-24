@@ -12,7 +12,7 @@ class TestTrack::NotifyAssignmentJob
   end
 
   def perform
-    tracking_result = track
+    tracking_result = maybe_track
     unless assignment.feature_gate?
       TestTrack::Remote::AssignmentEvent.create!(
         visitor_id: visitor_id,
@@ -25,9 +25,30 @@ class TestTrack::NotifyAssignmentJob
 
   private
 
-  def track
+  def maybe_track
     return "failure" unless TestTrack.enabled?
+    return "success" if skip_analytics_event?
     result = TestTrack.analytics.track(TestTrack::AnalyticsEvent.new(visitor_id, assignment))
     result ? "success" : "failure"
+  end
+
+  def skip_analytics_event?
+    assignment.feature_gate? && skip_experience_event?
+  end
+
+  def skip_experience_event?
+    skip_all_experience_events? || !sample_event?
+  end
+
+  def skip_all_experience_events?
+    experience_sampling_weight.zero?
+  end
+
+  def experience_sampling_weight
+    @experience_sampling_weight ||= TestTrack::Remote::SplitRegistry.experience_sampling_weight
+  end
+
+  def sample_event?
+    Kernel.rand(experience_sampling_weight).zero?
   end
 end

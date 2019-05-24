@@ -269,8 +269,17 @@ RSpec.describe TestTrack::Session do
     context "assignments notifications with threading disabled" do
       let(:registry) do
         {
-          'bar' => { 'foo' => 0, 'baz' => 100 },
-          'switched_split' => { 'not_what_i_thought' => 100, 'originally_me' => 0 }
+          'splits' => {
+            'bar' => {
+              'weights' => { 'foo' => 0, 'baz' => 100 },
+              'feature_gate' => false
+            },
+            'switched_split' => {
+              'weights' => { 'not_what_i_thought' => 100, 'originally_me' => 0 },
+              'feature_gate' => false
+            }
+          },
+          'experience_sampling_weight' => 1
         }
       end
 
@@ -500,7 +509,16 @@ RSpec.describe TestTrack::Session do
   end
 
   describe "#state_hash" do
-    let(:visitor) { instance_double(TestTrack::Visitor, split_registry: "split registry", assignment_json: "assignments") }
+    let(:v1_split_registry) do
+      {
+        'split_name' => {
+          'variant_1' => 100,
+          'variant_2' => 0
+        }
+      }
+    end
+
+    let(:visitor) { instance_double(TestTrack::Visitor, v1_split_registry: v1_split_registry, assignment_json: "assignments") }
     before do
       allow(subject).to receive(:current_visitor).and_return(visitor)
     end
@@ -518,8 +536,8 @@ RSpec.describe TestTrack::Session do
       expect(subject.state_hash[:cookieName]).to eq("tt_visitor_id")
     end
 
-    it "includes the split registry" do
-      expect(subject.state_hash[:registry]).to eq("split registry")
+    it "includes the v1-ified split registry" do
+      expect(subject.state_hash[:registry]).to eq(v1_split_registry)
     end
 
     it "includes the assignment registry" do
@@ -527,7 +545,7 @@ RSpec.describe TestTrack::Session do
     end
 
     it "includes a nil :registry if visitor returns a nil split_registry" do
-      allow(visitor).to receive(:split_registry).and_return(nil)
+      allow(visitor).to receive(:v1_split_registry).and_return(nil)
       expect(subject.state_hash).to have_key(:registry)
       expect(subject.state_hash[:registry]).to eq(nil)
     end

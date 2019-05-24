@@ -15,18 +15,30 @@ RSpec.describe TestTrack::Visitor do
   end
   let(:split_registry) do
     {
-      'dummy.blue_button' => {
-        'false' => 50,
-        'true' => 50
+      'splits' => {
+        'dummy.blue_button' => {
+          'weights' => {
+            'false' => 50,
+            'true' => 50
+          },
+          'feature_gate' => 'false'
+        },
+        'quagmire' => {
+          'weights' => {
+            'untenable' => 50,
+            'manageable' => 50
+          },
+          'feature_gate' => 'false'
+        },
+        'time' => {
+          'weights' => {
+            'hammertime' => 100,
+            'clobberin_time' => 0
+          },
+          'feature_gate' => 'false'
+        }
       },
-      'quagmire' => {
-        'untenable' => 50,
-        'manageable' => 50
-      },
-      'time' => {
-        'hammertime' => 100,
-        'clobberin_time' => 0
-      }
+      'experience_sampling_weight' => 1
     }
   end
 
@@ -223,13 +235,13 @@ RSpec.describe TestTrack::Visitor do
 
       it "requires more than zero defaults" do
         expect {
-          new_visitor.vary("dummy.blue_button", context: :spec) { |v| v.when(:true, &blue_block) }
+          new_visitor.vary("blue_button", context: :spec) { |v| v.when(:true, &blue_block) }
         }.to raise_error("must provide exactly one `default`")
       end
 
       it "requires at least one when" do
         expect {
-          new_visitor.vary("dummy.blue_button", context: :spec) do |v|
+          new_visitor.vary("blue_button", context: :spec) do |v|
             v.default :true, &red_block
           end
         }.to raise_error("must provide at least one `when`")
@@ -268,7 +280,7 @@ RSpec.describe TestTrack::Visitor do
 
       it "returns false when variant is false" do
         allow(TestTrack::VariantCalculator).to receive(:new).and_return(double(variant: 'false'))
-        expect(new_visitor.ab("dummy.blue_button", context: :spec)).to eq false
+        expect(new_visitor.ab("blue_button", context: :spec)).to eq false
       end
 
       it "returns false in production when split variants are not true and false" do

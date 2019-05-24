@@ -67,6 +67,12 @@ class TestTrack::Visitor
     @split_registry ||= TestTrack::Remote::SplitRegistry.to_hash
   end
 
+  def v1_split_registry
+    @v1_split_registry ||= split_registry && split_registry['splits'].each_with_object({}) do |(k, v), result|
+      result[k] = v['weights']
+    end
+  end
+
   def link_identity!(identity)
     opts = identifier_opts(identity)
     begin
@@ -154,6 +160,6 @@ class TestTrack::Visitor
     app_name = URI.parse(TestTrack.private_url).user
     split_name = split_name.to_s
     prefixed = "#{app_name}.#{split_name}"
-    split_registry.key?(prefixed) ? prefixed : split_name
+    split_registry['splits'].key?(prefixed) ? prefixed : split_name
   end
 end

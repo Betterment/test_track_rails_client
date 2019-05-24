@@ -95,8 +95,6 @@ RSpec.describe TestTrack do
           expect(TestTrack.app_ab(:dummy_feature, context: 'test_context')).to eq false
         end
       end
-      it "returns the result of the application user's assignment to a feature" do
-      end
     end
 
     context "when app_name is not specified" do

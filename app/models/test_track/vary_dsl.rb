@@ -34,7 +34,7 @@ class TestTrack::VaryDSL
   delegate :split_name, to: :assignment
 
   def split
-    split_registry && split_registry[split_name]
+    split_registry && split_registry['splits'][split_name] && split_registry['splits'][split_name]['weights']
   end
 
   def split_variants

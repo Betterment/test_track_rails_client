@@ -1,9 +1,5 @@
 class TestTrack::FakeServer
   class << self
-    def split_registry
-      TestTrack::Fake::SplitRegistry.instance.splits
-    end
-
     def split_details(name)
       TestTrack::Fake::SplitDetail.new(name).details
     end

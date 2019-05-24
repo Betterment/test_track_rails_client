@@ -64,7 +64,13 @@ RSpec.describe TestTrack::OfflineSession do
       let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
       before do
-        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return("has_button" => { "false" => 0, "true" => 100 })
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(
+          "splits" => {
+            "has_button" => {
+              "weights" => { "false" => 0, "true" => 100 }
+            }
+          }
+        )
         allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
       end
 
@@ -143,7 +149,13 @@ RSpec.describe TestTrack::OfflineSession do
       let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
       before do
-        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return("has_button" => { "false" => 0, "true" => 100 })
+        allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(
+          "splits" => {
+            "has_button" => {
+              "weights" => { "false" => 0, "true" => 100 }
+            }
+          }
+        )
         allow(TestTrack::UnsyncedAssignmentsNotifier).to receive(:new).and_return(unsynced_assignments_notifier)
       end
 
