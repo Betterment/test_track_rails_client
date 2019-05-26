@@ -10,8 +10,8 @@ class TestTrack::IdentitySessionLocator
 
     if web_session?
       yield web_session.visitor_dsl_for(identity)
-    elsif background_session?
-      yield background_session.visitor_dsl_for(identity)
+    elsif job_session?
+      yield job_session.visitor_dsl_for(identity)
     else
       TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
         yield v
@@ -39,11 +39,11 @@ class TestTrack::IdentitySessionLocator
     @web_session ||= RequestStore[:test_track_web_session]
   end
 
-  def background_session?
-    background_session.present?
+  def job_session?
+    job_session.present?
   end
 
-  def background_session
-    @background_session ||= RequestStore[:test_track_background_session]
+  def job_session
+    @job_session ||= RequestStore[:test_track_job_session]
   end
 end

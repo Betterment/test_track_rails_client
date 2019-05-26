@@ -10,12 +10,12 @@ RSpec.describe TestTrack::IdentitySessionLocator do
       expect { subject.with_visitor }.to raise_exception /must provide block to `with_visitor`/
     end
 
-    context "within a web context" do
-      let(:test_track_session) { instance_double(TestTrack::Session) }
+    context "within a web session" do
+      let(:test_track_session) { instance_double(TestTrack::WebSession) }
       let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
 
       before do
-        allow(RequestStore).to receive(:[]).with(:test_track_session).and_return(test_track_session)
+        allow(RequestStore).to receive(:[]).with(:test_track_web_session).and_return(test_track_session)
         allow(test_track_session).to receive(:visitor_dsl_for).and_return(visitor_dsl)
       end
 
@@ -26,7 +26,9 @@ RSpec.describe TestTrack::IdentitySessionLocator do
       end
     end
 
-    context "outside of a web context" do
+    context 'within a job session'
+
+    context "outside of any session" do
       let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
 
       before do
@@ -48,11 +50,11 @@ RSpec.describe TestTrack::IdentitySessionLocator do
       expect { subject.with_session }.to raise_exception /must provide block to `with_session`/
     end
 
-    context "within a web context" do
-      let(:test_track_session) { instance_double(TestTrack::Session) }
+    context "within a web session" do
+      let(:test_track_session) { instance_double(TestTrack::WebSession) }
 
       before do
-        allow(RequestStore).to receive(:[]).with(:test_track_session).and_return(test_track_session)
+        allow(RequestStore).to receive(:[]).with(:test_track_web_session).and_return(test_track_session)
       end
 
       it "yields the session" do
@@ -62,9 +64,11 @@ RSpec.describe TestTrack::IdentitySessionLocator do
       end
     end
 
-    context "outside of a web context" do
+    context 'within a job session'
+
+    context "outside of any session" do
       it "raises" do
-        expect { subject.with_session {} }.to raise_exception /#with_session called outside of web context/
+        expect { subject.with_session {} }.to raise_exception /#with_session called outside of web session/
       end
     end
   end

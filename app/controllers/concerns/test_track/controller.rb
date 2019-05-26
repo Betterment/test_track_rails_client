@@ -30,6 +30,7 @@ module TestTrack::Controller
   end
 
   def manage_test_track_web_session
+    RequestStore[:test_track_web_session] = test_track_web_session
     test_track_web_session.manage do
       yield
     end

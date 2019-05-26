@@ -63,7 +63,7 @@ RSpec.describe TestTrack::Identity do
 
     context "#test_track_sign_up!" do
       let(:identity_session_locator) { instance_double(TestTrack::IdentitySessionLocator) }
-      let(:session) { instance_double(TestTrack::Session) }
+      let(:session) { instance_double(TestTrack::WebSession) }
 
       before do
         allow(TestTrack::IdentitySessionLocator).to receive(:new).and_return(identity_session_locator)
@@ -82,7 +82,7 @@ RSpec.describe TestTrack::Identity do
 
     context "#test_track_log_in!" do
       let(:identity_session_locator) { instance_double(TestTrack::IdentitySessionLocator) }
-      let(:session) { instance_double(TestTrack::Session) }
+      let(:session) { instance_double(TestTrack::WebSession) }
 
       before do
         allow(TestTrack::IdentitySessionLocator).to receive(:new).and_return(identity_session_locator)

@@ -11,8 +11,8 @@ RSpec.describe TestTrack::Controller do
 
     def index
       render json: {
-        v1_split_registry: test_track_session.state_hash[:registry],
-        assignments: test_track_session.state_hash[:assignments]
+        v1_split_registry: test_track_web_session.state_hash[:registry],
+        assignments: test_track_web_session.state_hash[:assignments]
       }
     end
 
@@ -112,7 +112,7 @@ RSpec.describe TestTrack::Controller do
 
   it "stores the session in RequestStore" do
     get :show, id: "1234"
-    expect(RequestStore).to have_received(:[]=).with(:test_track_session, instance_of(TestTrack::Session))
+    expect(RequestStore).to have_received(:[]=).with(:test_track_web_session, instance_of(TestTrack::WebSession))
   end
 
   it "raises a RoutingError when a feature flag is required and the ab value is false" do

@@ -67,7 +67,7 @@ class TestTrack::WebSession
   end
 
   def visitors
-    @visitors ||= TestTrack::SessionVisitorRepository.new(
+    @visitors ||= TestTrack::WebSessionVisitorRepository.new(
       current_identity: current_identity,
       unauthenticated_visitor_id: unauthenticated_visitor_id
     )

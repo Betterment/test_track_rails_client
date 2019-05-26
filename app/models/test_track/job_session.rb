@@ -1,4 +1,18 @@
-class TestTrack::BackgroundSessionVisitorRepository
+class TestTrack::JobSession
+  def manage
+    raise ArgumentError, "must provide block to `manage`" unless block_given?
+
+    yield
+  ensure
+    notify_unsynced_assignments!
+  end
+
+  def visitor_dsl_for(identity)
+    TestTrack::VisitorDSL.new(for_identity(identity))
+  end
+
+  private
+
   def for_identity(identity)
     identity_visitor_map[identity] ||= TestTrack::LazyVisitorByIdentity.new(identity)
   end
@@ -10,8 +24,6 @@ class TestTrack::BackgroundSessionVisitorRepository
       end
     end
   end
-
-  private
 
   def identity_visitor_map
     @identity_visitor_map ||= {}
