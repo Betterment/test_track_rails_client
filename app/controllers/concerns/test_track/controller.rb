@@ -6,7 +6,7 @@ module TestTrack::Controller
 
     helper_method :test_track_session, :test_track_visitor
     helper TestTrack::ApplicationHelper
-    around_action :manage_test_track_web_session
+    around_action :manage_test_track_session
   end
 
   class_methods do
@@ -21,17 +21,17 @@ module TestTrack::Controller
 
   private
 
-  def test_track_web_session
-    @test_track_web_session ||= TestTrack::WebSession.new(self)
+  def test_track_session
+    @test_track_session ||= TestTrack::WebSession.new(self)
   end
 
   def test_track_visitor
-    test_track_web_session.visitor_dsl
+    test_track_session.visitor_dsl
   end
 
-  def manage_test_track_web_session
-    RequestStore[:test_track_web_session] = test_track_web_session
-    test_track_web_session.manage do
+  def manage_test_track_session
+    RequestStore[:test_track_web_session] = test_track_session
+    test_track_session.manage do
       yield
     end
   end

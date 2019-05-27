@@ -11,8 +11,8 @@ RSpec.describe TestTrack::Controller do
 
     def index
       render json: {
-        v1_split_registry: test_track_web_session.state_hash[:registry],
-        assignments: test_track_web_session.state_hash[:assignments]
+        v1_split_registry: test_track_session.state_hash[:registry],
+        assignments: test_track_session.state_hash[:assignments]
       }
     end
 
