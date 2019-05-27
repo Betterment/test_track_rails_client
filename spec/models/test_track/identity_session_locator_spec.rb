@@ -26,7 +26,22 @@ RSpec.describe TestTrack::IdentitySessionLocator do
       end
     end
 
-    context 'within a job session'
+    context 'within a job session' do
+      let(:test_track_session) { instance_double(TestTrack::JobSession) }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
+
+      before do
+        allow(RequestStore).to receive(:[]).with(:test_track_web_session).and_return(nil)
+        allow(RequestStore).to receive(:[]).with(:test_track_job_session).and_return(test_track_session)
+        allow(test_track_session).to receive(:visitor_dsl_for).and_return(visitor_dsl)
+      end
+
+      it "yields the session's visitor dsl" do
+        subject.with_visitor do |visitor|
+          expect(visitor).to eq visitor_dsl
+        end
+      end
+    end
 
     context "outside of any session" do
       let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
@@ -64,7 +79,18 @@ RSpec.describe TestTrack::IdentitySessionLocator do
       end
     end
 
-    context 'within a job session'
+    context 'within a job session' do
+      let(:test_track_session) { instance_double(TestTrack::JobSession) }
+
+      before do
+        allow(RequestStore).to receive(:[]).with(:test_track_web_session).and_return(nil)
+        allow(RequestStore).to receive(:[]).with(:test_track_job_session).and_return(test_track_session)
+      end
+
+      it "raises" do
+        expect { subject.with_session {} }.to raise_exception /#with_session called outside of web session/
+      end
+    end
 
     context "outside of any session" do
       it "raises" do
