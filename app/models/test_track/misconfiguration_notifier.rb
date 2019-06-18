@@ -1,9 +1,9 @@
 module TestTrack::MisconfigurationNotifier
   class Wrapper
-    attr_reader :notifier
+    attr_reader :underlying
 
-    def initialize(notifier = Null.new)
-      @notifier = notifier
+    def initialize(underlying = Null.new)
+      @underlying = underlying
     end
 
     def notify(msg)
@@ -11,7 +11,7 @@ module TestTrack::MisconfigurationNotifier
 
       Rails.logger.error(msg)
 
-      notifier.notify(msg)
+      underlying.notify(msg)
     end
   end
 
@@ -21,12 +21,11 @@ module TestTrack::MisconfigurationNotifier
 
   class Airbrake
     def notify(msg)
-      if defined?(::Airbrake)
-        if ::Airbrake.respond_to?(:notify_or_ignore)
-          ::Airbrake.notify_or_ignore(StandardError.new, error_message: msg)
-        else
-          ::Airbrake.notify(StandardError.new, error_message: msg)
-        end
+      raise "Aibrake was configured not found" unless defined?(::Airbrake)
+      if ::Airbrake.respond_to?(:notify_or_ignore)
+        ::Airbrake.notify_or_ignore(StandardError.new, error_message: msg)
+      else
+        ::Airbrake.notify(StandardError.new, error_message: msg)
       end
     end
   end
