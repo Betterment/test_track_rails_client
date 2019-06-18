@@ -16,8 +16,7 @@ module TestTrack::MisconfigurationNotifier
   end
 
   class Null
-    def notify(_)
-    end
+    def notify(_); end
   end
 
   class Airbrake
