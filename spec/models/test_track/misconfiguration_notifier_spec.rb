@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::MisconfigurationNotifier do
-  subject { TestTrack::MisconfigurationNotifier.new }
+  subject { TestTrack::MisconfigurationNotifier::Wrapper.new }
 
   describe "#notify" do
     context "in development environment" do
@@ -37,31 +37,35 @@ RSpec.describe TestTrack::MisconfigurationNotifier do
       end
 
       context "given an Airbrake that responds to .notify_or_ignore and .notify" do
+        subject { TestTrack::MisconfigurationNotifier::Wrapper.new(TestTrack::MisconfigurationNotifier::Airbrake.new) }
+
         before do
           stub_const("Airbrake", double("Airbrake", notify: nil, notify_or_ignore: nil))
         end
 
         it "calls Airbrake.notify_or_ignore" do
           subject.notify("something is misconfigured")
-          expect(Airbrake).to have_received(:notify_or_ignore)
+          expect(::Airbrake).to have_received(:notify_or_ignore)
             .with(kind_of(StandardError), error_message: "something is misconfigured")
             .exactly(:once)
         end
 
         it "does not call Airbrake.notify" do
           subject.notify("something is misconfigured")
-          expect(Airbrake).not_to have_received(:notify)
+          expect(::Airbrake).not_to have_received(:notify)
         end
       end
 
       context "given an Airbrake that only responds to .notify" do
+        subject { TestTrack::MisconfigurationNotifier::Wrapper.new(TestTrack::MisconfigurationNotifier::Airbrake.new) }
+
         before do
           stub_const("Airbrake", double("Airbrake", notify: nil))
         end
 
         it "calls Airbrake.notify" do
           subject.notify("something is misconfigured")
-          expect(Airbrake).to have_received(:notify)
+          expect(::Airbrake).to have_received(:notify)
             .with(kind_of(StandardError), error_message: "something is misconfigured")
             .exactly(:once)
         end

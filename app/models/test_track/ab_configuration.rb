@@ -58,6 +58,6 @@ class TestTrack::ABConfiguration
   end
 
   def misconfiguration_notifier
-    @misconfiguration_notifier ||= TestTrack::MisconfigurationNotifier.new
+    @misconfiguration_notifier ||= TestTrack.misconfiguration_notifier
   end
 end

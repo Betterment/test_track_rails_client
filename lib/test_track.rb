@@ -21,16 +21,32 @@ module TestTrack
 
   class << self
     def analytics
-      @analytics ||= wrapper(mixpanel)
+      @analytics ||= analytics_wrapper(mixpanel)
     end
 
     def analytics=(client)
-      @analytics = client.is_a?(TestTrack::Analytics::SafeWrapper) ? client : wrapper(client)
+      @analytics = client.is_a?(TestTrack::Analytics::SafeWrapper) ? client : analytics_wrapper(client)
+    end
+
+    def misconfiguration_notifier
+      @misconfiguration_notifier ||= MisconfigurationNotifier::Wrapper.new(default_notifier)
+    end
+
+    def misconfiguration_notifier=(notifier)
+      @misconfiguration_notifier = MisconfigurationNotifier::Wrapper.new(notifier)
     end
 
     private
 
-    def wrapper(client)
+    def default_notifier
+      if defined?(::Airbrake)
+        TestTrack::MisconfigurationNotifier::Airbrake.new
+      else
+        TestTrack::MisconfigurationNotifier::Null.new
+      end
+    end
+
+    def analytics_wrapper(client)
       TestTrack::Analytics::SafeWrapper.new(client)
     end
 

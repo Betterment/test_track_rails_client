@@ -37,10 +37,10 @@ RSpec.describe TestTrack::ABConfiguration do
     }
   end
 
-  let(:notifier) { instance_double(TestTrack::MisconfigurationNotifier, notify: nil) }
+  let(:notifier) { instance_double(TestTrack::MisconfigurationNotifier::Wrapper, notify: nil) }
 
   before do
-    allow(TestTrack::MisconfigurationNotifier).to receive(:new).and_return(notifier)
+    allow(TestTrack).to receive(:misconfiguration_notifier).and_return(notifier)
   end
 
   describe "#initialize" do
