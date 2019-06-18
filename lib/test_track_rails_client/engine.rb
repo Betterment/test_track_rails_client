@@ -1,8 +1,17 @@
 require 'delayed_job'
-require 'airbrake'
-unless defined?(Delayed::Plugins::Airbrake) && Delayed::Worker.plugins.include?(Delayed::Plugins::Airbrake)
-  require 'delayed-plugins-airbrake'
+
+begin
+  require 'airbrake'
+rescue LoadError
 end
+
+unless defined?(Delayed::Plugins::Airbrake) && Delayed::Worker.plugins.include?(Delayed::Plugins::Airbrake)
+  begin
+    require 'delayed-plugins-airbrake'
+  rescue LoadError
+  end
+end
+
 require 'test_track'
 
 module TestTrackRailsClient
