@@ -33,7 +33,7 @@ task :vendor_deps do
   sh 'cp', 'bower_components/test_track_js_client/dist/testTrack.bundle.min.js', 'app/assets/javascripts'
 
   # Download testtrack-cli
-  TEST_TRACK_CLI_VERSION = 'v0.9.7'.freeze
+  TEST_TRACK_CLI_VERSION = 'v1.0.0'.freeze
 
   FileUtils.module_eval do
     mkdir_p 'vendor/bin/testtrack-cli'
