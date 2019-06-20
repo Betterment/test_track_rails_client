@@ -29,11 +29,11 @@ module TestTrack
     end
 
     def misconfiguration_notifier
-      @misconfiguration_notifier ||= MisconfigurationNotifier::Wrapper.new(default_notifier)
+      @misconfiguration_notifier ||= TestTrack::MisconfigurationNotifier::Wrapper.new(default_notifier)
     end
 
     def misconfiguration_notifier=(notifier)
-      @misconfiguration_notifier = notifier.is_a?(MisconfigurationNotifier::Wrapper) ? notifier : MisconfigurationNotifier::Wrapper.new(notifier)
+      @misconfiguration_notifier = notifier.is_a?(TestTrack::MisconfigurationNotifier::Wrapper) ? notifier : TestTrack::MisconfigurationNotifier::Wrapper.new(notifier)
     end
 
     private
