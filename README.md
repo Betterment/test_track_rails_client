@@ -369,6 +369,24 @@ mixpanel.init('YOUR MIXPANEL TOKEN', {
 });
 ```
 
+## Misconfiguration notifications
+
+TestTrack provides hooks to easily integrate with your preferred error catching tool to receive notifications when we detect a misconfiguration in split configuration. TestTrack has built-in support for `Airbrake`. By default, if you've included the `airbrake` gem, TestTrack will use `Airbrake` as a misconfiguration notifier backend. If you wish to use another tool, you can set the `misconfiguration_notifier` attribute on `TestTrack` with your custom client. You should do this in a Rails initializer.
+
+```ruby
+# config/initializers/test_track.rb
+TestTrack.misconfiguration_notifier = MyCustomMisconfigurationNotifier.new
+```
+
+Your client must implement the following methods:
+
+```ruby
+# Called when a Split misconfiguration is detected
+#
+# @param string message describing the misconfiguration
+def notify(message)
+```
+
 ## Upgrading
 
 ### From 3.0 to 4.0
