@@ -36,10 +36,10 @@ RSpec.describe TestTrack::VaryDSL do
   end
   let(:noop) { -> {} }
 
-  let(:notifier) { instance_double(TestTrack::MisconfigurationNotifier, notify: nil) }
+  let(:notifier) { instance_double(TestTrack::MisconfigurationNotifier::Wrapper, notify: nil) }
 
   before do
-    allow(TestTrack::MisconfigurationNotifier).to receive(:new).and_return(notifier)
+    allow(TestTrack).to receive(:misconfiguration_notifier).and_return(notifier)
     allow(assignment).to receive(:context=)
   end
 
@@ -98,7 +98,7 @@ RSpec.describe TestTrack::VaryDSL do
   end
 
   context "#run" do
-    it "tells airbrake if all variants aren't covered" do
+    it "tells notifier if all variants aren't covered" do
       subject.when(:one) { "hello!" }
       subject.default :two, &noop
 
@@ -118,7 +118,7 @@ RSpec.describe TestTrack::VaryDSL do
         expect(subject.send(:run)).to eq "hello!"
       end
 
-      it "doesn't alert airbrake about misconfiguration" do
+      it "doesn't alert notifier about misconfiguration" do
         expect(notifier).not_to have_received(:notify)
       end
     end
@@ -154,13 +154,13 @@ RSpec.describe TestTrack::VaryDSL do
       expect(subject.send(:variant_behaviors).keys).to eq %w(one two three)
     end
 
-    it "tells airbrake if variant not in registry" do
+    it "tells notifier if variant not in registry" do
       subject.when :this_does_not_exist, &noop
 
       expect(notifier).to have_received(:notify).with('vary for "button_size" configures unknown variant "this_does_not_exist"')
     end
 
-    it "tells airbrake about only invalid variant(s)" do
+    it "tells notifier about only invalid variant(s)" do
       subject.when :this_does_not_exist, :two, :three, :and_neither_does_this_one, &noop
 
       expect(notifier).to have_received(:notify)
@@ -180,7 +180,7 @@ RSpec.describe TestTrack::VaryDSL do
     end
 
     context "when adding a variant that was already configured" do
-      it "tells airbrake" do
+      it "tells notifier" do
         subject.when :one, &noop
         subject.when :one, &noop
         expect(notifier).to have_received(:notify)
@@ -200,7 +200,7 @@ RSpec.describe TestTrack::VaryDSL do
       expect(subject.send(:variant_behaviors)[:one]).to be_nil
     end
 
-    it "tells airbrake if variant not in registry" do
+    it "tells notifier if variant not in registry" do
       subject.default :this_default_does_not_exist, &noop
 
       expect(notifier).to have_received(:notify)
@@ -208,7 +208,7 @@ RSpec.describe TestTrack::VaryDSL do
     end
 
     context "when adding a default for a variant that was already configured" do
-      it "tells airbrake" do
+      it "tells notifier" do
         subject.when :one, &noop
         subject.default :one, &noop
 

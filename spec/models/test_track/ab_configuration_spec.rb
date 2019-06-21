@@ -37,10 +37,10 @@ RSpec.describe TestTrack::ABConfiguration do
     }
   end
 
-  let(:notifier) { instance_double(TestTrack::MisconfigurationNotifier, notify: nil) }
+  let(:notifier) { instance_double(TestTrack::MisconfigurationNotifier::Wrapper, notify: nil) }
 
   before do
-    allow(TestTrack::MisconfigurationNotifier).to receive(:new).and_return(notifier)
+    allow(TestTrack).to receive(:misconfiguration_notifier).and_return(notifier)
   end
 
   describe "#initialize" do
@@ -106,7 +106,7 @@ RSpec.describe TestTrack::ABConfiguration do
       expect(subject.variants.keys).to eq %i(true false)
     end
 
-    it "tells airbrake if there are more than two variants" do
+    it "tells notifier if there are more than two variants" do
       ab_configuration = described_class.new initialize_options.merge(split_name: :button_size)
       ab_configuration.variants
 

@@ -67,6 +67,40 @@ RSpec.describe TestTrack do
     end
   end
 
+  describe "misconfguration_notifier" do
+    it "wraps a custom notifier in Wrapper" do
+      begin
+        default_notifier = TestTrack.misconfiguration_notifier
+        fake_notifier = double
+        TestTrack.misconfiguration_notifier = fake_notifier
+        expect(TestTrack.misconfiguration_notifier.class).to eq TestTrack::MisconfigurationNotifier::Wrapper
+        expect(TestTrack.misconfiguration_notifier.underlying).to eq fake_notifier
+      ensure
+        TestTrack.misconfiguration_notifier = default_notifier
+      end
+    end
+
+    it "defaults to null notifier" do
+      expect(TestTrack.misconfiguration_notifier.class).to eq TestTrack::MisconfigurationNotifier::Wrapper
+      expect(TestTrack.misconfiguration_notifier.underlying.class).to eq TestTrack::MisconfigurationNotifier::Null
+    end
+
+    context "when Airbrake is defined" do
+      it "defaults Airbrake notifier" do
+        begin
+          default_notifier = TestTrack.misconfiguration_notifier
+          stub_const("Airbrake", double("Airbrake"))
+          if TestTrack.instance_variable_defined?(:@misconfiguration_notifier)
+            TestTrack.remove_instance_variable(:@misconfiguration_notifier)
+          end
+          expect(TestTrack.misconfiguration_notifier.underlying.class).to eq TestTrack::MisconfigurationNotifier::Airbrake
+        ensure
+          TestTrack.misconfiguration_notifier = default_notifier
+        end
+      end
+    end
+  end
+
   describe ".app_ab" do
     around do |example|
       original_app_name = TestTrack.instance_variable_get("@app_name")

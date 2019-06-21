@@ -46,7 +46,7 @@ class TestTrack::VaryDSL
   end
 
   def misconfiguration_notifier
-    @misconfiguration_notifier ||= TestTrack::MisconfigurationNotifier.new
+    @misconfiguration_notifier ||= TestTrack.misconfiguration_notifier
   end
 
   def variant_behaviors

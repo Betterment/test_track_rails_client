@@ -16,8 +16,6 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency 'airbrake', '>= 4.1'
-  s.add_dependency 'delayed-plugins-airbrake'
   s.add_dependency 'delayed_job', '~> 4.0'
   s.add_dependency 'delayed_job_active_record'
   s.add_dependency "faraday", ">= 0.8", "< 1.0"
