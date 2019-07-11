@@ -24,7 +24,7 @@ class TestTrack::SplitRegistry
   end
 
   def weights_for(split_name)
-    registry_hash && registry_hash['splits'][split_name] && registry_hash['splits'][split_name]['weights']
+    registry_hash && registry_hash['splits'][split_name] && registry_hash['splits'][split_name]['weights'].freeze
   end
 
   def to_v1_hash
