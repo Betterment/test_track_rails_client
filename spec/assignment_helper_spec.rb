@@ -20,6 +20,14 @@ RSpec.describe TestTrackRailsClient::AssignmentHelper do
       )
     end
 
+    it 'sets feature_gate based on the split name' do
+      stub_test_track_assignments(foo_enabled: :bar)
+
+      expect(TestTrack::Remote::SplitRegistry.to_hash['splits']).to include(
+        'foo_enabled' => { 'weights' => { 'bar' => 100 }, 'feature_gate' => true }
+      )
+    end
+
     context 'with a prefixed split name already in the split registry' do
       let(:fake_split_registry) do
         instance_double(TestTrack::Fake::SplitRegistry, to_h: { 'splits' => { 'dummy.foo' => { 'weights' => { 'bar' => 100 } } } })

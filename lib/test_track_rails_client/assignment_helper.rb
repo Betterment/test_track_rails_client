@@ -8,10 +8,17 @@ module TestTrackRailsClient::AssignmentHelper
 
     assignment_registry.each do |split_name, variant|
       prefixed_split_name = "#{app_name}.#{split_name}"
-      split_name = prefixed_split_name if split_registry['splits'].key?(prefixed_split_name)
+      split_name = if split_registry['splits'].key?(prefixed_split_name)
+                     prefixed_split_name
+                   else
+                     split_name.to_s
+                   end
 
-      split_registry['splits'][split_name.to_s] = { weights: { variant.to_s => 100 }, feature_gate: false }
-      assignments << { split_name: split_name.to_s, variant: variant.to_s, unsynced: false }
+      split_registry['splits'][split_name] = {
+        weights: { variant.to_s => 100 },
+        feature_gate: split_name.end_with?('_enabled')
+      }
+      assignments << { split_name: split_name, variant: variant.to_s, unsynced: false }
     end
 
     visitor_attributes = { id: "fake_visitor_id", assignments: assignments }
