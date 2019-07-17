@@ -2,6 +2,7 @@ namespace :test_track do
   desc 'Run outstanding TestTrack migrations'
   task migrate: :environment do
     cli = TesttrackCli.instance
+    next if cli.skip_testtrack_cli?
 
     if cli.project_initialized?
       result = cli.call('migrate')
@@ -13,6 +14,7 @@ namespace :test_track do
     desc 'Load schema.yml state into TestTrack server'
     task load: :environment do
       cli = TesttrackCli.instance
+      next if cli.skip_testtrack_cli?
 
       if cli.project_initialized?
         result = cli.call('schema', 'load')
@@ -26,8 +28,6 @@ namespace :test_track do
   end
 end
 
-if !Rails.env.test? && !(Rails.env.development? && File.exist?(File.join('testtrack', 'schema.yml')))
-  task 'db:schema:load' => ['test_track:schema:load']
-  task 'db:structure:load' => ['test_track:schema:load']
-  task 'db:migrate' => ['test_track:migrate']
-end
+task 'db:schema:load' => ['test_track:schema:load']
+task 'db:structure:load' => ['test_track:schema:load']
+task 'db:migrate' => ['test_track:migrate']

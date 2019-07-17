@@ -3,6 +3,12 @@ require 'rbconfig'
 class TesttrackCli
   include Singleton
 
+  def skip_testtrack_cli?
+    Rails.env.test? ||
+      (Rails.env.development? && !project_initialized?) ||
+      ENV['SKIP_TESTTRACK_CLI'].present?
+  end
+
   def project_initialized?
     File.exist?(File.join('testtrack', 'schema.yml'))
   end
