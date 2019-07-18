@@ -4,7 +4,7 @@ class TesttrackCli
   include Singleton
 
   def skip_testtrack_cli?
-    Rails.env.test? || (Rails.env.development? && project_initialized?) || ENV['SKIP_TESTTRACK_CLI'].present?
+    Rails.env.test? || (Rails.env.development? && project_initialized?) || ENV.key?('SKIP_TESTTRACK_CLI')
   end
 
   def project_initialized?
