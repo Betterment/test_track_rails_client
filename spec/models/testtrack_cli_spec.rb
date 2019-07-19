@@ -7,7 +7,7 @@ RSpec.describe TesttrackCli do
     before do |example|
       mock_env = example.metadata[:env] || 'production'
       allow(Rails).to receive(:env) { mock_env.inquiry }
-      allow(ENV).to receive(:[]).with('SKIP_TESTTRACK_CLI') { '1' } if example.metadata[:env_skip]
+      allow(ENV).to receive(:key?).with('SKIP_TESTTRACK_CLI') { true } if example.metadata[:env_skip]
       allow(TesttrackCli.instance).to receive(:project_initialized?) { example.metadata[:project_initialized].present? }
     end
 
