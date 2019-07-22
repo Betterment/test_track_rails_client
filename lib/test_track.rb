@@ -24,7 +24,7 @@ module TestTrack
       analytics_wrapper(analytics_instance || mixpanel)
     end
 
-    def analytics=(*args)
+    def analytics=(*_)
       raise "`TestTrack.analytics=` is not longer supported. Please use `TestTrack.analytics_class_name=` instead."
     end
 
