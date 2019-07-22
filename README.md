@@ -375,10 +375,11 @@ TestTrack provides hooks to easily integrate with your preferred error catching 
 
 ```ruby
 # config/initializers/test_track.rb
-TestTrack.misconfiguration_notifier = MyCustomMisconfigurationNotifier.new
+TestTrack.misconfiguration_notifier_class_name = 'MyCustomMisconfigurationNotifier'
 ```
 
-Your client must implement the following methods:
+Your client must be a class that can be instantiated with no arguments,
+and implement the following methods:
 
 ```ruby
 # Called when a Split misconfiguration is detected

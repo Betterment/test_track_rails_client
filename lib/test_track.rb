@@ -29,18 +29,23 @@ module TestTrack
     end
 
     def misconfiguration_notifier
-      @misconfiguration_notifier ||= TestTrack::MisconfigurationNotifier::Wrapper.new(default_notifier)
+      TestTrack::MisconfigurationNotifier::Wrapper.new(new_misconfiguration_notifier || default_notifier)
     end
 
-    def misconfiguration_notifier=(notifier)
-      @misconfiguration_notifier = if notifier.is_a?(TestTrack::MisconfigurationNotifier::Wrapper)
-                                     notifier
-                                   else
-                                     TestTrack::MisconfigurationNotifier::Wrapper.new(notifier)
-                                   end
+    def misconfiguration_notifier_class_name=(notifier_class_name)
+      begin
+        notifier_class_name.constantize.new
+      rescue StandardError
+        raise "misconfiguration_notifier #{notifier_name} must be a class that can be instantiated without arguments"
+      end
+      @misconfiguration_notifier_class_name = notifier_class_name
     end
 
     private
+
+    def new_misconfiguration_notifier
+      @misconfiguration_notifier_class_name&.constantize&.new
+    end
 
     def default_notifier
       if defined?(::Airbrake)
