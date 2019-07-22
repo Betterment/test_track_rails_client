@@ -1,3 +1,3 @@
 module TestTrackRailsClient
-  VERSION = "4.0.0.alpha28" # rubocop:disable Style/MutableConstant
+  VERSION = "4.0.0.alpha29" # rubocop:disable Style/MutableConstant
 end
