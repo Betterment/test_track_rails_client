@@ -46,7 +46,7 @@ development.
 
 Set up ENV vars in every environment:
 
-* `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#custom-analytics) you can omit this.
+* `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#analytics) you can omit this.
 * `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@[your-app-domain]/`
 
   [your-app-domain] can be
@@ -336,10 +336,10 @@ TestTrack does not offer built-in functionality for analyzing the results of spl
 
 ```ruby
 # config/initializers/test_track.rb
-TestTrack.analytics = MyCustomAnalyticsClient.new
+TestTrack.analytics_class_name = 'MyCustomAnalyticsClient'
 ```
 
-Your client must implement the following methods:
+Your client must be a singleton or requre no initializer arguments, implement the following methods:
 
 ```ruby
 # Called when a new Split has been Assigned
@@ -378,8 +378,7 @@ TestTrack provides hooks to easily integrate with your preferred error catching 
 TestTrack.misconfiguration_notifier_class_name = 'MyCustomMisconfigurationNotifier'
 ```
 
-Your client must be a class that can be instantiated with no arguments,
-and implement the following methods:
+Your client must be a singleton or requre no initializer arguments, implement the following methods:
 
 ```ruby
 # Called when a Split misconfiguration is detected

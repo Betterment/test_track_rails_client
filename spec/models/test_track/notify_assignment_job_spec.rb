@@ -60,6 +60,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
     before do
       allow(TestTrack::SplitRegistry).to receive(:from_remote).and_return(split_registry)
       allow(TestTrack::Remote::AssignmentEvent).to receive(:create!).and_return(remote_assignment)
+      allow(TestTrack).to receive(:analytics).and_return(double)
       allow(TestTrack.analytics).to receive(:track).and_return(true)
     end
 

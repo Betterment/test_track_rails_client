@@ -21,30 +21,51 @@ module TestTrack
 
   class << self
     def analytics
-      @analytics ||= analytics_wrapper(mixpanel)
+      analytics_wrapper(analytics_instance || mixpanel)
     end
 
-    def analytics=(client)
-      @analytics = client.is_a?(TestTrack::Analytics::SafeWrapper) ? client : analytics_wrapper(client)
+    def analytics=(*args)
+      raise "`TestTrack.analytics=` is not longer supported. Please use `TestTrack.analytics_class_name=` instead."
+    end
+
+    def analytics_class_name=(client_class_name)
+      begin
+        client_class = client_class_name.constantize
+        client_class.respond_to?(:instance) || client_class.new
+      rescue StandardError
+        raise "analytics_class_name #{client_class_name} must be a class that can be instantiated without arguments"
+      end
+      @analytics_class_name = client_class_name
     end
 
     def misconfiguration_notifier
-      TestTrack::MisconfigurationNotifier::Wrapper.new(new_misconfiguration_notifier || default_notifier)
+      TestTrack::MisconfigurationNotifier::Wrapper.new(misconfiguration_notifier_instance || default_notifier)
     end
 
     def misconfiguration_notifier_class_name=(notifier_class_name)
       begin
-        notifier_class_name.constantize.new
+        notifier_class = notifier_class_name.constantize
+        notifier_class.respond_to?(:instance) || notifier_class.new
       rescue StandardError
-        raise "misconfiguration_notifier #{notifier_name} must be a class that can be instantiated without arguments"
+        raise "misconfiguration_notifier_class_name #{notifier_class_name} must be a class that can be instantiated without arguments"
       end
       @misconfiguration_notifier_class_name = notifier_class_name
     end
 
     private
 
-    def new_misconfiguration_notifier
-      @misconfiguration_notifier_class_name&.constantize&.new
+    def analytics_instance
+      analytics_class = @analytics_class_name&.constantize
+      if analytics_class
+        analytics_class.respond_to?(:instance) ? analytics_class.instance : analytics_class.new
+      end
+    end
+
+    def misconfiguration_notifier_instance
+      notifier_class = @misconfiguration_notifier_class_name&.constantize
+      if notifier_class
+        notifier_class.respond_to?(:instance) ? notifier_class.instance : notifier_class.new
+      end
     end
 
     def default_notifier
