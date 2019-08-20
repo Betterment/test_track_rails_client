@@ -339,7 +339,7 @@ TestTrack does not offer built-in functionality for analyzing the results of spl
 TestTrack.analytics_class_name = 'MyCustomAnalyticsClient'
 ```
 
-Your client must be a singleton or requre no initializer arguments, implement the following methods:
+Your client must be a singleton or require no initializer arguments, implement the following methods:
 
 ```ruby
 # Called when a new Split has been Assigned
@@ -378,7 +378,7 @@ TestTrack provides hooks to easily integrate with your preferred error catching 
 TestTrack.misconfiguration_notifier_class_name = 'MyCustomMisconfigurationNotifier'
 ```
 
-Your client must be a singleton or requre no initializer arguments, implement the following methods:
+Your client must be a singleton or require no initializer arguments, implement the following methods:
 
 ```ruby
 # Called when a Split misconfiguration is detected
