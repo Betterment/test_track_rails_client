@@ -44,11 +44,15 @@ class TestTrack::NotifyAssignmentJob
     experience_sampling_weight.zero?
   end
 
-  def experience_sampling_weight
-    @experience_sampling_weight ||= TestTrack::Remote::SplitRegistry.experience_sampling_weight
-  end
-
   def sample_event?
     Kernel.rand(experience_sampling_weight).zero?
+  end
+
+  def experience_sampling_weight
+    @experience_sampling_weight ||= split_registry.experience_sampling_weight
+  end
+
+  def split_registry
+    @split_registry ||= TestTrack::SplitRegistry.from_remote
   end
 end

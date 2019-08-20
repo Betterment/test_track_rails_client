@@ -7,10 +7,10 @@ class TestTrack::VaryDSL
   def initialize(opts = {})
     @assignment = require_option!(opts, :assignment)
     @context = require_option!(opts, :context)
-    @split_registry = require_option!(opts, :split_registry, allow_nil: true)
+    @split_registry = require_option!(opts, :split_registry)
     raise ArgumentError, "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
-    if @split_registry && !split
+    if @split_registry.loaded? && !split
       raise ArgumentError, "unknown split: #{split_name}." \
         "#{' You may need to run rake test_track:schema:load.' if Rails.env.development?}"
     end
@@ -34,11 +34,11 @@ class TestTrack::VaryDSL
   delegate :split_name, to: :assignment
 
   def split
-    split_registry && split_registry['splits'][split_name] && split_registry['splits'][split_name]['weights']
+    @split ||= split_registry.weights_for(split_name)
   end
 
   def split_variants
-    @split_variants ||= split.keys if split_registry
+    @split_variants ||= split.keys if split
   end
 
   def notify_because_vary(msg)

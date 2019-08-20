@@ -13,7 +13,8 @@ RSpec.describe TestTrack::ABConfiguration do
     }
   end
 
-  let(:split_registry) do
+  let(:split_registry) { TestTrack::SplitRegistry.new(split_registry_hash) }
+  let(:split_registry_hash) do
     {
       'splits' => {
         'button_color' => {
@@ -68,10 +69,10 @@ RSpec.describe TestTrack::ABConfiguration do
       }.to raise_error("unknown opts: unwelcome")
     end
 
-    it "allows a nil split_registry" do
+    it "raises when given a nil split_registry" do
       expect {
         described_class.new initialize_options.merge(split_registry: nil)
-      }.not_to raise_error
+      }.to raise_error("Must provide split_registry")
     end
 
     it "raises a descriptive error when the split is not in the split_registry" do
@@ -130,8 +131,8 @@ RSpec.describe TestTrack::ABConfiguration do
         expect(subject.variants).to include(false: "blue")
       end
 
-      it "is false when there is no split_registry" do
-        ab_configuration = described_class.new initialize_options.merge(split_registry: nil)
+      it "is false when there is an unloaded split_registry" do
+        ab_configuration = described_class.new initialize_options.merge(split_registry: TestTrack::SplitRegistry.new(nil))
         expect(ab_configuration.variants).to include(false: false)
       end
 

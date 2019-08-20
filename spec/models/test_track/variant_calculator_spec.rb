@@ -7,7 +7,8 @@ RSpec.describe TestTrack::VariantCalculator do
 
   let(:fake_visitor_id) { "00000000-0000-0000-0000-000000000000" }
 
-  let(:split_registry) do
+  let(:split_registry) { TestTrack::SplitRegistry.new(split_registry_hash) }
+  let(:split_registry_hash) do
     {
       'splits' => {
         'blue_button' => {
@@ -100,7 +101,7 @@ RSpec.describe TestTrack::VariantCalculator do
 
   describe "#variant" do
     context "with a nil split_registry" do
-      let(:split_registry) { nil }
+      let(:split_registry_hash) { nil }
 
       it "returns nil if split registry isn't present" do
         expect(subject.variant).to eq nil
@@ -108,7 +109,7 @@ RSpec.describe TestTrack::VariantCalculator do
     end
 
     context "in logo_size split" do
-      let(:split_registry) do
+      let(:split_registry_hash) do
         {
           'splits' => {
             'logo_size' => {
@@ -146,7 +147,7 @@ RSpec.describe TestTrack::VariantCalculator do
     end
 
     context "with an incomplete weighting" do
-      let(:split_registry) do
+      let(:split_registry_hash) do
         {
           'splits' => {
             'invalid_weighting' => {

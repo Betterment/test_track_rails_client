@@ -21,13 +21,13 @@ class TestTrack::Fake::Visitor
   end
 
   def split_registry
-    TestTrack::Fake::SplitRegistry.instance.to_h
+    TestTrack::SplitRegistry.new(TestTrack::Fake::SplitRegistry.instance.to_h)
   end
 
   private
 
   def _assignments
-    split_registry['splits'].keys.map do |split_name|
+    split_registry.split_names.map do |split_name|
       variant = TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant
       Assignment.new(split_name, variant, false, "the_context")
     end
