@@ -153,15 +153,16 @@ RSpec.describe TestTrack::WebSession do
 
         context 'when analytics client implements sign_up!' do
           let(:client) { double("Client") }
+          let(:client_class) { double(new: client) }
 
           around do |example|
             RSpec::Mocks.with_temporary_scope do
-              default_client = TestTrack.analytics
               begin
-                TestTrack.analytics = TestTrack::Analytics::SafeWrapper.new(client)
+                stub_const('Client', client_class)
+                TestTrack.analytics_class_name = 'Client'
                 example.run
               ensure
-                TestTrack.analytics = default_client
+                TestTrack.instance_variable_set(:@analytics_class_name, nil)
               end
             end
           end
