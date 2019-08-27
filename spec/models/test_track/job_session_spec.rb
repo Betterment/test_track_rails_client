@@ -10,12 +10,6 @@ RSpec.describe TestTrack::JobSession do
       expect { subject.manage }.to raise_error 'must provide block to `manage`'
     end
 
-    it 'may not be called within itself' do
-      subject.manage do
-        expect { subject.manage {} }.to raise_error 'already in use'
-      end
-    end
-
     context 'assignment notification' do
       let(:visitor_notifier) { instance_double(TestTrack::ThreadedVisitorNotifier, notify: true) }
 

@@ -1,7 +1,6 @@
 class TestTrack::JobSession
   def manage
     raise ArgumentError, "must provide block to `manage`" unless block_given?
-    raise "already in use" unless RequestStore[:test_track_job_session].nil?
 
     RequestStore[:test_track_job_session] = self
     yield
