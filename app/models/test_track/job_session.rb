@@ -2,11 +2,12 @@ class TestTrack::JobSession
   def manage
     raise ArgumentError, "must provide block to `manage`" unless block_given?
 
+    original_job_session = RequestStore[:test_track_job_session]
     RequestStore[:test_track_job_session] = self
     yield
   ensure
     notify_unsynced_assignments!
-    RequestStore[:test_track_job_session] = nil
+    RequestStore[:test_track_job_session] = original_job_session
   end
 
   def visitor_dsl_for(identity)
