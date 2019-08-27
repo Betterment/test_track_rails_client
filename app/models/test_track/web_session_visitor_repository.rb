@@ -1,4 +1,4 @@
-class TestTrack::SessionVisitorRepository
+class TestTrack::WebSessionVisitorRepository
   attr_reader :current_identity, :unauthenticated_visitor_id
 
   def initialize(current_identity:, unauthenticated_visitor_id:)

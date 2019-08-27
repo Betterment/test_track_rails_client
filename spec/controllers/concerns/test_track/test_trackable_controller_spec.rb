@@ -112,7 +112,7 @@ RSpec.describe TestTrack::Controller do
 
   it "stores the session in RequestStore" do
     get :show, id: "1234"
-    expect(RequestStore).to have_received(:[]=).with(:test_track_session, instance_of(TestTrack::Session))
+    expect(RequestStore).to have_received(:[]=).with(:test_track_web_session, instance_of(TestTrack::WebSession))
   end
 
   it "raises a RoutingError when a feature flag is required and the ab value is false" do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::Session do
+RSpec.describe TestTrack::WebSession do
   let(:identity) { Clown.new(id: 1234) }
 
   let(:controller_class) do

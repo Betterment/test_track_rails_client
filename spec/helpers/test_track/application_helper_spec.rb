@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TestTrack::ApplicationHelper do
   describe "#test_track_setup_tag" do
-    let(:session) { instance_double(TestTrack::Session, state_hash: state_hash) }
+    let(:session) { instance_double(TestTrack::WebSession, state_hash: state_hash) }
     let(:state_hash) { { 'something' => 'or other!' } }
 
     before do

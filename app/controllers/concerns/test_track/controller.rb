@@ -22,7 +22,7 @@ module TestTrack::Controller
   private
 
   def test_track_session
-    @test_track_session ||= TestTrack::Session.new(self)
+    @test_track_session ||= TestTrack::WebSession.new(self)
   end
 
   def test_track_visitor
@@ -30,7 +30,7 @@ module TestTrack::Controller
   end
 
   def manage_test_track_session
-    RequestStore[:test_track_session] = test_track_session
+    RequestStore[:test_track_web_session] = test_track_session
     test_track_session.manage do
       yield
     end

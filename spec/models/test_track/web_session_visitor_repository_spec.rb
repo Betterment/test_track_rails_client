@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::SessionVisitorRepository do
+RSpec.describe TestTrack::WebSessionVisitorRepository do
   let(:my_clown) { double(test_track_identifier_type: "clown_id", test_track_identifier_value: "my_clown_id") }
   let(:your_clown) { double(test_track_identifier_type: "clown_id", test_track_identifier_value: "your_clown_id") }
   let(:unauthenticated_visitor_id) { "12345abc" }
