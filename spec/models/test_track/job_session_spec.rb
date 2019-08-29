@@ -10,10 +10,21 @@ RSpec.describe TestTrack::JobSession do
       expect { subject.manage }.to raise_error 'must provide block to `manage`'
     end
 
-    it 'may not be called within itself' do
+    it 'maintains itself in the request store' do
+      expect(RequestStore[:test_track_job_session]).to be_nil
+
       subject.manage do
-        expect { subject.manage {} }.to raise_error 'already in use'
+        expect(RequestStore[:test_track_job_session]).to eq subject
+
+        inner_session = described_class.new
+        inner_session.manage do
+          expect(RequestStore[:test_track_job_session]).to eq inner_session
+          expect(inner_session).not_to eq subject
+        end
+        expect(RequestStore[:test_track_job_session]).to eq subject
       end
+
+      expect(RequestStore[:test_track_job_session]).to be_nil
     end
 
     context 'assignment notification' do

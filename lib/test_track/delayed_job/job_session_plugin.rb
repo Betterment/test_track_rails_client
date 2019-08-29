@@ -1,5 +1,5 @@
-module Delayed
-  module Plugins
+module TestTrack
+  module DelayedJob
     class JobSessionPlugin < Delayed::Plugin
       callbacks do |lifecycle|
         lifecycle.around(:invoke_job) do |job, *args, &block|
