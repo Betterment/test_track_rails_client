@@ -19,6 +19,7 @@ RSpec.describe TestTrack::JobSession do
         inner_session = described_class.new
         inner_session.manage do
           expect(RequestStore[:test_track_job_session]).to eq inner_session
+          expect(inner_session).not_to eq subject
         end
         expect(RequestStore[:test_track_job_session]).to eq subject
       end
