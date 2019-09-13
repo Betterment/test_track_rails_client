@@ -27,9 +27,9 @@ class TestTrack::SplitRegistry
     registry_hash && registry_hash['splits'][split_name] && registry_hash['splits'][split_name]['weights'].freeze
   end
 
-  def to_v1_hash
+  def to_hash
     registry_hash && registry_hash['splits'].each_with_object({}) do |(k, v), result|
-      result[k] = v['weights']
+      result[k] = { weights: v['weights'], feature_gate: v['feature_gate'] }
     end
   end
 

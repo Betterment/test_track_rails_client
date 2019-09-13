@@ -28,12 +28,12 @@ RuboCop::RakeTask.new
 
 desc "Pull the latest versions of all dependencies into the gem for distribution"
 task :vendor_deps do
-  TEST_TRACK_JS_CLIENT_VERSION = '1.3.8'.freeze
+  TEST_TRACK_JS_CLIENT_VERSION = '2.0.0-alpha.0'.freeze
   TEST_TRACK_CLI_VERSION = 'v1.0.2'.freeze
 
   # Bundle JS client
   sh "npm install --no-save test_track_js_client@#{TEST_TRACK_JS_CLIENT_VERSION}"
-  sh 'cp', 'node_modules/test_track_js_client/dist/testTrack.bundle.min.js', 'app/assets/javascripts/testTrack.bundle.min.js'
+  sh 'cp', 'node_modules/test_track_js_client/dist/testTrack.bundle.js', 'app/assets/javascripts/testTrack.bundle.min.js'
 
   # Download testtrack-cli
   FileUtils.module_eval do
