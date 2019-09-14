@@ -28,13 +28,14 @@ RuboCop::RakeTask.new
 
 desc "Pull the latest versions of all dependencies into the gem for distribution"
 task :vendor_deps do
-  # Bundle minified JS client
-  sh 'bower install'
-  sh 'cp', 'bower_components/test_track_js_client/dist/testTrack.bundle.min.js', 'app/assets/javascripts'
+  TEST_TRACK_JS_CLIENT_VERSION = '1.3.8'.freeze
+  TEST_TRACK_CLI_VERSION = 'v1.0.2'.freeze
+
+  # Bundle JS client
+  sh "npm install --no-save test_track_js_client@#{TEST_TRACK_JS_CLIENT_VERSION}"
+  sh 'cp', 'node_modules/test_track_js_client/dist/testTrack.bundle.min.js', 'app/assets/javascripts/testTrack.bundle.min.js'
 
   # Download testtrack-cli
-  TEST_TRACK_CLI_VERSION = 'v1.0.0'.freeze
-
   FileUtils.module_eval do
     mkdir_p 'vendor/bin/testtrack-cli'
     cd 'vendor/bin/testtrack-cli' do
@@ -45,45 +46,6 @@ task :vendor_deps do
           > testtrack.#{arch}`
         chmod 'u=wrx,go=rx', "testtrack.#{arch}"
       end
-    end
-  end
-
-  # Gems
-  FileUtils.module_eval do
-    cd "vendor/gems" do
-      rm_r Dir.glob('*')
-      %w(her fakeable_her).each do |repo|
-        `git clone --depth=1 git@github.com:Betterment/#{repo}.git && rm -rf #{repo}/.git`
-      end
-    end
-
-    cd "vendor/gems/her" do
-      rm_r(Dir.glob('.*') - %w(. ..))
-      rm_r Dir.glob('*.md')
-      rm_r %w(
-        Appraisals
-        Gemfile
-        Gemfile.lock
-        Rakefile
-        gemfiles
-        spec
-      ), force: true
-    end
-
-    cd "vendor/gems/fakeable_her" do
-      rm_r(Dir.glob('.*') - %w(. ..))
-      rm_r Dir.glob('*.md')
-      rm_r %w(
-        Appraisals
-        Gemfile
-        Gemfile.lock
-        Rakefile
-        bin
-        gemfiles
-        spec
-      ), force: true
-      `sed -E -i '' '/license/d' fakeable_her.gemspec`
-      `sed -E -i '' '/homepage/d' fakeable_her.gemspec`
     end
   end
 end
