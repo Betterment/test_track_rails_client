@@ -1,6 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe TesttrackCli do
+  describe '#call' do
+    it 'calls the CLI' do
+      expect(TesttrackCli.instance.call('--version')).to be_success
+    end
+  end
+
   describe '#skip_testtrack_cli?' do
     subject { TesttrackCli.instance.skip_testtrack_cli? }
 

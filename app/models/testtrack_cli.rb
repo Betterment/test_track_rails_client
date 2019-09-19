@@ -1,4 +1,5 @@
 require 'rbconfig'
+require 'English'
 
 class TesttrackCli
   include Singleton
