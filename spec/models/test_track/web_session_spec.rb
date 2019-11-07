@@ -510,20 +510,25 @@ RSpec.describe TestTrack::WebSession do
   end
 
   describe "#state_hash" do
-    let(:v1_split_registry) do
+    let(:split_registry_hash) do
       {
         'split_name' => {
-          'variant_1' => 100,
-          'variant_2' => 0
+          feature_gate: true,
+          weight: {
+            'variant_1' => 100,
+            'variant_2' => 0
+          }
         }
       }
     end
+    let(:sampling_weight) { 1 }
 
     let(:split_registry) { instance_double(TestTrack::SplitRegistry) }
     let(:visitor) { instance_double(TestTrack::Visitor, split_registry: split_registry, assignment_json: "assignments") }
     before do
       allow(subject).to receive(:current_visitor).and_return(visitor)
-      allow(split_registry).to receive(:to_v1_hash).and_return(v1_split_registry)
+      allow(split_registry).to receive(:to_hash).and_return(split_registry_hash)
+      allow(split_registry).to receive(:experience_sampling_weight).and_return(sampling_weight)
     end
 
     it "includes the test track URL" do
@@ -539,18 +544,22 @@ RSpec.describe TestTrack::WebSession do
       expect(subject.state_hash[:cookieName]).to eq("tt_visitor_id")
     end
 
-    it "includes the v1-ified split registry" do
-      expect(subject.state_hash[:registry]).to eq(v1_split_registry)
+    it "includes the hashed split registry" do
+      expect(subject.state_hash[:splits]).to eq(split_registry_hash)
     end
 
     it "includes the assignment registry" do
       expect(subject.state_hash[:assignments]).to eq("assignments")
     end
 
+    it "includes the experience_sampling_weight" do
+      expect(subject.state_hash[:experienceSamplingWeight]).to eq(sampling_weight)
+    end
+
     it "includes a nil :registry if visitor returns a nil split_registry" do
-      allow(split_registry).to receive(:to_v1_hash).and_return(nil)
-      expect(subject.state_hash).to have_key(:registry)
-      expect(subject.state_hash[:registry]).to eq(nil)
+      allow(split_registry).to receive(:to_hash).and_return(nil)
+      expect(subject.state_hash).to have_key(:splits)
+      expect(subject.state_hash[:splits]).to eq(nil)
     end
 
     it "includes a nil :assignments if visitor returns a nil assignment_registry" do
