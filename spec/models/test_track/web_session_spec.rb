@@ -556,7 +556,7 @@ RSpec.describe TestTrack::WebSession do
       expect(subject.state_hash[:experienceSamplingWeight]).to eq(sampling_weight)
     end
 
-    it "includes a nil :registry if visitor returns a nil split_registry" do
+    it "includes a nil :splits if visitor returns a nil split_registry" do
       allow(split_registry).to receive(:to_hash).and_return(nil)
       expect(subject.state_hash).to have_key(:splits)
       expect(subject.state_hash[:splits]).to eq(nil)
