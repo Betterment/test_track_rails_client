@@ -11,7 +11,7 @@ RSpec.describe TestTrack::Controller do
 
     def index
       render json: {
-        v1_split_registry: test_track_session.state_hash[:registry],
+        split_registry: test_track_session.state_hash[:splits],
         assignments: test_track_session.state_hash[:assignments]
       }
     end
@@ -73,9 +73,9 @@ RSpec.describe TestTrack::Controller do
 
   it "returns the split registry" do
     get :index
-    expect(response_json['v1_split_registry']).to eq(
-      'cool_feature_enabled' => { 'false' => 100, 'true' => 0 },
-      'time' => { 'beer_thirty' => 100 }
+    expect(response_json['split_registry']).to eq(
+      'cool_feature_enabled' => { 'feature_gate' => true, 'weights' => { 'false' => 100, 'true' => 0 } },
+      'time' => { 'feature_gate' => false, 'weights' => { 'beer_thirty' => 100 } }
     )
   end
 

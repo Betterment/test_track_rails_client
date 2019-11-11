@@ -97,16 +97,22 @@ RSpec.describe TestTrack::SplitRegistry do
     end
   end
 
-  describe "#to_v1_hash" do
-    it "returns a hash compatible with v1 split registry endpoint" do
-      expect(subject.to_v1_hash).to eq(
+  describe "#to_hash" do
+    it "returns a hash compatible with latest split registry endpoint" do
+      expect(subject.to_hash).to eq(
         "button_size" => {
-          "one" => 50,
-          "two" => 50
+          feature_gate: "false",
+          weights: {
+            "one" => 50,
+            "two" => 50
+          }
         },
         "time" => {
-          "clobberin_time" => 0,
-          "hammertime" => 100
+          feature_gate: "false",
+          weights: {
+            "clobberin_time" => 0,
+            "hammertime" => 100
+          }
         }
       )
     end

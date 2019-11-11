@@ -28,8 +28,9 @@ class TestTrack::WebSession
       url: TestTrack.url,
       cookieDomain: cookie_domain,
       cookieName: visitor_cookie_name,
-      registry: current_visitor.split_registry.to_v1_hash,
-      assignments: current_visitor.assignment_json
+      splits: current_visitor.split_registry.to_hash,
+      assignments: current_visitor.assignment_json,
+      experienceSamplingWeight: current_visitor.split_registry.experience_sampling_weight
     }
   end
 
