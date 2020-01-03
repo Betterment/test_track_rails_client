@@ -19,8 +19,8 @@ RSpec.describe TestTrack::WebSession do
 
   let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
   let(:headers) { {} }
-  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers, local?: local_request?) }
-  let(:local_request?) { false }
+  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers, local?: local?) }
+  let(:local?) { false }
   let(:response) { double(:response, headers: {}) }
   let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
@@ -222,7 +222,7 @@ RSpec.describe TestTrack::WebSession do
       end
 
       context 'when request is local' do
-        let(:local_request?) { true }
+        let(:local?) { true }
 
         it 'uses localhost as cookie domain' do
           allow(request).to receive(:host).and_return("localhost")
