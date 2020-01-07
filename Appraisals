@@ -14,4 +14,5 @@ appraise 'rails-6-0' do
   gem 'rails', '~> 6.0.0'
   gem 'rack'
   gem 'rails-controller-testing'
+  gem 'sqlite3', '~> 1.4'
 end

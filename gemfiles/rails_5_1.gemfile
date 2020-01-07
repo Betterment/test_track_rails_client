@@ -11,7 +11,7 @@ gem "rack"
 gem "rails", "~> 5.1.0"
 gem "rails-controller-testing"
 gem "rspec-rails"
-gem "rubocop", "~> 0.51.0", require: false
+gem "rubocop", "~> 0.61.0", require: false
 gem "selenium-webdriver", "~> 2.5"
 gem "shoulda-matchers", "~> 2.8", require: false
 gem "simplecov", require: false
