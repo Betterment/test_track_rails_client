@@ -28,6 +28,7 @@ class TestTrack::NotifyAssignmentJob
   def maybe_track
     return "failure" unless TestTrack.enabled?
     return "success" if skip_analytics_event?
+
     result = TestTrack.analytics.track(TestTrack::AnalyticsEvent.new(visitor_id, assignment))
     result ? "success" : "failure"
   end

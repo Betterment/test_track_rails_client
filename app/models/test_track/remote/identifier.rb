@@ -21,6 +21,7 @@ class TestTrack::Remote::Identifier
 
   def visitor_opts!
     raise("Visitor data unavailable until you save this identifier.") unless attributes[:remote_visitor]
+
     { id: remote_visitor.id, assignments: remote_visitor.assignments }
   end
 end

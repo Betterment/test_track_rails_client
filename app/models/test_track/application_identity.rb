@@ -7,6 +7,7 @@ class TestTrack::ApplicationIdentity
 
   def app_name
     raise 'must configure TestTrack.app_name on application initialization' if TestTrack.app_name.blank?
+
     TestTrack.app_name
   end
 

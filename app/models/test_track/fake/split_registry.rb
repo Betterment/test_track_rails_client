@@ -50,9 +50,7 @@ class TestTrack::Fake::SplitRegistry
   end
 
   def legacy_test_track_schema_yml
-    unless instance_variable_defined?(:@legacy_test_track_schema_yml)
-      @legacy_test_track_schema_yml = _legacy_test_track_schema_yml
-    end
+    @legacy_test_track_schema_yml = _legacy_test_track_schema_yml unless instance_variable_defined?(:@legacy_test_track_schema_yml)
     @legacy_test_track_schema_yml
   end
 
@@ -69,7 +67,7 @@ class TestTrack::Fake::SplitRegistry
 
   def split_registry_with_deterministic_weights
     splits = split_hash.each_with_object({}) do |(split_name, weighting_registry), result|
-      default_variant = weighting_registry.keys.sort.first
+      default_variant = weighting_registry.keys.min
 
       adjusted_weights = { default_variant => 100 }
       weighting_registry.except(default_variant).each_key do |variant|

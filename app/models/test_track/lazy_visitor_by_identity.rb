@@ -13,7 +13,7 @@ class TestTrack::LazyVisitorByIdentity
 
   private
 
-  def method_missing(method, *args, &block) # rubocop:disable Style/MethodMissing
+  def method_missing(method, *args, &block)
     __visitor__.send(method, *args, &block)
   end
 

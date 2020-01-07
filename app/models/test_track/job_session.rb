@@ -24,9 +24,7 @@ class TestTrack::JobSession
 
   def notify_unsynced_assignments!
     identity_visitor_map.each_value do |visitor|
-      if visitor.loaded? && visitor.unsynced_assignments.present?
-        TestTrack::ThreadedVisitorNotifier.new(visitor).notify
-      end
+      TestTrack::ThreadedVisitorNotifier.new(visitor).notify if visitor.loaded? && visitor.unsynced_assignments.present?
     end
   end
 

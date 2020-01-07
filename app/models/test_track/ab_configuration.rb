@@ -19,9 +19,7 @@ class TestTrack::ABConfiguration
   private
 
   def build_variant_hash
-    if split_variants && split_variants.size > 2 # rubocop:disable Style/SafeNavigation
-      notify_because_ab("configures split with more than 2 variants")
-    end
+    notify_because_ab("configures split with more than 2 variants") if split_variants && split_variants.size > 2
     { true: true_variant, false: false_variant }
   end
 
@@ -30,7 +28,7 @@ class TestTrack::ABConfiguration
   end
 
   def false_variant
-    @false_variant ||= non_true_variants.present? ? non_true_variants.sort.first : false
+    @false_variant ||= non_true_variants.present? ? non_true_variants.min : false
   end
 
   attr_reader :split_name, :split_registry
