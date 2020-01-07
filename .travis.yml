@@ -18,7 +18,7 @@ gemfile:
   - gemfiles/rails_6_0.gemfile
 
 matrix:
-  allow_failures:
+  exclude:
     - rvm: 2.3.1
       gemfile: gemfiles/rails_6_0.gemfile
     - rvm: 2.4.2
