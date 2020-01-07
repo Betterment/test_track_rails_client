@@ -3,7 +3,7 @@ ruby '>= 2.1.0'
 
 gemspec
 
-gem 'rubocop', '~> 0.51.0', require: false
+gem 'rubocop', '~> 0.61.0', require: false
 
 gem 'simplecov', require: false
 gem 'shoulda-matchers', '~> 2.8', require: false

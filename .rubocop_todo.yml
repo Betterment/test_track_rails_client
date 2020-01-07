@@ -17,7 +17,7 @@ Lint/BooleanSymbol:
     - 'spec/models/test_track/visitor_spec.rb'
 
 # Offense count: 1
-Lint/RescueWithoutErrorClass:
+Style/RescueStandardError:
   Exclude:
     - 'app/models/test_track/fake/split_registry.rb'
 

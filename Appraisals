@@ -9,3 +9,9 @@ appraise 'rails-5-2' do
   gem 'rack'
   gem 'rails-controller-testing'
 end
+
+appraise 'rails-6-0' do
+  gem 'rails', '~> 6.0.0'
+  gem 'rack'
+  gem 'rails-controller-testing'
+end
