@@ -94,7 +94,7 @@ class TestTrack::WebSession
   end
 
   def _cookie_domain
-    if bare_ip_address? || fully_qualified_cookie_domain_enabled?
+    if bare_ip_address? || request.local? || fully_qualified_cookie_domain_enabled?
       request.host
     else
       wildcard_domain

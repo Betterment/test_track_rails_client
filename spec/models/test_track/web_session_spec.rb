@@ -19,7 +19,8 @@ RSpec.describe TestTrack::WebSession do
 
   let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
   let(:headers) { {} }
-  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers) }
+  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers, local?: local?) }
+  let(:local?) { false }
   let(:response) { double(:response, headers: {}) }
   let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
 
@@ -218,6 +219,16 @@ RSpec.describe TestTrack::WebSession do
         allow(request).to receive(:host).and_return("foo.bar.baz.boom.com")
         subject.manage {}
         expect(cookies['tt_visitor_id'][:domain]).to eq ".boom.com"
+      end
+
+      context 'when request is local' do
+        let(:local?) { true }
+
+        it 'uses localhost as cookie domain' do
+          allow(request).to receive(:host).and_return("localhost")
+          subject.manage {}
+          expect(cookies['tt_visitor_id'][:domain]).to eq 'localhost'
+        end
       end
 
       it "uses the fully qualified cookie domain when enabled and there is no subdomain" do
