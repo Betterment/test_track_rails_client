@@ -34,9 +34,7 @@ class TestTrack::WebSessionVisitorRepository
 
   def notify_unsynced_assignments!
     all.each do |visitor|
-      if visitor.loaded? && visitor.unsynced_assignments.present?
-        TestTrack::ThreadedVisitorNotifier.new(visitor).notify
-      end
+      TestTrack::ThreadedVisitorNotifier.new(visitor).notify if visitor.loaded? && visitor.unsynced_assignments.present?
     end
   end
 

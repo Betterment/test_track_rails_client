@@ -18,6 +18,7 @@ class TestTrack::VaryDSL
 
   def when(*variants, &block)
     raise ArgumentError, "must provide at least one variant" if variants.blank?
+
     variants.each do |variant|
       assign_behavior_to_variant(variant, block)
     end
@@ -25,6 +26,7 @@ class TestTrack::VaryDSL
 
   def default(variant, &block)
     raise ArgumentError, "cannot provide more than one `default`" unless default_variant.nil?
+
     @default_variant = assign_behavior_to_variant(variant, block)
   end
 
@@ -57,6 +59,7 @@ class TestTrack::VaryDSL
     variant = variant.to_s
 
     raise ArgumentError, "must provide block for #{variant}" unless behavior_proc
+
     notify_because_vary(<<-MESSAGE) if variant_behaviors.include?(variant)
       configures variant "#{variant}" more than once.
       This will raise an error in the next version of test_track_rails_client.
@@ -93,6 +96,7 @@ class TestTrack::VaryDSL
     raise ArgumentError, "must provide exactly one `default`" unless default_variant
     raise ArgumentError, "must provide at least one `when`" unless variant_behaviors.size >= 2
     return true unless split_variants
+
     missing_variants = split_variants - variant_behaviors.keys
     notify_because_vary("does not configure variants #{missing_variants.to_sentence}") && false unless missing_variants.empty?
   end

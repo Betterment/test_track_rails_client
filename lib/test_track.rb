@@ -95,6 +95,7 @@ module TestTrack
 
   def url
     return nil unless private_url
+
     full_uri = URI.parse(private_url)
     full_uri.user = nil
     full_uri.password = nil

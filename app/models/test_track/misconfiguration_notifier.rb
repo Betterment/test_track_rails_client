@@ -22,6 +22,7 @@ module TestTrack::MisconfigurationNotifier
   class Airbrake
     def notify(msg)
       raise "Aibrake was configured but not found" unless defined?(::Airbrake)
+
       if ::Airbrake.respond_to?(:notify_or_ignore)
         ::Airbrake.notify_or_ignore(StandardError.new, error_message: msg)
       else

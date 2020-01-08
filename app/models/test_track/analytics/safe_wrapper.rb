@@ -9,6 +9,7 @@ module TestTrack::Analytics
     def error_handler=(handler)
       raise ArgumentError, "error_handler must be a lambda" unless handler.lambda?
       raise ArgumentError, "error_handler must accept 1 argument" unless handler.arity == 1
+
       @error_handler = handler
     end
 

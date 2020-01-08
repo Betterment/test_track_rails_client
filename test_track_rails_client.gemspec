@@ -1,4 +1,4 @@
-$LOAD_PATH.push File.expand_path("../lib", __FILE__)
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 
 # Maintain your gem's version:
 require "test_track_rails_client/version"
@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
   s.add_dependency 'multi_json', '~> 1.7'
   s.add_dependency 'public_suffix', '>= 2.0.0', '<= 3.0.0'
-  s.add_dependency 'rails', '>= 4.1', "< 6.0"
+  s.add_dependency 'rails', '>= 4.1', "< 7.0"
   s.add_dependency 'request_store', '~> 1.3'
 
   s.add_development_dependency 'appraisal', '~> 2.2.0'

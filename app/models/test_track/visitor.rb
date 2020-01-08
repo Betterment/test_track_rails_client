@@ -23,6 +23,7 @@ class TestTrack::Visitor
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
+
     v = TestTrack::VaryDSL.new(assignment: assignment_for(split_name), context: context, split_registry: split_registry)
     yield v
     v.send :run

@@ -59,6 +59,7 @@ class TestTrack::WebSession
 
       If your app doesn't support authentication, set it to `:none`.
     ERROR
+
     identity = controller.class.test_track_identity
     controller.send(identity) unless identity == :none
   end
