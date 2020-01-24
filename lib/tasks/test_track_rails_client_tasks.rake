@@ -10,6 +10,17 @@ namespace :test_track do
     end
   end
 
+  desc 'Generates build timestamp'
+  task generate_build_timestamp: :environment do
+    cli = TesttrackCli.instance
+    next if cli.skip_testtrack_cli?
+
+    if cli.project_initialized?
+      result = cli.call('generate_timestamp')
+      exit(result.exitstatus) unless result.success?
+    end
+  end
+
   namespace :schema do
     desc 'Load schema.yml state into TestTrack server'
     task load: :environment do
