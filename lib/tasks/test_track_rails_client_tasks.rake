@@ -42,3 +42,4 @@ end
 task 'db:schema:load' => ['test_track:schema:load']
 task 'db:structure:load' => ['test_track:schema:load']
 task 'db:migrate' => ['test_track:migrate']
+task 'deploy:assets:precompile' => ['test_track:generate_build_timestamp']
