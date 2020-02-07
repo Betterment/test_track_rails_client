@@ -16,7 +16,7 @@ namespace :test_track do
     next if cli.skip_testtrack_cli?
 
     if cli.project_initialized?
-      result = cli.call('generate_timestamp')
+      result = cli.call('generate_build_timestamp')
       exit(result.exitstatus) unless result.success?
     end
   end

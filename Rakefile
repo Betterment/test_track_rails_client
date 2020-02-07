@@ -29,7 +29,7 @@ RuboCop::RakeTask.new
 desc "Pull the latest versions of all dependencies into the gem for distribution"
 task :vendor_deps do
   TEST_TRACK_JS_CLIENT_VERSION = '2.0.0-alpha.4'.freeze
-  TEST_TRACK_CLI_VERSION = 'v1.0.2'.freeze
+  TEST_TRACK_CLI_VERSION = 'v1.1.0'.freeze
 
   # Bundle JS client
   sh 'npm init -y'
