@@ -11,7 +11,7 @@ namespace :test_track do
   end
 
   desc 'Generates build timestamp'
-  task generate_build_timestamp: :environment do
+  task :generate_build_timestamp do
     cli = TesttrackCli.instance
     next if cli.skip_testtrack_cli?
 
