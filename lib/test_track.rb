@@ -17,7 +17,7 @@ module TestTrack
 
   SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
   BUILD_TIMESTAMP_FILE_PATH = 'testtrack/build_timestamp'.freeze
-  BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/
+  BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/.freeze
 
   mattr_accessor :enabled_override, :app_name
 
@@ -54,15 +54,21 @@ module TestTrack
       @misconfiguration_notifier_class_name = notifier_class_name
     end
 
-    def generate_build_timestamp # rubocop:disable Metrics/AbcSize
+    def load_build_timestamp
       if Rails.env.test? || Rails.env.development?
-        TestTrack.const_set('BUILD_TIMESTAMP', Time.zone.now.iso8601)
-      elsif File.exist?(BUILD_TIMESTAMP_FILE_PATH) && BUILD_TIMESTAMP_REGEX.match?(build_timestamp)
-        TestTrack.const_set('BUILD_TIMESTAMP', build_timestamp)
+        @build_timestamp = Time.zone.now.iso8601
+      elsif File.exist?(BUILD_TIMESTAMP_FILE_PATH)
+        raise "TestTrack's build_timestamp is not formatted properly." unless BUILD_TIMESTAMP_REGEX.match?(_build_timestamp)
+
+        @build_timestamp = _build_timestamp
       else
         raise 'TestTrack failed to load the required build timestamp. ' \
-          'Ensure `testtrack generate_build_timestamp` is run and the build timestamp file is present.'
+          'Ensure `testtrack load_build_timestamp` is run and the build timestamp file is present.'
       end
+    end
+
+    def build_timestamp
+      @build_timestamp.presence || raise('build_timestamp is not defined. Ensure `load_build_timestamp` is run.')
     end
 
     private
@@ -119,8 +125,8 @@ module TestTrack
     ENV['TEST_TRACK_API_URL']
   end
 
-  def build_timestamp
-    @build_timestamp ||= File.read(BUILD_TIMESTAMP_FILE_PATH).chomp
+  def _build_timestamp
+    File.read(BUILD_TIMESTAMP_FILE_PATH).chomp
   end
 
   def enabled?

@@ -187,20 +187,20 @@ RSpec.describe TestTrack do
     end
   end
 
-  describe '#generate_build_timestamp' do
-    around { |example|  Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
+  describe '#load_build_timestamp' do
+    around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
 
     context 'in a test environment' do
       it 'assigns BUILD_TIMESTAMP to now' do
-        TestTrack.generate_build_timestamp
-        expect(TestTrack::BUILD_TIMESTAMP).to eq('2020-02-01T00:00:00Z')
+        TestTrack.load_build_timestamp
+        expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
       end
     end
 
     context 'in a development environment' do
       it 'assigns BUILD_TIMESTAMP to now' do
-        with_rails_env('development') { TestTrack.generate_build_timestamp }
-        expect(TestTrack::BUILD_TIMESTAMP).to eq('2020-02-01T00:00:00Z')
+        with_rails_env('development') { TestTrack.load_build_timestamp }
+        expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
       end
     end
 
@@ -214,8 +214,8 @@ RSpec.describe TestTrack do
 
       context 'with an existing build_timestamp file' do
         it 'assigns BUILD_TIMESTAMP to file\'s contents' do
-          with_rails_env('production') { TestTrack.generate_build_timestamp }
-          expect(TestTrack::BUILD_TIMESTAMP).to eq('2020-02-01T00:00:00Z')
+          with_rails_env('production') { TestTrack.load_build_timestamp }
+          expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
         end
       end
 
@@ -224,7 +224,12 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.generate_build_timestamp }.to raise_error(RuntimeError, 'TestTrack failed to load the required build timestamp. Ensure `testtrack generate_build_timestamp` is run and the build timestamp file is present.')
+            expect { TestTrack.load_build_timestamp }
+              .to raise_error(
+                RuntimeError,
+                'TestTrack failed to load the required build timestamp. ' \
+                  'Ensure `testtrack load_build_timestamp` is run and the build timestamp file is present.'
+              )
           end
         end
       end
@@ -236,7 +241,8 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.generate_build_timestamp }.to raise_error(RuntimeError, 'TestTrack failed to load the required build timestamp. Ensure `testtrack generate_build_timestamp` is run and the build timestamp file is present.')
+            expect { TestTrack.load_build_timestamp }
+              .to raise_error(RuntimeError, "TestTrack's build_timestamp is not formatted properly.")
           end
         end
       end
@@ -248,7 +254,8 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.generate_build_timestamp }.to raise_error(RuntimeError, 'TestTrack failed to load the required build timestamp. Ensure `testtrack generate_build_timestamp` is run and the build timestamp file is present.')
+            expect { TestTrack.load_build_timestamp }
+              .to raise_error(RuntimeError, "TestTrack's build_timestamp is not formatted properly.")
           end
         end
       end
@@ -260,8 +267,34 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.generate_build_timestamp }.to raise_error(RuntimeError, 'TestTrack failed to load the required build timestamp. Ensure `testtrack generate_build_timestamp` is run and the build timestamp file is present.')
+            expect { TestTrack.load_build_timestamp }
+              .to raise_error(RuntimeError, "TestTrack's build_timestamp is not formatted properly.")
           end
+        end
+      end
+    end
+
+    describe '#build_timestamp' do
+      context 'when the file has been read and validated' do
+        around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
+
+        it 'returns a timestamp' do
+          TestTrack.load_build_timestamp
+          expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
+        end
+      end
+
+      context 'when the file has not been read and validated' do
+        around do |example|
+          build_timestamp = TestTrack.remove_instance_variable(:@build_timestamp)
+          example.run
+          TestTrack.instance_variable_set(:@build_timestamp, build_timestamp)
+        end
+
+        it 'raises an error' do
+          expect {
+            TestTrack.build_timestamp
+          }.to raise_error(StandardError, 'build_timestamp is not defined. Ensure `load_build_timestamp` is run.')
         end
       end
     end

@@ -1,1 +1,0 @@
-TestTrack.generate_build_timestamp

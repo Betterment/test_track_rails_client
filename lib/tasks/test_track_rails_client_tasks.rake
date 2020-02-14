@@ -11,14 +11,11 @@ namespace :test_track do
   end
 
   desc 'Generates build timestamp'
-  task :generate_build_timestamp do
+  task generate_build_timestamp: :environment do
     cli = TesttrackCli.instance
-    next if cli.skip_testtrack_cli?
 
-    if cli.project_initialized?
-      result = cli.call('generate_build_timestamp')
-      exit(result.exitstatus) unless result.success?
-    end
+    result = cli.call('generate_build_timestamp')
+    exit(result.exitstatus) unless result.success?
   end
 
   namespace :schema do
@@ -42,4 +39,4 @@ end
 task 'db:schema:load' => ['test_track:schema:load']
 task 'db:structure:load' => ['test_track:schema:load']
 task 'db:migrate' => ['test_track:migrate']
-task 'deploy:assets:precompile' => ['test_track:generate_build_timestamp']
+task 'assets:precompile' => ['test_track:generate_build_timestamp']

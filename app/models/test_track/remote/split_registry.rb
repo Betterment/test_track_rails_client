@@ -15,7 +15,7 @@ class TestTrack::Remote::SplitRegistry
       if faked?
         new(fake_instance_attributes(nil))
       else
-        get("/api/v3/builds/#{TestTrack::BUILD_TIMESTAMP}/split_registry")
+        get("/api/v3/builds/#{TestTrack.build_timestamp}/split_registry")
       end
     end
 

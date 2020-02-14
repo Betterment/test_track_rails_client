@@ -29,7 +29,7 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
 
   describe "#to_hash" do
     context 'with api enabled' do
-      let(:url) { "http://testtrack.dev/api/v3/builds/#{TestTrack::BUILD_TIMESTAMP}/split_registry" }
+      let(:url) { "http://testtrack.dev/api/v3/builds/#{TestTrack.build_timestamp}/split_registry" }
       around do |example|
         with_test_track_enabled do
           stub_request(:get, url)
@@ -79,7 +79,7 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
 
   describe ".instance" do
     subject { described_class.instance }
-    let(:url) { "http://testtrack.dev/api/v3/builds/#{TestTrack::BUILD_TIMESTAMP}/split_registry" }
+    let(:url) { "http://testtrack.dev/api/v3/builds/#{TestTrack.build_timestamp}/split_registry" }
 
     before do
       stub_request(:get, url)
