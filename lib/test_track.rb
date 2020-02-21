@@ -54,21 +54,25 @@ module TestTrack
       @misconfiguration_notifier_class_name = notifier_class_name
     end
 
-    def load_build_timestamp
+    def load_build_timestamp # rubocop:disable Metrics/MethodLength
       if Rails.env.test? || Rails.env.development?
         @build_timestamp = Time.zone.now.iso8601
       elsif File.exist?(BUILD_TIMESTAMP_FILE_PATH)
-        raise "TestTrack's build_timestamp is not formatted properly." unless BUILD_TIMESTAMP_REGEX.match?(_build_timestamp)
+        timestamp = _build_timestamp
 
-        @build_timestamp = _build_timestamp
+        unless BUILD_TIMESTAMP_REGEX.match?(timestamp)
+          raise "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '#{timestamp}'"
+        end
+
+        @build_timestamp = timestamp
       else
         raise 'TestTrack failed to load the required build timestamp. ' \
-          'Ensure `testtrack load_build_timestamp` is run and the build timestamp file is present.'
+          'Ensure `test_track:generate_build_timestamp` task is run and the build timestamp file is present.'
       end
     end
 
     def build_timestamp
-      @build_timestamp.presence || raise('build_timestamp is not defined. Ensure `load_build_timestamp` is run.')
+      @build_timestamp.presence || raise('build_timestamp is not defined because `load_build_timestamp` initializer was not run.')
     end
 
     private

@@ -191,14 +191,14 @@ RSpec.describe TestTrack do
     around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
 
     context 'in a test environment' do
-      it 'assigns BUILD_TIMESTAMP to now' do
+      it 'assigns build_timestamp to now' do
         TestTrack.load_build_timestamp
         expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
       end
     end
 
     context 'in a development environment' do
-      it 'assigns BUILD_TIMESTAMP to now' do
+      it 'assigns build_timestamp to now' do
         with_rails_env('development') { TestTrack.load_build_timestamp }
         expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
       end
@@ -209,13 +209,13 @@ RSpec.describe TestTrack do
 
       before do
         allow(File).to receive(:exist?).and_return(file_readable)
-        allow(File).to receive(:read).and_return("2020-02-01T00:00:00Z\n")
+        allow(File).to receive(:read).and_return("2020-02-21T00:00:00Z\n")
       end
 
       context 'with an existing build_timestamp file' do
-        it 'assigns BUILD_TIMESTAMP to file\'s contents' do
+        it 'assigns build_timestamp to file\'s contents' do
           with_rails_env('production') { TestTrack.load_build_timestamp }
-          expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
+          expect(TestTrack.build_timestamp).to eq('2020-02-21T00:00:00Z')
         end
       end
 
@@ -228,7 +228,7 @@ RSpec.describe TestTrack do
               .to raise_error(
                 RuntimeError,
                 'TestTrack failed to load the required build timestamp. ' \
-                  'Ensure `testtrack load_build_timestamp` is run and the build timestamp file is present.'
+                  'Ensure `test_track:generate_build_timestamp` task is run and the build timestamp file is present.'
               )
           end
         end
@@ -241,8 +241,10 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
+            error_message = "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '2020-02-01 12:00:00 -0500'"
+
             expect { TestTrack.load_build_timestamp }
-              .to raise_error(RuntimeError, "TestTrack's build_timestamp is not formatted properly.")
+              .to raise_error(RuntimeError, error_message)
           end
         end
       end
@@ -255,7 +257,7 @@ RSpec.describe TestTrack do
         it 'raises an error' do
           with_rails_env('production') do
             expect { TestTrack.load_build_timestamp }
-              .to raise_error(RuntimeError, "TestTrack's build_timestamp is not formatted properly.")
+              .to raise_error(RuntimeError, "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '2020-02-01T12:00Z'")
           end
         end
       end
@@ -268,7 +270,7 @@ RSpec.describe TestTrack do
         it 'raises an error' do
           with_rails_env('production') do
             expect { TestTrack.load_build_timestamp }
-              .to raise_error(RuntimeError, "TestTrack's build_timestamp is not formatted properly.")
+              .to raise_error(RuntimeError, "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got ''")
           end
         end
       end
@@ -294,7 +296,7 @@ RSpec.describe TestTrack do
         it 'raises an error' do
           expect {
             TestTrack.build_timestamp
-          }.to raise_error(StandardError, 'build_timestamp is not defined. Ensure `load_build_timestamp` is run.')
+          }.to raise_error(StandardError, 'build_timestamp is not defined because `load_build_timestamp` initializer was not run.')
         end
       end
     end
