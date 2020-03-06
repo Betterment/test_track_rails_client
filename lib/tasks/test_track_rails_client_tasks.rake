@@ -40,3 +40,10 @@ task 'db:schema:load' => ['test_track:schema:load']
 task 'db:structure:load' => ['test_track:schema:load']
 task 'db:migrate' => ['test_track:migrate']
 task 'assets:precompile' => ['test_track:generate_build_timestamp']
+
+original = task('assets:environment')
+task('assets:environment').clear
+task('assets:environment') do
+  ENV['SKIP_TIMESTAMP_INIT'] = '1'
+  original.invoke
+end
