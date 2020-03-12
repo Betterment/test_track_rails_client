@@ -18,6 +18,11 @@ namespace :test_track do
     exit(result.exitstatus) unless result.success?
   end
 
+  desc 'Sets an environment variable to block build timestamp generation on application initialization'
+  task :skip_load_build_timestamp do
+    ENV['SKIP_TIMESTAMP_INIT'] = '1'
+  end
+
   namespace :schema do
     desc 'Load schema.yml state into TestTrack server'
     task load: :environment do
@@ -36,14 +41,7 @@ namespace :test_track do
   end
 end
 
-namespace :assets do
-  desc 'Sets an environment variable to block build timestamp generation on application initialization'
-  task :environment do
-    ENV['SKIP_TIMESTAMP_INIT'] = '1'
-    Rake::Task["assets:environment"].invoke
-  end
-end
-
+task 'assets:environment' => ['test_track:skip_load_build_timestamp']
 task 'db:schema:load' => ['test_track:schema:load']
 task 'db:structure:load' => ['test_track:schema:load']
 task 'db:migrate' => ['test_track:migrate']
