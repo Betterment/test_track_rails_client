@@ -228,7 +228,7 @@ RSpec.describe TestTrack do
               .to raise_error(
                 RuntimeError,
                 'TestTrack failed to load the required build timestamp. ' \
-                  'Ensure `test_track:generate_build_timestamp` task is run and the build timestamp file is present.'
+                  'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
               )
           end
         end
@@ -296,7 +296,10 @@ RSpec.describe TestTrack do
         it 'raises an error' do
           expect {
             TestTrack.build_timestamp
-          }.to raise_error(StandardError, 'build_timestamp is not defined because `load_build_timestamp` initializer was not run.')
+          }.to raise_error(
+            StandardError,
+            'build_timestamp is not defined because `load_build_timestamp` initializer was not run in assets:precompile.'
+          )
         end
       end
     end
