@@ -1,9 +1,9 @@
 language: ruby
 
 rvm:
-- 2.3.1
-- 2.4.2
-- 2.6.1
+- 2.5.7
+- 2.6.5
+- 2.7.0
 
 before_install:
 - gem update --system
@@ -16,10 +16,3 @@ gemfile:
   - gemfiles/rails_5_1.gemfile
   - gemfiles/rails_5_2.gemfile
   - gemfiles/rails_6_0.gemfile
-
-jobs:
-  exclude:
-    - rvm: 2.3.1
-      gemfile: gemfiles/rails_6_0.gemfile
-    - rvm: 2.4.2
-      gemfile: gemfiles/rails_6_0.gemfile
