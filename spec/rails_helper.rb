@@ -4,13 +4,14 @@ require File.expand_path('dummy/config/environment', __dir__)
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'spec_helper'
+require 'rails-controller-testing'
 require 'rspec/rails'
-require 'shoulda/matchers'
 # Add additional requires below this line. Rails is not loaded until this point!
-require 'timecop'
 require 'delayed_job'
 require 'delayed_job_active_record'
 require 'pry'
+require 'shoulda/matchers'
+require 'timecop'
 
 # load all files in support folders
 Dir[TestTrackRailsClient::Engine.root.join("spec/support/**/*.rb")].each { |f| require f }
