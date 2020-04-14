@@ -158,13 +158,11 @@ RSpec.describe TestTrack::WebSession do
 
           around do |example|
             RSpec::Mocks.with_temporary_scope do
-              begin
-                stub_const('Client', client_class)
-                TestTrack.analytics_class_name = 'Client'
-                example.run
-              ensure
-                TestTrack.instance_variable_set(:@analytics_class_name, nil)
-              end
+              stub_const('Client', client_class)
+              TestTrack.analytics_class_name = 'Client'
+              example.run
+            ensure
+              TestTrack.instance_variable_set(:@analytics_class_name, nil)
             end
           end
 

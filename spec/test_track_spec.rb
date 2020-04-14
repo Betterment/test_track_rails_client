@@ -54,81 +54,71 @@ RSpec.describe TestTrack do
     end
 
     it "wraps custom singleton client in SafeWrapper" do
-      begin
-        fake_client = double
-        fake_client_class = double(instance: fake_client)
-        stub_const('FakeClient', fake_client_class)
-        TestTrack.analytics_class_name = 'FakeClient'
+      fake_client = double
+      fake_client_class = double(instance: fake_client)
+      stub_const('FakeClient', fake_client_class)
+      TestTrack.analytics_class_name = 'FakeClient'
 
-        expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper
-        expect(TestTrack.analytics.underlying).to eq fake_client
-      ensure
-        TestTrack.instance_variable_set(:@analytics_class_name, nil)
-      end
+      expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper
+      expect(TestTrack.analytics.underlying).to eq fake_client
+    ensure
+      TestTrack.instance_variable_set(:@analytics_class_name, nil)
     end
 
     it "wraps custom argless-instantiable client in SafeWrapper" do
-      begin
-        fake_client = double
-        fake_client_class = double(new: fake_client)
-        stub_const('FakeClient', fake_client_class)
-        TestTrack.analytics_class_name = 'FakeClient'
+      fake_client = double
+      fake_client_class = double(new: fake_client)
+      stub_const('FakeClient', fake_client_class)
+      TestTrack.analytics_class_name = 'FakeClient'
 
-        expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper
-        expect(TestTrack.analytics.underlying).to eq fake_client
-      ensure
-        TestTrack.instance_variable_set(:@analytics_class_name, nil)
-      end
+      expect(TestTrack.analytics.class).to eq TestTrack::Analytics::SafeWrapper
+      expect(TestTrack.analytics.underlying).to eq fake_client
+    ensure
+      TestTrack.instance_variable_set(:@analytics_class_name, nil)
     end
   end
 
   describe "misconfguration_notifier" do
     it "wraps a singleton custom notifier in Wrapper without memoizing" do
-      begin
-        fake_notifier = double
-        fake_notifier_class = double(instance: fake_notifier)
-        stub_const('FakeNotifier', fake_notifier_class)
-        TestTrack.misconfiguration_notifier_class_name = 'FakeNotifier'
+      fake_notifier = double
+      fake_notifier_class = double(instance: fake_notifier)
+      stub_const('FakeNotifier', fake_notifier_class)
+      TestTrack.misconfiguration_notifier_class_name = 'FakeNotifier'
 
-        expect(TestTrack.misconfiguration_notifier).to be_instance_of(TestTrack::MisconfigurationNotifier::Wrapper)
-        expect(TestTrack.misconfiguration_notifier.underlying).to eq fake_notifier
-      ensure
-        TestTrack.instance_variable_set(:@misconfiguration_notifier_class_name, nil)
-      end
+      expect(TestTrack.misconfiguration_notifier).to be_instance_of(TestTrack::MisconfigurationNotifier::Wrapper)
+      expect(TestTrack.misconfiguration_notifier.underlying).to eq fake_notifier
+    ensure
+      TestTrack.instance_variable_set(:@misconfiguration_notifier_class_name, nil)
     end
 
     it "wraps a argless-instantiable custom notifier in Wrapper without memoizing" do
-      begin
-        fake_notifier = double
-        fake_notifier_class = double(new: fake_notifier)
-        stub_const('FakeNotifier', fake_notifier_class)
-        TestTrack.misconfiguration_notifier_class_name = 'FakeNotifier'
+      fake_notifier = double
+      fake_notifier_class = double(new: fake_notifier)
+      stub_const('FakeNotifier', fake_notifier_class)
+      TestTrack.misconfiguration_notifier_class_name = 'FakeNotifier'
 
-        expect(TestTrack.misconfiguration_notifier).to be_instance_of(TestTrack::MisconfigurationNotifier::Wrapper)
-        expect(TestTrack.misconfiguration_notifier.underlying).to eq fake_notifier
-      ensure
-        TestTrack.instance_variable_set(:@misconfiguration_notifier_class_name, nil)
-      end
+      expect(TestTrack.misconfiguration_notifier).to be_instance_of(TestTrack::MisconfigurationNotifier::Wrapper)
+      expect(TestTrack.misconfiguration_notifier.underlying).to eq fake_notifier
+    ensure
+      TestTrack.instance_variable_set(:@misconfiguration_notifier_class_name, nil)
     end
 
     it "returns a new instance each time" do
-      begin
-        fake_notifier = double
-        fake_notifier_class = double
-        call_count = 0
-        allow(fake_notifier_class).to receive(:new) do
-          call_count += 1
-          fake_notifier
-        end
-        stub_const('FakeNotifier', fake_notifier_class)
-        TestTrack.misconfiguration_notifier_class_name = 'FakeNotifier'
-
-        expect {
-          3.times { TestTrack.misconfiguration_notifier }
-        }.to change { call_count }.by(3)
-      ensure
-        TestTrack.instance_variable_set(:@misconfiguration_notifier_class_name, nil)
+      fake_notifier = double
+      fake_notifier_class = double
+      call_count = 0
+      allow(fake_notifier_class).to receive(:new) do
+        call_count += 1
+        fake_notifier
       end
+      stub_const('FakeNotifier', fake_notifier_class)
+      TestTrack.misconfiguration_notifier_class_name = 'FakeNotifier'
+
+      expect {
+        3.times { TestTrack.misconfiguration_notifier }
+      }.to change { call_count }.by(3)
+    ensure
+      TestTrack.instance_variable_set(:@misconfiguration_notifier_class_name, nil)
     end
 
     context "when Airbrake is defined" do
