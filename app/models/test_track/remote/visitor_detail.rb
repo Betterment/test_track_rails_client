@@ -8,7 +8,7 @@ class TestTrack::Remote::VisitorDetail
     if faked?
       new(fake_instance_attributes(nil))
     else
-      get("/api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor_detail")
+      get("api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor_detail")
     end
   end
 

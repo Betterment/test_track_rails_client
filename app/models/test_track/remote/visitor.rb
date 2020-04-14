@@ -1,7 +1,7 @@
 class TestTrack::Remote::Visitor
   include TestTrack::RemoteModel
 
-  collection_path '/api/v1/visitors'
+  collection_path 'api/v1/visitors'
 
   has_many :assignments
 
@@ -13,7 +13,7 @@ class TestTrack::Remote::Visitor
     if faked?
       new(fake_instance_attributes(nil))
     else
-      get("/api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor")
+      get("api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor")
     end
   end
 

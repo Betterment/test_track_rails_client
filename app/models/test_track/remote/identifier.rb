@@ -1,7 +1,7 @@
 class TestTrack::Remote::Identifier
   include TestTrack::RemoteModel
 
-  collection_path '/api/v1/identifier'
+  collection_path 'api/v1/identifier'
 
   has_one :remote_visitor, data_key: :visitor, class_name: "TestTrack::Remote::Visitor"
 
