@@ -20,7 +20,7 @@ namespace :test_track do
 
   desc 'Sets an environment variable to block build timestamp generation on application initialization'
   task :skip_load_build_timestamp do
-    ENV['SKIP_TESTTRACK_LOAD_BUILD_TIMESTAMP'] = '1'
+    ENV['SKIP_TESTTRACK_SET_BUILD_TIMESTAMP'] = '1'
   end
 
   namespace :schema do
