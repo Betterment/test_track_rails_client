@@ -187,20 +187,25 @@ RSpec.describe TestTrack do
     end
   end
 
-  describe '#load_build_timestamp' do
-    around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
+  describe '#build_timestamp' do
+    around do |example|
+      Timecop.freeze(Time.zone.parse('2020-02-01')) do
+        TestTrack.remove_instance_variable(:@build_timestamp) if TestTrack.instance_variable_defined?(:@build_timestamp)
+        example.run
+      end
+    end
 
     context 'in a test environment' do
       it 'assigns build_timestamp to now' do
-        TestTrack.load_build_timestamp
         expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
       end
     end
 
     context 'in a development environment' do
       it 'assigns build_timestamp to now' do
-        with_rails_env('development') { TestTrack.load_build_timestamp }
-        expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
+        with_rails_env('development') do
+          expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
+        end
       end
     end
 
@@ -209,13 +214,14 @@ RSpec.describe TestTrack do
 
       before do
         allow(File).to receive(:exist?).and_return(file_readable)
-        allow(File).to receive(:read).and_return("2020-02-21T00:00:00Z\n")
+        allow(File).to receive(:read).with('testtrack/build_timestamp').and_return("2020-02-21T00:00:00Z\n")
       end
 
       context 'with an existing build_timestamp file' do
         it 'assigns build_timestamp to file\'s contents' do
-          with_rails_env('production') { TestTrack.load_build_timestamp }
-          expect(TestTrack.build_timestamp).to eq('2020-02-21T00:00:00Z')
+          with_rails_env('production') do
+            expect(TestTrack.build_timestamp).to eq('2020-02-21T00:00:00Z')
+          end
         end
       end
 
@@ -224,7 +230,7 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.load_build_timestamp }
+            expect { TestTrack.build_timestamp }
               .to raise_error(
                 RuntimeError,
                 'TestTrack failed to load the required build timestamp. ' \
@@ -243,7 +249,7 @@ RSpec.describe TestTrack do
           with_rails_env('production') do
             error_message = "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '2020-02-01 12:00:00 -0500'"
 
-            expect { TestTrack.load_build_timestamp }
+            expect { TestTrack.build_timestamp }
               .to raise_error(RuntimeError, error_message)
           end
         end
@@ -256,7 +262,7 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.load_build_timestamp }
+            expect { TestTrack.build_timestamp }
               .to raise_error(RuntimeError, "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '2020-02-01T12:00Z'")
           end
         end
@@ -269,7 +275,7 @@ RSpec.describe TestTrack do
 
         it 'raises an error' do
           with_rails_env('production') do
-            expect { TestTrack.load_build_timestamp }
+            expect { TestTrack.build_timestamp }
               .to raise_error(
                 RuntimeError,
                 'TestTrack failed to load the required build timestamp. ' \
@@ -277,29 +283,6 @@ RSpec.describe TestTrack do
               )
           end
         end
-      end
-    end
-  end
-
-  describe '#build_timestamp' do
-    context 'when the file has been read and validated' do
-      around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
-
-      it 'returns a timestamp' do
-        TestTrack.load_build_timestamp
-        expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
-      end
-    end
-
-    context 'when the file has not been read and validated' do
-      around do |example|
-        build_timestamp = TestTrack.remove_instance_variable(:@build_timestamp)
-        example.run
-        TestTrack.instance_variable_set(:@build_timestamp, build_timestamp)
-      end
-
-      it 'is nil' do
-        expect(TestTrack.build_timestamp).to be_nil
       end
     end
   end

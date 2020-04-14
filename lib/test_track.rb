@@ -22,8 +22,6 @@ module TestTrack
   mattr_accessor :enabled_override, :app_name
 
   class << self
-    attr_reader :build_timestamp
-
     def analytics
       analytics_wrapper(analytics_instance || mixpanel)
     end
@@ -56,22 +54,25 @@ module TestTrack
       @misconfiguration_notifier_class_name = notifier_class_name
     end
 
-    def load_build_timestamp # rubocop:disable Metrics/MethodLength
-      if Rails.env.test? || Rails.env.development?
-        @build_timestamp = Time.zone.now.iso8601
-      elsif _build_timestamp
+    def build_timestamp # rubocop:disable Metrics/MethodLength
+      @build_timestamp ||= begin
         timestamp = _build_timestamp
 
-        unless BUILD_TIMESTAMP_REGEX.match?(timestamp)
-          raise "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '#{timestamp}'"
-        end
+        if Rails.env.test? || Rails.env.development?
+          Time.zone.now.iso8601
+        elsif timestamp.present?
+          unless BUILD_TIMESTAMP_REGEX.match?(timestamp)
+            raise "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '#{timestamp}'"
+          end
 
-        @build_timestamp = timestamp
-      else
-        raise 'TestTrack failed to load the required build timestamp. ' \
-          'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
+          timestamp
+        else
+          raise 'TestTrack failed to load the required build timestamp. ' \
+            'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
+        end
       end
     end
+    alias set_build_timestamp! build_timestamp
 
     private
 
