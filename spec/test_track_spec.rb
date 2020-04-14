@@ -270,37 +270,36 @@ RSpec.describe TestTrack do
         it 'raises an error' do
           with_rails_env('production') do
             expect { TestTrack.load_build_timestamp }
-              .to raise_error(RuntimeError, "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got ''")
+              .to raise_error(
+                RuntimeError,
+                'TestTrack failed to load the required build timestamp. ' \
+                  'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
+              )
           end
         end
       end
     end
+  end
 
-    describe '#build_timestamp' do
-      context 'when the file has been read and validated' do
-        around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
+  describe '#build_timestamp' do
+    context 'when the file has been read and validated' do
+      around { |example| Timecop.freeze(Time.zone.parse('2020-02-01')) { example.run } }
 
-        it 'returns a timestamp' do
-          TestTrack.load_build_timestamp
-          expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
-        end
+      it 'returns a timestamp' do
+        TestTrack.load_build_timestamp
+        expect(TestTrack.build_timestamp).to eq('2020-02-01T00:00:00Z')
+      end
+    end
+
+    context 'when the file has not been read and validated' do
+      around do |example|
+        build_timestamp = TestTrack.remove_instance_variable(:@build_timestamp)
+        example.run
+        TestTrack.instance_variable_set(:@build_timestamp, build_timestamp)
       end
 
-      context 'when the file has not been read and validated' do
-        around do |example|
-          build_timestamp = TestTrack.remove_instance_variable(:@build_timestamp)
-          example.run
-          TestTrack.instance_variable_set(:@build_timestamp, build_timestamp)
-        end
-
-        it 'raises an error' do
-          expect {
-            TestTrack.build_timestamp
-          }.to raise_error(
-            StandardError,
-            'build_timestamp is not defined because `load_build_timestamp` initializer was not run in assets:precompile.'
-          )
-        end
+      it 'is nil' do
+        expect(TestTrack.build_timestamp).to be_nil
       end
     end
   end

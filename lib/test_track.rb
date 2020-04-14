@@ -22,6 +22,8 @@ module TestTrack
   mattr_accessor :enabled_override, :app_name
 
   class << self
+    attr_reader :build_timestamp
+
     def analytics
       analytics_wrapper(analytics_instance || mixpanel)
     end
@@ -57,7 +59,7 @@ module TestTrack
     def load_build_timestamp # rubocop:disable Metrics/MethodLength
       if Rails.env.test? || Rails.env.development?
         @build_timestamp = Time.zone.now.iso8601
-      elsif File.exist?(BUILD_TIMESTAMP_FILE_PATH)
+      elsif _build_timestamp
         timestamp = _build_timestamp
 
         unless BUILD_TIMESTAMP_REGEX.match?(timestamp)
@@ -69,11 +71,6 @@ module TestTrack
         raise 'TestTrack failed to load the required build timestamp. ' \
           'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
       end
-    end
-
-    def build_timestamp
-      @build_timestamp.presence ||
-        raise('build_timestamp is not defined because `load_build_timestamp` initializer was not run in assets:precompile.')
     end
 
     private
@@ -131,7 +128,7 @@ module TestTrack
   end
 
   def _build_timestamp
-    File.read(BUILD_TIMESTAMP_FILE_PATH).chomp
+    File.read(BUILD_TIMESTAMP_FILE_PATH).chomp.presence if File.exist?(BUILD_TIMESTAMP_FILE_PATH)
   end
 
   def enabled?

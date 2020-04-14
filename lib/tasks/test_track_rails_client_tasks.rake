@@ -10,7 +10,7 @@ namespace :test_track do
     end
   end
 
-  desc 'Generates build timestamp for consuming applications to build versioned requests to split registry'
+  desc 'Generates build timestamp for fetching point-in-time split registries'
   task generate_build_timestamp: :environment do
     cli = TesttrackCli.instance
 
@@ -20,7 +20,7 @@ namespace :test_track do
 
   desc 'Sets an environment variable to block build timestamp generation on application initialization'
   task :skip_load_build_timestamp do
-    ENV['SKIP_TIMESTAMP_INIT'] = '1'
+    ENV['SKIP_TESTTRACK_LOAD_BUILD_TIMESTAMP'] = '1'
   end
 
   namespace :schema do
@@ -42,7 +42,7 @@ namespace :test_track do
 end
 
 task 'assets:environment' => ['test_track:skip_load_build_timestamp']
+task 'assets:precompile' => ['test_track:generate_build_timestamp']
 task 'db:schema:load' => ['test_track:schema:load']
 task 'db:structure:load' => ['test_track:schema:load']
 task 'db:migrate' => ['test_track:migrate']
-task 'assets:precompile' => ['test_track:generate_build_timestamp']
