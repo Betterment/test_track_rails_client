@@ -1,7 +1,7 @@
 class TestTrack::Remote::IdentifierType
   include TestTrack::RemoteModel
 
-  collection_path '/api/v1/identifier_type'
+  collection_path 'api/v1/identifier_type'
 
   attributes :name
 

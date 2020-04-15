@@ -1,7 +1,7 @@
 class TestTrack::Remote::AssignmentEvent
   include TestTrack::RemoteModel
 
-  collection_path '/api/v1/assignment_event'
+  collection_path 'api/v1/assignment_event'
 
   attributes :visitor_id, :split_name, :unsynced
 

@@ -38,6 +38,37 @@ RSpec.describe TestTrack::Remote::Visitor do
         end
       end
     end
+
+    context 'when TestTrack is mounted at a path' do
+      let(:url) { "http://someapp.test/tt/api/v1/visitors/fake_visitor_id_from_server" }
+      let(:fake_api) do
+        Her::API.new.setup url: 'http://dummy:fakepassword@someapp.test/tt' do |c|
+          c.request :json
+          c.use TestTrack::ServerErrorMiddleware
+          c.use Her::Middleware::DefaultParseJSON
+          c.adapter Faraday.default_adapter
+        end
+      end
+
+      around do |example|
+        TestTrack::Remote::Visitor.use_api fake_api
+        example.run
+      ensure
+        TestTrack::Remote::Visitor.use_api TestTrack::TestTrackApi
+      end
+
+      it "fetches attributes from the test track server" do
+        with_test_track_enabled do
+          expect(subject.id).to eq("fake_visitor_id_from_server")
+          subject.assignments.first.tap do |assignment|
+            expect(assignment.split_name).to eq("time")
+            expect(assignment.variant).to eq("clownin_around")
+            expect(assignment.context).to eq("the_context")
+            expect(assignment).to be_unsynced
+          end
+        end
+      end
+    end
   end
 
   describe ".from_identifier" do

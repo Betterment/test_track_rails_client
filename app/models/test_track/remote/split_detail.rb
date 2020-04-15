@@ -1,7 +1,7 @@
 class TestTrack::Remote::SplitDetail
   include TestTrack::RemoteModel
 
-  collection_path '/api/v1/split_details'
+  collection_path 'api/v1/split_details'
 
   attributes :name, :hypothesis, :assignment_criteria, :description, :owner, :location, :platform, :variant_details
 
@@ -10,7 +10,7 @@ class TestTrack::Remote::SplitDetail
     if faked?
       new(fake_instance_attributes(name))
     else
-      get("/api/v1/split_details/#{name}")
+      get("api/v1/split_details/#{name}")
     end
   end
 
