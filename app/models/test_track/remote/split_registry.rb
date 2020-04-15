@@ -3,7 +3,7 @@ class TestTrack::Remote::SplitRegistry
 
   CACHE_KEY = 'test_track_split_registry'.freeze
 
-  collection_path 'api/v2/split_registry'
+  collection_path 'api/v3/builds/:build_timestamp/split_registry'
 
   class << self
     def fake_instance_attributes(_)
@@ -15,7 +15,7 @@ class TestTrack::Remote::SplitRegistry
       if faked?
         new(fake_instance_attributes(nil))
       else
-        get('api/v2/split_registry')
+        get("api/v3/builds/#{TestTrack.build_timestamp}/split_registry")
       end
     end
 
