@@ -31,6 +31,9 @@ Layout/ClosingParenthesisIndentation:
 Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
+Layout/LineLength:
+  Max: 140
+
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
@@ -52,6 +55,12 @@ Lint/AmbiguousRegexpLiteral:
 Lint/BooleanSymbol:
   Enabled: true
 
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
 Metrics/AbcSize:
   Exclude:
     - 'spec/**/*'
@@ -66,9 +75,6 @@ Metrics/CyclomaticComplexity:
   Max: 10
   Exclude:
     - 'spec/**/*'
-
-Metrics/LineLength:
-  Max: 140
 
 Metrics/MethodLength:
   Exclude:
@@ -116,6 +122,15 @@ Style/FrozenStringLiteralComment:
 
 Style/GuardClause:
   Enabled: false
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
 
 Style/Lambda:
   Enabled: false
