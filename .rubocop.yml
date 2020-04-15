@@ -5,9 +5,6 @@ require:
   - rubocop-rails
   - rubocop-performance
 
-inherit_from:
-  - .rubocop_todo.yml
-
 AllCops:
   Exclude:
     - 'bin/**/*'
@@ -102,11 +99,19 @@ Rails/Delegate:
 Rails/FindEach:
   Enabled: false
 
+Rails/HasManyOrHasOneDependent:
+  Exclude:
+    - 'app/models/test_track/remote/**/*'
+
 Rails/HttpPositionalArguments:
   Enabled: false
 
 Rails/OutputSafety:
   Enabled: true
+
+Rails/RakeEnvironment:
+  Exclude:
+    - 'Rakefile'
 
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining

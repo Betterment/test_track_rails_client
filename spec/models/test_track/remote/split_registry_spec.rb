@@ -22,7 +22,7 @@ RSpec.describe TestTrack::Remote::SplitRegistry do
 
     begin
       Rails.cache.clear
-    rescue Errno::ENOENT # rubocop:disable Lint/HandleExceptions
+    rescue Errno::ENOENT
       # This is fine
     end
   end

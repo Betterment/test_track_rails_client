@@ -1,5 +1,5 @@
 class TestTrack::ConfigUpdater
-  def initialize(schema_file_path = Rails.root.join('db', 'test_track_schema.yml'))
+  def initialize(schema_file_path = Rails.root.join('db/test_track_schema.yml'))
     @schema_file_path = schema_file_path
   end
 
@@ -75,7 +75,7 @@ class TestTrack::ConfigUpdater
   end
 
   def unpersisted_split_names
-    @unpersisted_splits ||= splits.keys - remote_splits.keys
+    @unpersisted_split_names ||= splits.keys - remote_splits.keys
   end
 
   def splits
@@ -90,7 +90,7 @@ class TestTrack::ConfigUpdater
   end
 
   def schema_file_hash
-    @schema_hash ||= YAML.safe_load(schema_file_contents) || {}
+    @schema_file_hash ||= YAML.safe_load(schema_file_contents) || {}
   end
 
   def schema_file_contents

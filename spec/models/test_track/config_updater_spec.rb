@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::ConfigUpdater do
-  let(:schema_file_path) { Rails.root.join('tmp', 'test_track_schema.yml') }
+  let(:schema_file_path) { Rails.root.join('tmp/test_track_schema.yml') }
   let(:errors) { double(full_messages: ["this is wrong"]) }
 
   subject { described_class.new(schema_file_path) }
@@ -181,7 +181,7 @@ RSpec.describe TestTrack::ConfigUpdater do
               'true': 50
         YML
 
-        subject.split(:c, true: 50, false: 50)
+        subject.split(:c, true: 50, false: 50) # rubocop:disable Lint/BooleanSymbol
 
         expect_schema <<-YML.strip_heredoc
           ---

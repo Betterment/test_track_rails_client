@@ -28,8 +28,8 @@ class TestTrack::SplitRegistry
   end
 
   def to_hash
-    registry_hash && registry_hash['splits'].each_with_object({}) do |(k, v), result|
-      result[k] = { weights: v['weights'], feature_gate: v['feature_gate'] }
+    registry_hash && registry_hash['splits'].transform_values do |v|
+      { weights: v['weights'], feature_gate: v['feature_gate'] }
     end
   end
 

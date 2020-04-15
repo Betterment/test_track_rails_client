@@ -104,7 +104,7 @@ RSpec.describe TestTrack::ABConfiguration do
 
   describe "#variants" do
     it "should only have true and false keys" do
-      expect(subject.variants.keys).to eq %i(true false)
+      expect(subject.variants.keys).to eq %i(true false) # rubocop:disable Lint/BooleanSymbol
     end
 
     it "tells notifier if there are more than two variants" do
@@ -118,27 +118,27 @@ RSpec.describe TestTrack::ABConfiguration do
     context "true variant" do
       it "is true if set to nil during instantiation" do
         ab_configuration = described_class.new initialize_options.merge(true_variant: nil)
-        expect(ab_configuration.variants).to include(true: true)
+        expect(ab_configuration.variants).to include(true: true) # rubocop:disable Lint/BooleanSymbol
       end
 
       it "is whatever was passed during instantiation" do
-        expect(subject.variants).to include(true: "red")
+        expect(subject.variants).to include(true: "red") # rubocop:disable Lint/BooleanSymbol
       end
     end
 
     context "false variant" do
       it "is the variant of the split that is not the true_variant" do
-        expect(subject.variants).to include(false: "blue")
+        expect(subject.variants).to include(false: "blue") # rubocop:disable Lint/BooleanSymbol
       end
 
       it "is false when there is an unloaded split_registry" do
         ab_configuration = described_class.new initialize_options.merge(split_registry: TestTrack::SplitRegistry.new(nil))
-        expect(ab_configuration.variants).to include(false: false)
+        expect(ab_configuration.variants).to include(false: false) # rubocop:disable Lint/BooleanSymbol
       end
 
       it "is always the same if the split has more than two variants" do
         ab_configuration = described_class.new initialize_options.merge(split_name: :button_size, true_variant: :one)
-        expect(ab_configuration.variants).to include(false: "four")
+        expect(ab_configuration.variants).to include(false: "four") # rubocop:disable Lint/BooleanSymbol
       end
     end
   end
