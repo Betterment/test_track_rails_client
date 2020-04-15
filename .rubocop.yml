@@ -1,6 +1,10 @@
 # See full list of defaults here: https://github.com/bbatsov/rubocop/blob/master/config/default.yml
 # To see all cops used see here: https://github.com/bbatsov/rubocop/blob/master/config/enabled.yml
 
+require:
+  - rubocop-rails
+  - rubocop-performance
+
 inherit_from:
   - .rubocop_todo.yml
 
@@ -15,7 +19,7 @@ AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.5
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   Enabled: false
 
 Layout/CaseIndentation:
@@ -24,7 +28,7 @@ Layout/CaseIndentation:
 Layout/ClosingParenthesisIndentation:
   Enabled: false
 
-Layout/IndentArray:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
 Layout/MultilineMethodCallIndentation:
@@ -136,7 +140,7 @@ Style/PercentLiteralDelimiters:
 Naming/PredicateName:
   NamePrefix:
     - is_
-  NamePrefixBlacklist:
+  ForbiddenPrefixes:
     - is_
 
 Style/SignalException:
