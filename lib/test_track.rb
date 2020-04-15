@@ -16,6 +16,8 @@ module TestTrack
   module_function
 
   SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
+  BUILD_TIMESTAMP_FILE_PATH = 'testtrack/build_timestamp'.freeze
+  BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/.freeze
 
   mattr_accessor :enabled_override, :app_name
 
@@ -51,6 +53,26 @@ module TestTrack
       end
       @misconfiguration_notifier_class_name = notifier_class_name
     end
+
+    def build_timestamp # rubocop:disable Metrics/MethodLength
+      @build_timestamp ||= begin
+        timestamp = _build_timestamp
+
+        if Rails.env.test? || Rails.env.development?
+          Time.zone.now.iso8601
+        elsif timestamp.present?
+          unless BUILD_TIMESTAMP_REGEX.match?(timestamp)
+            raise "./testtrack/build_timestamp is not a valid ISO 8601 timestamp, got '#{timestamp}'"
+          end
+
+          timestamp
+        else
+          raise 'TestTrack failed to load the required build timestamp. ' \
+            'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
+        end
+      end
+    end
+    alias set_build_timestamp! build_timestamp
 
     private
 
@@ -104,6 +126,10 @@ module TestTrack
 
   def private_url
     ENV['TEST_TRACK_API_URL']
+  end
+
+  def _build_timestamp
+    File.read(BUILD_TIMESTAMP_FILE_PATH).chomp.presence if File.exist?(BUILD_TIMESTAMP_FILE_PATH)
   end
 
   def enabled?
