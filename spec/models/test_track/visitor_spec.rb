@@ -170,8 +170,8 @@ RSpec.describe TestTrack::Visitor do
 
       def vary_blue_button_split
         existing_visitor.vary :blue_button, context: :spec do |v|
-          v.when :true, &blue_block
-          v.default :false, &red_block
+          v.when :true, &blue_block # rubocop:disable Lint/BooleanSymbol
+          v.default :false, &red_block # rubocop:disable Lint/BooleanSymbol
         end
       end
 
@@ -226,23 +226,23 @@ RSpec.describe TestTrack::Visitor do
       it "requires less than two defaults" do
         expect {
           new_visitor.vary("blue_button", context: :spec) do |v|
-            v.when :true, &blue_block
-            v.default :false, &red_block
-            v.default :false, &red_block
+            v.when :true, &blue_block # rubocop:disable Lint/BooleanSymbol
+            v.default :false, &red_block # rubocop:disable Lint/BooleanSymbol
+            v.default :false, &red_block # rubocop:disable Lint/BooleanSymbol
           end
         }.to raise_error("cannot provide more than one `default`")
       end
 
       it "requires more than zero defaults" do
         expect {
-          new_visitor.vary("blue_button", context: :spec) { |v| v.when(:true, &blue_block) }
+          new_visitor.vary("blue_button", context: :spec) { |v| v.when(:true, &blue_block) } # rubocop:disable Lint/BooleanSymbol
         }.to raise_error("must provide exactly one `default`")
       end
 
       it "requires at least one when" do
         expect {
           new_visitor.vary("blue_button", context: :spec) do |v|
-            v.default :true, &red_block
+            v.default :true, &red_block # rubocop:disable Lint/BooleanSymbol
           end
         }.to raise_error("must provide at least one `when`")
       end
@@ -379,10 +379,12 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "preserves a local new assignment with no conflicting server-provided assignment as new" do
-        subject.assignment_registry['baz'] = instance_double(TestTrack::Assignment,
+        subject.assignment_registry['baz'] = instance_double(
+          TestTrack::Assignment,
           split_name: "baz",
           variant: "never",
-          unsynced?: true)
+          unsynced?: true
+        )
 
         subject.link_identity!(identity)
 
@@ -393,10 +395,12 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "removes and overrides a local new assignment with a conflicting server-provided assignment" do
-        subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
+        subject.assignment_registry['foo'] = instance_double(
+          TestTrack::Assignment,
           split_name: "foo",
           variant: "something_else",
-          unsynced?: true)
+          unsynced?: true
+        )
 
         subject.link_identity!(identity)
 
@@ -407,10 +411,12 @@ RSpec.describe TestTrack::Visitor do
       end
 
       it "overrides a local existing assignment with a conflicting server-provided assignment" do
-        subject.assignment_registry['foo'] = instance_double(TestTrack::Assignment,
+        subject.assignment_registry['foo'] = instance_double(
+          TestTrack::Assignment,
           split_name: "foo",
           variant: "something_else",
-          unsynced?: false)
+          unsynced?: false
+        )
 
         subject.link_identity!(identity)
 

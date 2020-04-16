@@ -11,8 +11,8 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
             splits: {
               buy_one_get_one_promotion_enabled: {
                 weights: {
-                  false: 100,
-                  true: 0
+                  false: 100, # rubocop:disable Lint/BooleanSymbol
+                  true: 0 # rubocop:disable Lint/BooleanSymbol
                 },
                 feature_gate: true
               },
@@ -43,10 +43,10 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
 
   context "when only legacy schema exists" do
     before do
-      allow(File).to receive(:exist?).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_return(false)
-      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_raise("foo")
-      allow(File).to receive(:exist?).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_return(true)
-      allow(YAML).to receive(:load_file).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_call_original
+      allow(File).to receive(:exist?).with(Rails.root.join('testtrack/schema.yml').to_s).and_return(false)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack/schema.yml').to_s).and_raise("foo")
+      allow(File).to receive(:exist?).with(Rails.root.join('db/test_track_schema.yml').to_s).and_return(true)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('db/test_track_schema.yml').to_s).and_call_original
     end
 
     describe '#to_h' do
@@ -56,8 +56,8 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
             splits: {
               buy_one_get_one_promotion_enabled: {
                 weights: {
-                  false: 100,
-                  true: 0
+                  false: 100, # rubocop:disable Lint/BooleanSymbol
+                  true: 0 # rubocop:disable Lint/BooleanSymbol
                 },
                 feature_gate: true
               },
@@ -88,10 +88,10 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
 
   context "when both schema.ymls don't exist" do
     before do
-      allow(File).to receive(:exist?).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_return(false)
-      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack', 'schema.yml').to_s).and_raise("nope!")
-      allow(File).to receive(:exist?).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_return(false)
-      allow(YAML).to receive(:load_file).with(Rails.root.join('db', 'test_track_schema.yml').to_s).and_raise("no indeed!")
+      allow(File).to receive(:exist?).with(Rails.root.join('testtrack/schema.yml').to_s).and_return(false)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('testtrack/schema.yml').to_s).and_raise("nope!")
+      allow(File).to receive(:exist?).with(Rails.root.join('db/test_track_schema.yml').to_s).and_return(false)
+      allow(YAML).to receive(:load_file).with(Rails.root.join('db/test_track_schema.yml').to_s).and_raise("no indeed!")
     end
 
     describe '#to_h' do

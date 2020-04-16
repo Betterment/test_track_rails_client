@@ -39,18 +39,18 @@ class TestTrack::Visitor
     ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
 
     vary(split_name, context: context) do |v|
-      v.when ab_configuration.variants[:true] do
+      v.when ab_configuration.variants[:true] do # rubocop:disable Lint/BooleanSymbol
         true
       end
-      v.default ab_configuration.variants[:false] do
+      v.default ab_configuration.variants[:false] do # rubocop:disable Lint/BooleanSymbol
         false
       end
     end
   end
 
   def assignment_registry
-    @assignment_registry ||= assignments.each_with_object({}) do |assignment, hsh|
-      hsh[assignment.split_name] = assignment
+    @assignment_registry ||= assignments.index_by do |assignment|
+      assignment.split_name
     end
   end
 

@@ -20,7 +20,7 @@ class TestTrack::ABConfiguration
 
   def build_variant_hash
     notify_because_ab("configures split with more than 2 variants") if split_variants && split_variants.size > 2
-    { true: true_variant, false: false_variant }
+    { true: true_variant, false: false_variant } # rubocop:disable Lint/BooleanSymbol
   end
 
   def true_variant

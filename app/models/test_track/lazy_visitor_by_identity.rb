@@ -4,7 +4,7 @@ class TestTrack::LazyVisitorByIdentity
   end
 
   def loaded?
-    @visitor.present?
+    @__visitor__.present?
   end
 
   def id_loaded?
@@ -14,7 +14,11 @@ class TestTrack::LazyVisitorByIdentity
   private
 
   def method_missing(method, *args, &block)
-    __visitor__.send(method, *args, &block)
+    if __visitor__.respond_to?(method)
+      __visitor__.send(method, *args, &block)
+    else
+      super
+    end
   end
 
   def respond_to_missing?(method, include_private = false)
@@ -22,7 +26,7 @@ class TestTrack::LazyVisitorByIdentity
   end
 
   def __visitor__
-    @visitor ||= __load_visitor__
+    @__visitor__ ||= __load_visitor__
   end
 
   def __load_visitor__

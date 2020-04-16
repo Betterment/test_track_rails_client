@@ -1,8 +1,9 @@
 # See full list of defaults here: https://github.com/bbatsov/rubocop/blob/master/config/default.yml
 # To see all cops used see here: https://github.com/bbatsov/rubocop/blob/master/config/enabled.yml
 
-inherit_from:
-  - .rubocop_todo.yml
+require:
+  - rubocop-rails
+  - rubocop-performance
 
 AllCops:
   Exclude:
@@ -15,7 +16,7 @@ AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.5
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   Enabled: false
 
 Layout/CaseIndentation:
@@ -24,8 +25,11 @@ Layout/CaseIndentation:
 Layout/ClosingParenthesisIndentation:
   Enabled: false
 
-Layout/IndentArray:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
+
+Layout/LineLength:
+  Max: 140
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
@@ -48,6 +52,12 @@ Lint/AmbiguousRegexpLiteral:
 Lint/BooleanSymbol:
   Enabled: true
 
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
 Metrics/AbcSize:
   Exclude:
     - 'spec/**/*'
@@ -62,9 +72,6 @@ Metrics/CyclomaticComplexity:
   Max: 10
   Exclude:
     - 'spec/**/*'
-
-Metrics/LineLength:
-  Max: 140
 
 Metrics/MethodLength:
   Exclude:
@@ -92,11 +99,19 @@ Rails/Delegate:
 Rails/FindEach:
   Enabled: false
 
+Rails/HasManyOrHasOneDependent:
+  Exclude:
+    - 'app/models/test_track/remote/**/*'
+
 Rails/HttpPositionalArguments:
   Enabled: false
 
 Rails/OutputSafety:
   Enabled: true
+
+Rails/RakeEnvironment:
+  Exclude:
+    - 'Rakefile'
 
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
@@ -112,6 +127,15 @@ Style/FrozenStringLiteralComment:
 
 Style/GuardClause:
   Enabled: false
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
 
 Style/Lambda:
   Enabled: false
@@ -136,7 +160,7 @@ Style/PercentLiteralDelimiters:
 Naming/PredicateName:
   NamePrefix:
     - is_
-  NamePrefixBlacklist:
+  ForbiddenPrefixes:
     - is_
 
 Style/SignalException:

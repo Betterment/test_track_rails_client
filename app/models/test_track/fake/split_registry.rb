@@ -57,12 +57,12 @@ class TestTrack::Fake::SplitRegistry
   def _legacy_test_track_schema_yml
     File.exist?(legacy_test_track_schema_yml_path) &&
       YAML.load_file(legacy_test_track_schema_yml_path).with_indifferent_access
-  rescue
+  rescue StandardError
     nil
   end
 
   def legacy_test_track_schema_yml_path
-    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db', 'test_track_schema.yml').to_s
+    ENV["TEST_TRACK_SCHEMA_FILE_PATH"] || Rails.root.join('db/test_track_schema.yml').to_s
   end
 
   def split_registry_with_deterministic_weights
