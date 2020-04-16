@@ -50,7 +50,7 @@ Set up ENV vars in every environment:
 * `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@[your-app-domain]/`
 
   [your-app-domain] can be
-  * `testtrack.dev` ([Pow](pow.cx))
+  * `testtrack.test`
   * `localhost:PORT`
   * `example.org`
   * etc
@@ -72,8 +72,8 @@ If your app doesn't support authentication, set
 
 ### Prepare your identity models (optional)
 
-If your app supports authentication, You'll need to configure your
-`User` model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
+If your app supports authentication, you'll need to configure your
+`User` model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model).
 
 ### Set up the Chrome extension (optional)
 
@@ -288,7 +288,7 @@ class BackgroundWorkJob
     end
   end
 end
-``` 
+```
 
 ## Tracking visitor logins
 
@@ -391,28 +391,29 @@ def notify(message)
 
 ### From 3.0 to 4.0
 
-The contract of custom analytics plugins has changed. Instead of
+* The contract of custom analytics plugins has changed. Instead of
 implementing `track_assignment` you now must implement `track`. It's
 easier and more conventional, though, and takes care of differentiating
-between expiriment assignments and feature gate experiences, which are
+between experiment assignments and feature gate experiences, which are
 no longer recorded server-side.
 
-You also must add `self.test_track_identity = :current_user` (or
+* You must add `self.test_track_identity = :current_user` (or
 whatever your controller uses as a sign-in identity) to your
 TestTrack-enabled controllers, or set it to `:none` if your app doesn't
-support authentication.
+support authentication. If your app supports authentication, you'll need to configure your
+user model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model).
 
-If your app supports authentication, You'll need to configure your
-user model as a [TestTrack Identity](#varying-app-behavior-from-within-a-model)
+* TestTrack server [introduced a new endpoint](https://github.com/Betterment/test_track/pull/133) for fetching the split registry that requires a timestamp of when the application was built. This prevents dropped splits from breaking a running application. If you use `rake assets:precompile` in your build pipeline, you're all set. If you don't, you'll need to call `rake test_track:generate_build_timestamp` and ensure that the file `testtrack/build_timestamp` is deployed along with your app.
 
 ### From 2.0 to 3.0
 
-TestTrack Rails Client no longer manages your Mixpanel cookie. The analytics plugin now provides a callback on `sign_up!` that will allow you to implement this functionality within your application. Please see the [analytics documentation](#analytics) for more details.
-The TestTrack.analytics client `#track_assignment` method no longer accepts a properties hash as an argument as `mixpanel_distinct_id` is no longer relevant.
+* TestTrack Rails Client no longer manages your Mixpanel cookie. The analytics plugin now provides a callback on `sign_up!` that will allow you to implement this functionality within your application. Please see the [analytics documentation](#analytics) for more details.
+
+* `TestTrack.analytics#track_assignment` no longer accepts a properties hash as an argument as `mixpanel_distinct_id` is no longer relevant.
 
 ### From 1.x to 1.3
 
-`TestTrack::Session#log_in!` and `TestTrack:Session#sign_up!` now take a `TestTrack::Identity` instance argument instead of an identity type and identity value.
+* `TestTrack::Session#log_in!` and `TestTrack:Session#sign_up!` now take a `TestTrack::Identity` instance argument instead of an identity type and identity value.
 
 ## How to Contribute
 
