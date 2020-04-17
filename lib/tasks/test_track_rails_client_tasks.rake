@@ -19,8 +19,13 @@ namespace :test_track do
   end
 
   desc 'Sets an environment variable to block build timestamp generation on application initialization'
-  task :skip_load_build_timestamp do # rubocop:disable Rails/RakeEnvironment
+  task :skip_set_build_timestamp do # rubocop:disable Rails/RakeEnvironment
     ENV['SKIP_TESTTRACK_SET_BUILD_TIMESTAMP'] = '1'
+  end
+
+  desc 'Removes the testtrack/build_timestamp file'
+  task remove_build_timestamp: :environment do
+    File.delete('testtrack/build_timestamp') if File.exist?('testtrack/build_timestamp')
   end
 
   namespace :schema do
@@ -41,7 +46,8 @@ namespace :test_track do
   end
 end
 
-task 'assets:environment' => ['test_track:skip_load_build_timestamp']
+task 'assets:clobber' => ['test_track:remove_build_timestamp']
+task 'assets:environment' => ['test_track:skip_set_build_timestamp']
 task 'assets:precompile' => ['test_track:generate_build_timestamp']
 task 'db:schema:load' => ['test_track:schema:load']
 task 'db:structure:load' => ['test_track:schema:load']
