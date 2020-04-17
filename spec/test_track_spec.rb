@@ -276,23 +276,25 @@ RSpec.describe TestTrack do
           end
         end
       end
+    end
 
-      context 'when set via assets:precompile' do
-        after do
-          Rake::Task['app:assets:clobber'].invoke
-          FileUtils.remove_dir('testtrack', true)
-        end
+    context 'when set via full assets:precompile command' do
+      around do |example|
+        FileUtils.remove_dir('testtrack', true)
+        example.run
+        Rake::Task['app:assets:clobber'].invoke
+        FileUtils.remove_dir('testtrack', true)
+      end
 
-        let(:asset_precompile_success) do
-          system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake app:assets:precompile')
-        end
+      let(:asset_precompile_success) do
+        system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake app:assets:precompile')
+      end
 
-        it 'does not raise an error' do
-          expect { asset_precompile_success }
-            .to change { File.exist?('testtrack/build_timestamp') }
-            .from(false).to(true)
-          expect(asset_precompile_success).to eq true
-        end
+      it 'does not raise an error' do
+        expect { asset_precompile_success }
+          .to change { File.exist?('testtrack/build_timestamp') }
+          .from(false).to(true)
+        expect(asset_precompile_success).to eq true
       end
     end
   end
