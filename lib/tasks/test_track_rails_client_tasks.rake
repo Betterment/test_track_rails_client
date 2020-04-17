@@ -19,7 +19,7 @@ namespace :test_track do
   end
 
   desc 'Sets an environment variable to block build timestamp generation on application initialization'
-  task skip_load_build_timestamp: :environment do
+  task :skip_load_build_timestamp do # rubocop:disable Rails/RakeEnvironment
     ENV['SKIP_TESTTRACK_SET_BUILD_TIMESTAMP'] = '1'
   end
 

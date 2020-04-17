@@ -203,7 +203,9 @@ RSpec.describe TestTrack do
       let(:file_readable) { true }
 
       before do
-        allow(File).to receive(:exist?).and_return(file_readable)
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with('testtrack/build_timestamp').and_return(file_readable)
+        allow(File).to receive(:read).and_call_original
         allow(File).to receive(:read).with('testtrack/build_timestamp').and_return("2020-02-21T00:00:00Z\n")
       end
 
@@ -273,6 +275,28 @@ RSpec.describe TestTrack do
               )
           end
         end
+      end
+    end
+
+    context 'when set via full assets:precompile command' do
+      around do |example|
+        Dir.chdir('spec/dummy') do
+          File.delete('testtrack/build_timestamp') if File.exist?('testtrack/build_timestamp')
+          example.run
+          system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake assets:clobber')
+          File.delete('testtrack/build_timestamp') if File.exist?('testtrack/build_timestamp')
+        end
+      end
+
+      let(:asset_precompile_success) do
+        system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake assets:precompile')
+      end
+
+      it 'does not raise an error' do
+        expect { asset_precompile_success }
+          .to change { File.exist?('testtrack/build_timestamp') }
+          .from(false).to(true)
+        expect(asset_precompile_success).to eq true
       end
     end
   end
