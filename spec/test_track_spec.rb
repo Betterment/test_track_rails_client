@@ -280,6 +280,7 @@ RSpec.describe TestTrack do
       context 'when set via assets:precompile' do
         after do
           Rake::Task['app:assets:clobber'].invoke
+          FileUtils.remove_dir('testtrack', true)
         end
 
         let(:asset_precompile_success) do
@@ -287,7 +288,9 @@ RSpec.describe TestTrack do
         end
 
         it 'does not raise an error' do
-          expect { asset_precompile_success }.not_to raise_error
+          expect { asset_precompile_success }
+            .to change { File.exists?('testtrack/build_timestamp') }
+            .from(false).to(true)
           expect(asset_precompile_success).to eq true
         end
       end
