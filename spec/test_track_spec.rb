@@ -203,7 +203,9 @@ RSpec.describe TestTrack do
       let(:file_readable) { true }
 
       before do
-        allow(File).to receive(:exist?).and_return(file_readable)
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with('testtrack/build_timestamp').and_return(file_readable)
+        allow(File).to receive(:read).and_call_original
         allow(File).to receive(:read).with('testtrack/build_timestamp').and_return("2020-02-21T00:00:00Z\n")
       end
 
@@ -272,6 +274,21 @@ RSpec.describe TestTrack do
                   'Ensure `test_track:generate_build_timestamp` task is run in `assets:precompile` and the build timestamp file is present.'
               )
           end
+        end
+      end
+
+      context 'when set via assets:precompile' do
+        after do
+          Rake::Task['app:assets:clobber'].invoke
+        end
+
+        let(:asset_precompile_success) do
+          system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake app:assets:precompile')
+        end
+
+        it 'does not raise an error' do
+          expect { asset_precompile_success }.not_to raise_error
+          expect(asset_precompile_success).to eq true
         end
       end
     end
