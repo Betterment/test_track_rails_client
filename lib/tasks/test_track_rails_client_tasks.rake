@@ -23,6 +23,11 @@ namespace :test_track do
     ENV['SKIP_TESTTRACK_SET_BUILD_TIMESTAMP'] = '1'
   end
 
+  desc 'Removes the testtrack/build_timestamp file'
+  task remove_build_timestamp: :environment do
+    File.delete('testtrack/build_timestamp') if File.exist?('testtrack/build_timestamp')
+  end
+
   namespace :schema do
     desc 'Load schema.yml state into TestTrack server'
     task load: :environment do
@@ -41,6 +46,7 @@ namespace :test_track do
   end
 end
 
+task 'assets:clobber' => ['test_track:remove_build_timestamp']
 task 'assets:environment' => ['test_track:skip_load_build_timestamp']
 task 'assets:precompile' => ['test_track:generate_build_timestamp']
 task 'db:schema:load' => ['test_track:schema:load']

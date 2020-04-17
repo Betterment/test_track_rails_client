@@ -283,20 +283,27 @@ RSpec.describe TestTrack do
         Dir.chdir('spec/dummy') do
           File.delete('testtrack/build_timestamp') if File.exist?('testtrack/build_timestamp')
           example.run
-          system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake assets:clobber')
-          File.delete('testtrack/build_timestamp') if File.exist?('testtrack/build_timestamp')
         end
       end
 
-      let(:asset_precompile_success) do
+      let(:assets_precompile_success) do
         system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake assets:precompile')
       end
 
+      let(:assets_clobber_success) do
+        system({ 'RAILS_ENV' => 'production' }, 'bundle exec rake assets:clobber')
+      end
+
       it 'does not raise an error' do
-        expect { asset_precompile_success }
+        expect { assets_precompile_success }
           .to change { File.exist?('testtrack/build_timestamp') }
           .from(false).to(true)
-        expect(asset_precompile_success).to eq true
+        expect(assets_precompile_success).to eq true
+
+        expect { assets_clobber_success }
+          .to change { File.exist?('testtrack/build_timestamp') }
+          .from(true).to(false)
+        expect(assets_clobber_success).to eq true
       end
     end
   end
