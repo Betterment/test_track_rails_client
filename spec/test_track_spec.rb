@@ -289,7 +289,7 @@ RSpec.describe TestTrack do
 
         it 'does not raise an error' do
           expect { asset_precompile_success }
-            .to change { File.exists?('testtrack/build_timestamp') }
+            .to change { File.exist?('testtrack/build_timestamp') }
             .from(false).to(true)
           expect(asset_precompile_success).to eq true
         end
