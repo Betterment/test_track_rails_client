@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::ABConfiguration do
+RSpec.describe TestTrack::AbConfiguration do
   subject do
     described_class.new initialize_options
   end

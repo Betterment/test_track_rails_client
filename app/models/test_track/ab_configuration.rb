@@ -1,4 +1,4 @@
-class TestTrack::ABConfiguration
+class TestTrack::AbConfiguration
   include TestTrack::RequiredOptions
 
   def initialize(opts) # rubocop:disable Metrics/AbcSize

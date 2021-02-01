@@ -65,7 +65,7 @@ RSpec.describe TestTrack::JobSession do
 
     it 'returns a visitor dsl from a store of remote visitors' do
       subject.manage do
-        expect(subject.visitor_dsl_for(clown)).to be_a(TestTrack::VisitorDSL)
+        expect(subject.visitor_dsl_for(clown)).to be_a(TestTrack::VisitorDsl)
 
         subject.visitor_dsl_for(clown).ab(:buy_one_get_one_promotion_enabled, context: 'spec')
         subject.visitor_dsl_for(clown).ab(:buy_one_get_one_promotion_enabled, context: 'spec')

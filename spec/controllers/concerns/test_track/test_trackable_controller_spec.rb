@@ -50,12 +50,12 @@ RSpec.describe TestTrack::Controller do
       ]
     }
   end
-  let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: true) }
+  let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, ab: true) }
 
   before do
     allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
     allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
-    allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
+    allow(TestTrack::VisitorDsl).to receive(:new).and_return(visitor_dsl)
     allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
   end
 
@@ -103,8 +103,8 @@ RSpec.describe TestTrack::Controller do
     expect(response.cookies['tt_visitor_id']).to eq existing_visitor_id
   end
 
-  it "exposes the VisitorDSL to the controller" do
-    allow(TestTrack::VisitorDSL).to receive(:new).and_return(visitor_dsl)
+  it "exposes the VisitorDsl to the controller" do
+    allow(TestTrack::VisitorDsl).to receive(:new).and_return(visitor_dsl)
     get :show, id: "1234"
     expect(visitor_dsl).to have_received(:ab).with('time', 'beer_thirty')
     expect(response).to have_http_status(:no_content)
@@ -116,8 +116,8 @@ RSpec.describe TestTrack::Controller do
   end
 
   it "raises a RoutingError when a feature flag is required and the ab value is false" do
-    allow(TestTrack::VisitorDSL).to receive(:new).and_return(
-      instance_double(TestTrack::VisitorDSL, ab: false)
+    allow(TestTrack::VisitorDsl).to receive(:new).and_return(
+      instance_double(TestTrack::VisitorDsl, ab: false)
     )
     expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
   end

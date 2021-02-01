@@ -430,7 +430,7 @@ RSpec.describe TestTrack::WebSession do
 
       it "fetches a remote visitor by identity" do
         visitor_dsl = subject.visitor_dsl_for(identity)
-        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        expect(visitor_dsl).to be_a TestTrack::VisitorDsl
         visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
@@ -444,7 +444,7 @@ RSpec.describe TestTrack::WebSession do
 
       it "fetches the remote visitor by identity instead of by visitor_id for security" do
         visitor_dsl = subject.visitor_dsl_for(identity)
-        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        expect(visitor_dsl).to be_a TestTrack::VisitorDsl
         visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
@@ -460,7 +460,7 @@ RSpec.describe TestTrack::WebSession do
 
       it "fetches a remote visitor by identity" do
         visitor_dsl = subject.visitor_dsl_for(identity)
-        expect(visitor_dsl).to be_a TestTrack::VisitorDSL
+        expect(visitor_dsl).to be_a TestTrack::VisitorDsl
         visitor_dsl.id
 
         expect(TestTrack::Remote::Visitor).to have_received(:from_identifier).with('clown_id', 1234)
@@ -472,12 +472,12 @@ RSpec.describe TestTrack::WebSession do
     let(:visitor) { instance_double(TestTrack::Visitor) }
 
     it "is a DSL that proxies to the visitor" do
-      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+      allow(TestTrack::VisitorDsl).to receive(:new).and_call_original
       allow(TestTrack::Visitor).to receive(:new).and_return(visitor)
 
       subject.visitor_dsl
 
-      expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
+      expect(TestTrack::VisitorDsl).to have_received(:new).with(visitor)
     end
 
     context "with authentication disabled" do
@@ -486,12 +486,12 @@ RSpec.describe TestTrack::WebSession do
       end
 
       it "returns a visitor-seeded DSL" do
-        allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+        allow(TestTrack::VisitorDsl).to receive(:new).and_call_original
         allow(TestTrack::Visitor).to receive(:new).and_return(visitor)
 
         subject.visitor_dsl
 
-        expect(TestTrack::VisitorDSL).to have_received(:new).with(visitor)
+        expect(TestTrack::VisitorDsl).to have_received(:new).with(visitor)
       end
     end
 

@@ -12,7 +12,7 @@ RSpec.describe TestTrack::IdentitySessionLocator do
 
     context "within a web session" do
       let(:test_track_session) { instance_double(TestTrack::WebSession) }
-      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl) }
 
       before do
         allow(RequestStore).to receive(:[]).with(:test_track_web_session).and_return(test_track_session)
@@ -28,7 +28,7 @@ RSpec.describe TestTrack::IdentitySessionLocator do
 
     context 'within a job session' do
       let(:test_track_session) { instance_double(TestTrack::JobSession) }
-      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl) }
 
       before do
         allow(RequestStore).to receive(:[]).with(:test_track_web_session).and_return(nil)
@@ -44,7 +44,7 @@ RSpec.describe TestTrack::IdentitySessionLocator do
     end
 
     context "outside of any session" do
-      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL) }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl) }
 
       before do
         allow(TestTrack::OfflineSession).to receive(:with_visitor_for).and_yield(visitor_dsl)

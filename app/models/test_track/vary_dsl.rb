@@ -1,4 +1,4 @@
-class TestTrack::VaryDSL
+class TestTrack::VaryDsl
   include TestTrack::RequiredOptions
 
   attr_reader :defaulted, :default_variant

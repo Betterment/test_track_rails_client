@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::VaryDSL do
+RSpec.describe TestTrack::VaryDsl do
   subject do
     described_class.new(
       assignment: assignment,

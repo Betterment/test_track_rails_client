@@ -13,7 +13,7 @@ class TestTrack::JobSession
   def visitor_dsl_for(identity)
     raise "must be called within `manage` block" if RequestStore[:test_track_job_session].nil?
 
-    TestTrack::VisitorDSL.new(for_identity(identity))
+    TestTrack::VisitorDsl.new(for_identity(identity))
   end
 
   private
