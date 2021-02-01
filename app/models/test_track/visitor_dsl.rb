@@ -1,4 +1,4 @@
-class TestTrack::VisitorDSL
+class TestTrack::VisitorDsl
   def initialize(visitor)
     @visitor = visitor
   end

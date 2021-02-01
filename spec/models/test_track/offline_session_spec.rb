@@ -50,14 +50,14 @@ RSpec.describe TestTrack::OfflineSession do
       expect(described_class).to have_received(:new).with(remote_visitor)
     end
 
-    it "yields a VisitorDSL" do
-      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+    it "yields a VisitorDsl" do
+      allow(TestTrack::VisitorDsl).to receive(:new).and_call_original
 
       described_class.with_visitor_for("clown_id", 1234) do |v|
-        expect(v).to be_an_instance_of(TestTrack::VisitorDSL)
+        expect(v).to be_an_instance_of(TestTrack::VisitorDsl)
       end
 
-      expect(TestTrack::VisitorDSL).to have_received(:new).with(an_instance_of(TestTrack::Visitor))
+      expect(TestTrack::VisitorDsl).to have_received(:new).with(an_instance_of(TestTrack::Visitor))
     end
 
     context "notify unsynced assignments" do
@@ -135,14 +135,14 @@ RSpec.describe TestTrack::OfflineSession do
       expect(described_class).to have_received(:new).with(remote_visitor)
     end
 
-    it "yields a VisitorDSL" do
-      allow(TestTrack::VisitorDSL).to receive(:new).and_call_original
+    it "yields a VisitorDsl" do
+      allow(TestTrack::VisitorDsl).to receive(:new).and_call_original
 
       described_class.with_visitor_id(1234) do |v|
-        expect(v).to be_an_instance_of(TestTrack::VisitorDSL)
+        expect(v).to be_an_instance_of(TestTrack::VisitorDsl)
       end
 
-      expect(TestTrack::VisitorDSL).to have_received(:new).with(an_instance_of(TestTrack::Visitor))
+      expect(TestTrack::VisitorDsl).to have_received(:new).with(an_instance_of(TestTrack::Visitor))
     end
 
     context "notify unsynced assignments" do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TestTrack::VisitorDSL do
+RSpec.describe TestTrack::VisitorDsl do
   let(:visitor) { TestTrack::Visitor.new }
   subject { described_class.new(visitor) }
 

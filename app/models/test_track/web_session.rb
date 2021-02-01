@@ -16,11 +16,11 @@ class TestTrack::WebSession
   end
 
   def visitor_dsl_for(identity)
-    TestTrack::VisitorDSL.new(visitors.for_identity(identity))
+    TestTrack::VisitorDsl.new(visitors.for_identity(identity))
   end
 
   def visitor_dsl
-    TestTrack::VisitorDSL.new(current_visitor)
+    TestTrack::VisitorDsl.new(current_visitor)
   end
 
   def state_hash

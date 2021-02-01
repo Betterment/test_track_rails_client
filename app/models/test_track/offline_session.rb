@@ -35,7 +35,7 @@ class TestTrack::OfflineSession
   end
 
   def manage
-    yield TestTrack::VisitorDSL.new(visitor)
+    yield TestTrack::VisitorDsl.new(visitor)
   ensure
     notify_unsynced_assignments!
   end

@@ -6,7 +6,7 @@ RSpec.describe TestTrack::Identity do
   describe ".test_track_identifier" do
     context "#test_track_ab" do
       let(:identity_session_locator) { instance_double(TestTrack::IdentitySessionLocator) }
-      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, ab: false) }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, ab: false) }
 
       before do
         allow(TestTrack::IdentitySessionLocator).to receive(:new).and_return(identity_session_locator)
@@ -31,7 +31,7 @@ RSpec.describe TestTrack::Identity do
       end
 
       let(:identity_session_locator) { instance_double(TestTrack::IdentitySessionLocator) }
-      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, vary: "salad please") }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, vary: "salad please") }
 
       before do
         allow(TestTrack::IdentitySessionLocator).to receive(:new).and_return(identity_session_locator)
@@ -49,7 +49,7 @@ RSpec.describe TestTrack::Identity do
 
     context "#test_track_visitor_id" do
       let(:identity_session_locator) { instance_double(TestTrack::IdentitySessionLocator) }
-      let(:visitor_dsl) { instance_double(TestTrack::VisitorDSL, id: "a_fake_id") }
+      let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, id: "a_fake_id") }
 
       before do
         allow(TestTrack::IdentitySessionLocator).to receive(:new).and_return(identity_session_locator)
