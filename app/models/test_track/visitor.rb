@@ -36,7 +36,7 @@ class TestTrack::Visitor
     context = require_option!(opts, :context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
-    ab_configuration = TestTrack::ABConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
+    ab_configuration = TestTrack::AbConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
 
     vary(split_name, context: context) do |v|
       v.when ab_configuration.variants[:true] do # rubocop:disable Lint/BooleanSymbol
