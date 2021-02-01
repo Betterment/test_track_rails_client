@@ -53,7 +53,7 @@ task :vendor_deps do
 end
 
 task(:default).clear
-if ENV['APPRAISAL_INITIALIZED'] || ENV['TRAVIS']
+if ENV['APPRAISAL_INITIALIZED'] || ENV['CI']
   task default: %i(rubocop spec)
 else
   require 'appraisal'
