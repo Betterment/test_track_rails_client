@@ -19,6 +19,7 @@ jobs:
           - gemfiles/rails_5_1.gemfile
           - gemfiles/rails_5_2.gemfile
           - gemfiles/rails_6_0.gemfile
+          - gemfiles/rails_6_1.gemfile
     name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}
     steps:
       - uses: technote-space/auto-cancel-redundant-job@v1

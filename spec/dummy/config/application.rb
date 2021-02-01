@@ -20,15 +20,9 @@ module Dummy
       )
     end
 
-    if rails_version_between?('5.1', '5.2')
-      config.load_defaults 5.1
-      config.active_record.sqlite3&.represent_boolean_as_integer = true
-    elsif rails_version_between?('5.2', '6.0')
-      config.load_defaults 5.2
-      config.active_record.sqlite3&.represent_boolean_as_integer = true
-    elsif rails_version_between?('6.0', '6.1')
-      config.load_defaults 6.0
-      config.active_record.sqlite3&.represent_boolean_as_integer = true
-    end
+    config.load_defaults 5.1 if rails_version_between?('5.1', '5.2')
+    config.load_defaults 5.2 if rails_version_between?('5.2', '6.0')
+    config.load_defaults 6.0 if rails_version_between?('6.0', '6.1')
+    config.load_defaults 6.1 if rails_version_between?('6.1', '6.2')
   end
 end
