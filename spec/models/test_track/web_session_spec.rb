@@ -540,8 +540,18 @@ RSpec.describe TestTrack::WebSession do
       allow(split_registry).to receive(:experience_sampling_weight).and_return(sampling_weight)
     end
 
-    it "includes the test track URL" do
-      expect(subject.state_hash[:url]).to eq "http://testtrack.dev"
+    context 'when no public url is provided' do
+      it "defaults to the private test track URL" do
+        expect(subject.state_hash[:url]).to eq "http://testtrack.dev"
+      end
+    end
+
+    context 'when a public url is provided' do
+      it "uses the public test track URL" do
+        with_env TEST_TRACK_PUBLIC_API_URL: 'http://public.url.com' do
+          expect(subject.state_hash[:url]).to eq "http://public.url.com"
+        end
+      end
     end
 
     it "includes the cookie_domain" do
