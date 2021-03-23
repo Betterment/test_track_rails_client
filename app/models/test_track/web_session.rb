@@ -25,7 +25,7 @@ class TestTrack::WebSession
 
   def state_hash
     {
-      url: TestTrack.url,
+      url: TestTrack.public_url,
       cookieDomain: cookie_domain,
       cookieName: visitor_cookie_name,
       splits: current_visitor.split_registry.to_hash,
