@@ -307,4 +307,22 @@ RSpec.describe TestTrack do
       end
     end
   end
+
+  describe '.public_url' do
+    context 'when TEST_TRACK_PUBLIC_API_URL is set' do
+      it 'returns it' do
+        with_env TEST_TRACK_PUBLIC_API_URL: 'http://public.url.com' do
+          expect(TestTrack.public_url).to eq 'http://public.url.com'
+        end
+      end
+    end
+
+    context 'when TEST_TRACK_PUBLIC_API_URL is not set' do
+      it 'returns private url with credentials removed' do
+        with_env TEST_TRACK_API_URL: 'http://user:pass@private.url.com' do
+          expect(TestTrack.public_url).to eq 'http://private.url.com'
+        end
+      end
+    end
+  end
 end

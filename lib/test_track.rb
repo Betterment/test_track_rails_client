@@ -115,17 +115,21 @@ module TestTrack
     yield(ConfigUpdater.new)
   end
 
-  def url
+  def public_url
+    ENV['TEST_TRACK_PUBLIC_API_URL'] || _uncredentialed_private_url
+  end
+
+  def private_url
+    ENV['TEST_TRACK_API_URL']
+  end
+
+  def _uncredentialed_private_url
     return nil unless private_url
 
     full_uri = URI.parse(private_url)
     full_uri.user = nil
     full_uri.password = nil
     full_uri.to_s
-  end
-
-  def private_url
-    ENV['TEST_TRACK_API_URL']
   end
 
   def _build_timestamp

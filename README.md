@@ -48,6 +48,7 @@ Set up ENV vars in every environment:
 
 * `MIXPANEL_TOKEN` - By default, TestTrack reports to Mixpanel. If you're using a [custom analytics provider](#analytics) you can omit this.
 * `TEST_TRACK_API_URL` - Set this to the URL of your TestTrack instance with your app credentials, e.g. `http://[myapp]:[your new app password]@[your-app-domain]/`
+* `TEST_TRACK_PUBLIC_API_URL` - (optional) If public traffic to TestTrack should use a different host name, set this variable. By default this will use `TEST_TRACK_API_URL` without any credentials
 
   [your-app-domain] can be
   * `testtrack.test`
