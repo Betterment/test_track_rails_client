@@ -60,6 +60,7 @@ RSpec.configure do |config|
   # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
 
+  config.include ActiveJob::TestHelper
   config.include Shoulda::Matchers::Independent
   config.include EnvironmentSpecHelper
   config.include EnabledSpecHelper

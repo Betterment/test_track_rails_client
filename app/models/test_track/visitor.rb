@@ -78,7 +78,7 @@ class TestTrack::Visitor
 
       # If at first you don't succeed, async it - we may not display 100% consistent UX this time,
       # but subsequent requests will be better off
-      TestTrack::Remote::Identifier.delay.create!(opts)
+      TestTrack::IdentifierCreationJob.perform_later(opts)
     end
   end
 

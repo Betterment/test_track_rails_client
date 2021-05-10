@@ -13,21 +13,19 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   def notify
     assignments.each do |assignment|
-      build_notify_assignment_job(assignment).tap do |job|
-        job.perform
-      rescue *TestTrack::SERVER_ERRORS => e
-        Rails.logger.error "TestTrack failed to notify unsynced assignments, retrying. #{e}"
-        Delayed::Job.enqueue(build_notify_assignment_job(assignment))
-      end
+      TestTrack::AssignmentEventJob.perform_now assignment_job_args(assignment)
+    rescue *TestTrack::SERVER_ERRORS => e
+      Rails.logger.error "TestTrack failed to notify unsynced assignments, retrying. #{e}"
+      TestTrack::AssignmentEventJob.perform_later assignment_job_args(assignment)
     end
   end
 
   private
 
-  def build_notify_assignment_job(assignment)
-    TestTrack::NotifyAssignmentJob.new(
+  def assignment_job_args(assignment)
+    {
       visitor_id: visitor_id,
       assignment: assignment
-    )
+    }
   end
 end

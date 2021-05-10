@@ -28,39 +28,36 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
   end
 
   describe "#notify" do
-    let(:phaser_job) { instance_double(TestTrack::NotifyAssignmentJob, perform: true) }
-    let(:alert_job) { instance_double(TestTrack::NotifyAssignmentJob, perform: true) }
-
-    before do
-      allow(TestTrack::NotifyAssignmentJob).to receive(:new).with(
-        visitor_id: "fake_visitor_id",
-        assignment: phaser_assignment
-      ).and_return(phaser_job)
-
-      allow(TestTrack::NotifyAssignmentJob).to receive(:new).with(
-        visitor_id: "fake_visitor_id",
-        assignment: alert_assignment
-      ).and_return(alert_job)
-
-      allow(Delayed::Job).to receive(:enqueue).and_return(true)
-    end
-
     it "creates and performs NotifyAssignmentJob for each assignment" do
+      allow(TestTrack::AssignmentEventJob).to receive(:perform_now).and_return(true)
+      allow(TestTrack::AssignmentEventJob).to receive(:perform_later) { raise("unexpected!") }
+
       subject.notify
 
-      expect(TestTrack::NotifyAssignmentJob).to have_received(:new).exactly(:twice)
-
-      expect(phaser_job).to have_received(:perform)
-      expect(alert_job).to have_received(:perform)
+      expect(TestTrack::AssignmentEventJob).to have_received(:perform_now).with(
+        visitor_id: "fake_visitor_id",
+        assignment: phaser_assignment
+      )
+      expect(TestTrack::AssignmentEventJob).to have_received(:perform_now).with(
+        visitor_id: "fake_visitor_id",
+        assignment: alert_assignment
+      )
     end
 
     it "enqueues a NotifyAssignmentJob if it blows up" do
-      allow(phaser_job).to receive(:perform) { raise(Faraday::TimeoutError, "Womp womp") }
+      allow(TestTrack::AssignmentEventJob).to receive(:perform_now) { raise(Faraday::TimeoutError, "Womp womp") }
+      allow(TestTrack::AssignmentEventJob).to receive(:perform_later).and_return(true)
 
       subject.notify
 
-      expect(Delayed::Job).to have_received(:enqueue).with(phaser_job)
-      expect(Delayed::Job).not_to have_received(:enqueue).with(alert_job)
+      expect(TestTrack::AssignmentEventJob).to have_received(:perform_later).with(
+        visitor_id: "fake_visitor_id",
+        assignment: phaser_assignment
+      )
+      expect(TestTrack::AssignmentEventJob).to have_received(:perform_later).with(
+        visitor_id: "fake_visitor_id",
+        assignment: alert_assignment
+      )
     end
   end
 end
