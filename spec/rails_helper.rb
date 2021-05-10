@@ -7,8 +7,6 @@ require 'spec_helper'
 require 'rails-controller-testing'
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
-require 'delayed_job'
-require 'delayed_job_active_record'
 require 'pry'
 require 'shoulda/matchers'
 require 'timecop'
@@ -64,8 +62,5 @@ RSpec.configure do |config|
   config.include Shoulda::Matchers::Independent
   config.include EnvironmentSpecHelper
   config.include EnabledSpecHelper
-  config.include DelayedJobSpecHelper
   config.include RailsCompatibilitySpecHelper, type: :controller
 end
-
-Delayed::Worker.delay_jobs = false

@@ -16,14 +16,12 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency 'delayed_job', '~> 4.0'
-  s.add_dependency 'delayed_job_active_record'
   s.add_dependency "faraday", ">= 0.8"
   s.add_dependency 'faraday_middleware'
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
   s.add_dependency 'multi_json', '~> 1.7'
   s.add_dependency 'public_suffix', '>= 2.0.0', '<= 3.0.0'
-  s.add_dependency 'rails', '>= 4.1', "< 7.0"
+  s.add_dependency 'rails', '>= 4.2'
   s.add_dependency 'request_store', '~> 1.3'
 
   s.add_development_dependency 'appraisal'
