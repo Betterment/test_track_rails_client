@@ -1,8 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
-  let(:phaser_assignment) { instance_double(TestTrack::Assignment, split_name: "phaser", variant: "stun", context: "the_context") }
-  let(:alert_assignment) { instance_double(TestTrack::Assignment, split_name: "alert", variant: "yellow", context: "the_context") }
+  let(:phaser_assignment_opts) { { split_name: "phaser", variant: "stun", context: "the_context" } }
+  let(:phaser_assignment) { instance_double(TestTrack::Assignment, phaser_assignment_opts) }
+  let(:alert_assignment_opts) { { split_name: "alert", variant: "yellow", context: "the_context" } }
+  let(:alert_assignment) { instance_double(TestTrack::Assignment, alert_assignment_opts) }
   let(:params) do
     {
       visitor_id: "fake_visitor_id",
@@ -36,11 +38,11 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
 
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_now).with(
         visitor_id: "fake_visitor_id",
-        assignment: phaser_assignment
+        assignment: phaser_assignment_opts
       )
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_now).with(
         visitor_id: "fake_visitor_id",
-        assignment: alert_assignment
+        assignment: alert_assignment_opts
       )
     end
 
@@ -52,11 +54,11 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
 
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_later).with(
         visitor_id: "fake_visitor_id",
-        assignment: phaser_assignment
+        assignment: phaser_assignment_opts
       )
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_later).with(
         visitor_id: "fake_visitor_id",
-        assignment: alert_assignment
+        assignment: alert_assignment_opts
       )
     end
   end

@@ -2,19 +2,27 @@ module TestTrack
   class AssignmentEventJob < TestTrack.job_base_class_name.constantize
     attr_reader :visitor_id, :assignment
 
-    def perform(opts)
-      @visitor_id = opts.delete(:visitor_id)
-      @assignment = opts.delete(:assignment)
+    def perform(visitor_id:, assignment:)
+      raise "visitor_id must be present" if visitor_id.blank?
+      raise "assignment must be present" if assignment.blank?
 
-      %w(visitor_id assignment).each do |param_name|
-        raise "#{param_name} must be present" if send(param_name).blank?
-      end
-      raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
+      @visitor_id = visitor_id
+      @assignment = build_assignment(visitor_id, assignment)
 
       create_assignment_event!
     end
 
     private
+
+    def build_assignment(visitor_id, opts)
+      assignment = Assignment.new(
+        visitor: Visitor.new(id: visitor_id),
+        split_name: opts[:split_name]
+      )
+      assignment.context = opts[:context]
+      assignment.variant = opts[:variant]
+      assignment
+    end
 
     def create_assignment_event!
       tracking_result = maybe_track

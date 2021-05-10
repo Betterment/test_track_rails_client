@@ -1,15 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::AssignmentEventJob do
-  let(:feature_gate) { false }
+  let(:split_name) { "phaser" }
   let(:assignment) do
-    instance_double(
-      TestTrack::Assignment,
-      split_name: "phaser",
+    {
+      split_name: split_name,
       variant: "stun",
-      context: "the_context",
-      feature_gate?: feature_gate
-    )
+      context: "the_context"
+    }
   end
   let(:params) do
     {
@@ -59,7 +57,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
 
     it "blows up with unknown opts" do
       expect { described_class.perform_now(params.merge(extra_stuff: true)) }
-        .to raise_error(/unknown opts/)
+        .to raise_error(ArgumentError, /unknown keyword/)
     end
 
     it "does not send analytics events when test track is not enabled" do
@@ -101,7 +99,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
     end
 
     context "with a feature gate" do
-      let(:feature_gate) { true }
+      let(:split_name) { "phaser_enabled" }
 
       it "does not send test_track assignments" do
         with_test_track_enabled { described_class.perform_now(params) }
@@ -152,10 +150,13 @@ RSpec.describe TestTrack::AssignmentEventJob do
 
   describe '#perform_later' do
     it "sends test_track assignment" do
-      with_test_track_enabled { described_class.perform_later(params) }
+      described_class.perform_later(params)
 
       expect(enqueued_jobs.count).to eq 1
-      expect(perform_enqueued_jobs).to eq 1
+
+      with_test_track_enabled do
+        expect(perform_enqueued_jobs).to eq 1
+      end
 
       expect(TestTrack::Remote::AssignmentEvent).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
