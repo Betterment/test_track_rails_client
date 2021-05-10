@@ -20,6 +20,7 @@ module TestTrack
   BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/.freeze
 
   mattr_accessor :enabled_override, :app_name
+  mattr_accessor(:job_base_class_name) { 'ActiveJob::Base' }
 
   class << self
     def analytics
