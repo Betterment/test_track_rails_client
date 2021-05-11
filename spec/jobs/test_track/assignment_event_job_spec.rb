@@ -149,13 +149,17 @@ RSpec.describe TestTrack::AssignmentEventJob do
   end
 
   describe '#perform_later' do
-    it "sends test_track assignment" do
-      described_class.perform_later(params)
+    it "enqueues a job and performs it" do
+      expect {
+        described_class.perform_later(params)
+      }.to change { enqueued_jobs.count }.to 1
 
-      expect(enqueued_jobs.count).to eq 1
+      expect(TestTrack::Remote::AssignmentEvent).not_to have_received(:create!)
 
-      with_test_track_enabled do
-        expect(perform_enqueued_jobs).to eq 1
+      perform_enqueued_jobs do
+        expect {
+          with_test_track_enabled { described_class.perform_later(params) }
+        }.to change { performed_jobs.count }.to 1
       end
 
       expect(TestTrack::Remote::AssignmentEvent).to have_received(:create!).with(

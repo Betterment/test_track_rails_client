@@ -31,7 +31,17 @@ RSpec.describe TestTrack::IdentifierCreationJob do
         )
       }.to change { enqueued_jobs.count }.to 1
 
-      expect(perform_enqueued_jobs).to eq 1
+      expect(TestTrack::Remote::Identifier).not_to have_received(:create!)
+
+      perform_enqueued_jobs do
+        expect {
+          described_class.perform_later(
+            identifier_type: 'myappdb_user_id',
+            visitor_id: "fake_visitor_id",
+            value: "444"
+          )
+        }.to change { performed_jobs.count }.to 1
+      end
 
       expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
         identifier_type: 'myappdb_user_id',
