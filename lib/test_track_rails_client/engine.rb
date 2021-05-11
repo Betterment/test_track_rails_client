@@ -18,6 +18,8 @@ rescue LoadError
   # no-op
 end
 
+require 'active_job'
+require 'active_model'
 require 'test_track'
 
 module TestTrackRailsClient

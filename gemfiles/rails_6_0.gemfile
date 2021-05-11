@@ -5,6 +5,6 @@ source "https://rubygems.org"
 ruby ">= 2.5.0"
 
 gem "jbuilder"
-gem "rails", "~> 6.0.0"
+gem "railties", "~> 6.0.0"
 
 gemspec path: "../"
