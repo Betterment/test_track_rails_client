@@ -1,5 +1,5 @@
 module TestTrack
-  class AssignmentEventJob < TestTrack.job_base_class_name.constantize
+  class AssignmentEventJob < ApplicationJob
     attr_reader :visitor_id, :assignment
 
     def perform(visitor_id:, split_name:, variant:, context:)
