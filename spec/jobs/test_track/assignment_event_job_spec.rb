@@ -10,10 +10,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
     }
   end
   let(:params) do
-    {
-      visitor_id: "fake_visitor_id",
-      assignment: assignment
-    }
+    { visitor_id: "fake_visitor_id" }.merge(assignment)
   end
   let(:split_registry_url) { "http://testtrack.dev/api/v2/split_registry" }
   let(:remote_assignment) { instance_double(TestTrack::Remote::AssignmentEvent) }
@@ -51,8 +48,8 @@ RSpec.describe TestTrack::AssignmentEventJob do
     end
 
     it "blows up with empty assignment" do
-      expect { described_class.perform_now(params.merge(assignment: nil)) }
-        .to raise_error(/assignment/)
+      expect { described_class.perform_now(params.merge(split_name: nil, variant: nil, context: nil)) }
+        .to raise_error(/split_name/)
     end
 
     it "blows up with unknown opts" do

@@ -37,12 +37,10 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
       subject.notify
 
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_now).with(
-        visitor_id: "fake_visitor_id",
-        assignment: phaser_assignment_opts
+        phaser_assignment_opts.merge(visitor_id: "fake_visitor_id")
       )
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_now).with(
-        visitor_id: "fake_visitor_id",
-        assignment: alert_assignment_opts
+        alert_assignment_opts.merge(visitor_id: "fake_visitor_id")
       )
     end
 
@@ -53,12 +51,10 @@ RSpec.describe TestTrack::UnsyncedAssignmentsNotifier do
       subject.notify
 
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_later).with(
-        visitor_id: "fake_visitor_id",
-        assignment: phaser_assignment_opts
+        phaser_assignment_opts.merge(visitor_id: "fake_visitor_id")
       )
       expect(TestTrack::AssignmentEventJob).to have_received(:perform_later).with(
-        visitor_id: "fake_visitor_id",
-        assignment: alert_assignment_opts
+        alert_assignment_opts.merge(visitor_id: "fake_visitor_id")
       )
     end
   end

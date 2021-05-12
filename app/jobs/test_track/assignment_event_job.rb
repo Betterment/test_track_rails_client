@@ -2,25 +2,25 @@ module TestTrack
   class AssignmentEventJob < TestTrack.job_base_class_name.constantize
     attr_reader :visitor_id, :assignment
 
-    def perform(visitor_id:, assignment:)
+    def perform(visitor_id:, split_name:, variant:, context:)
       raise "visitor_id must be present" if visitor_id.blank?
-      raise "assignment must be present" if assignment.blank?
+      raise "split_name must be present" if visitor_id.blank?
 
       @visitor_id = visitor_id
-      @assignment = build_assignment(visitor_id, assignment)
+      @assignment = build_assignment(visitor_id, split_name, variant, context)
 
       create_assignment_event!
     end
 
     private
 
-    def build_assignment(visitor_id, opts)
+    def build_assignment(visitor_id, split_name, variant, context)
       assignment = Assignment.new(
         visitor: Visitor.new(id: visitor_id),
-        split_name: opts[:split_name]
+        split_name: split_name
       )
-      assignment.context = opts[:context]
-      assignment.variant = opts[:variant]
+      assignment.variant = variant
+      assignment.context = context
       assignment
     end
 
