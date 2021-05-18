@@ -1,6 +1,6 @@
 require 'her'
 require 'active_support/concern'
-require 'rails'
+require 'active_support/callbacks'
 
 module FakeableHer
   module Model

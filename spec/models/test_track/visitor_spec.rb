@@ -306,12 +306,7 @@ RSpec.describe TestTrack::Visitor do
 
   describe "#link_identity!" do
     subject { described_class.new(id: "fake_visitor_id") }
-    let(:delayed_identifier_proxy) { double(create!: "fake visitor") }
     let(:identity) { double(test_track_identifier_type: 'myappdb_user_id', test_track_identifier_value: 444) }
-
-    before do
-      allow(TestTrack::Remote::Identifier).to receive(:delay).and_return(delayed_identifier_proxy)
-    end
 
     it "sends the appropriate params to test track" do
       allow(TestTrack::Remote::Identifier).to receive(:create!).and_call_original
@@ -329,12 +324,14 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "delays the identifier creation if TestTrack times out and carries on" do
+      allow(TestTrack::IdentifierCreationJob).to receive(:perform_later).and_return(true)
       allow(TestTrack::Remote::Identifier).to receive(:create!) { raise(Faraday::TimeoutError, "You snooze you lose!") }
+
       subject.link_identity!(identity)
 
       expect(subject.id).to eq "fake_visitor_id"
 
-      expect(delayed_identifier_proxy).to have_received(:create!).with(
+      expect(TestTrack::IdentifierCreationJob).to have_received(:perform_later).with(
         identifier_type: 'myappdb_user_id',
         visitor_id: "fake_visitor_id",
         value: "444"
@@ -342,10 +339,12 @@ RSpec.describe TestTrack::Visitor do
     end
 
     it "normally doesn't delay identifier creation" do
+      allow(TestTrack::IdentifierCreationJob).to receive(:perform_later).and_return(true)
+
       subject.link_identity!(identity)
 
       expect(subject.id).to eq "fake_visitor_id"
-      expect(delayed_identifier_proxy).not_to have_received(:create!)
+      expect(TestTrack::IdentifierCreationJob).not_to have_received(:perform_later)
     end
 
     context "with stubbed identifier creation" do
