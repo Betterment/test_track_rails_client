@@ -14,3 +14,4 @@ splits:
   weights:
     control: 0
     treatment: 100
+  decided: true
