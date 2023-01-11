@@ -390,6 +390,19 @@ def notify(message)
 
 ## Upgrading
 
+### From 5.0 to 6.0
+
+* The offline split registry (used in tests, etc) will now favor variants with
+  weights of 100% when generating deterministic weightings. If no variant has a
+  weight of 100%, then it will fall back on the previous behavior of favoring
+  the variant with the lowest alphanumerically-sorted name (conventionally
+  "false" and "control").
+
+  This means that, when deciding a split via a migration (and/or updating a new
+  variant to 100% in the schema), tests that assumed the previous variant may
+  begin to fail and will require additional code cleanup (or must be explicitly
+  stubbed to use the previous variant).
+
 ### From 3.0 to 4.0
 
 * The contract of custom analytics plugins has changed. Instead of
