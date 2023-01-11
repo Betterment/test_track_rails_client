@@ -403,6 +403,14 @@ def notify(message)
   begin to fail and will require additional code cleanup (or must be explicitly
   stubbed to use the previous variant).
 
+### From 4.0 to 5.0
+
+* The direct dependency on the `delayed_job_active_record` gem has been removed,
+  and background jobs now depend on the `ActiveJob` framework. When upgrading,
+  ensure that your application [specifies a
+  backend](https://guides.rubyonrails.org/active_job_basics.html#setting-the-backend)
+  (e.g. `config.active_job.queue_adapter = :delayed_job`).
+
 ### From 3.0 to 4.0
 
 * The contract of custom analytics plugins has changed. Instead of
