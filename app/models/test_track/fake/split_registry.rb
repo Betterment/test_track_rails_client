@@ -67,7 +67,7 @@ class TestTrack::Fake::SplitRegistry
 
   def split_registry_with_deterministic_weights
     splits = split_hash.each_with_object({}) do |(split_name, weighting_registry), result|
-      default_variant = weighting_registry.keys.min
+      default_variant = weighting_registry.invert[100] || weighting_registry.keys.min
 
       adjusted_weights = { default_variant => 100 }
       weighting_registry.except(default_variant).each_key do |variant|

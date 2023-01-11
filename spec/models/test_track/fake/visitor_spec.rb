@@ -24,7 +24,8 @@ RSpec.describe TestTrack::Fake::Visitor do
       it 'returns an array of assignments' do
         expect(subject.assignments).to match_array [
           TestTrack::Fake::Visitor::Assignment.new('buy_one_get_one_promotion_enabled', 'false', false, "the_context"),
-          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'blue', false, "the_context")
+          TestTrack::Fake::Visitor::Assignment.new('banner_color', 'blue', false, "the_context"),
+          TestTrack::Fake::Visitor::Assignment.new('decided_split', 'treatment', false, "the_context")
         ]
       end
     end
