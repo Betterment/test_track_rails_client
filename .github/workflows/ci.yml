@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - '2.5'
           - '2.6'
           - '2.7'
         gemfile:
@@ -25,9 +24,12 @@ jobs:
       - uses: technote-space/auto-cancel-redundant-job@v1
         if: github.event_name == 'pull_request'
       - uses: actions/checkout@v2
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
+        env:
+          BUNDLE_GEMFILE: ${{ matrix.gemfile }}
         with:
           ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
       - name: Build and test with Rake
         env:
           BUNDLE_GEMFILE: ${{ matrix.gemfile }}

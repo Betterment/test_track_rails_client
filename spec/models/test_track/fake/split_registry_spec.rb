@@ -23,6 +23,13 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
                   red: 0
                 },
                 feature_gate: false
+              },
+              decided_split: {
+                weights: {
+                  control: 0,
+                  treatment: 100
+                },
+                feature_gate: false
               }
             },
             experience_sampling_weight: 1
@@ -35,7 +42,8 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
       it 'returns an array of splits with deterministic weights' do
         expect(subject.splits).to eq [
           TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 100, 'red' => 0, 'white' => 0),
-          TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 100, 'true' => 0)
+          TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 100, 'true' => 0),
+          TestTrack::Fake::SplitRegistry::Split.new('decided_split', 'control' => 0, 'treatment' => 100)
         ]
       end
     end
@@ -68,6 +76,13 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
                   red: 0
                 },
                 feature_gate: false
+              },
+              decided_split: {
+                weights: {
+                  control: 0,
+                  treatment: 100
+                },
+                feature_gate: false
               }
             },
             experience_sampling_weight: 1
@@ -80,7 +95,8 @@ RSpec.describe TestTrack::Fake::SplitRegistry do
       it 'returns an array of splits with deterministic weights' do
         expect(subject.splits).to eq [
           TestTrack::Fake::SplitRegistry::Split.new('buy_one_get_one_promotion_enabled', 'false' => 100, 'true' => 0),
-          TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 100, 'white' => 0, 'red' => 0)
+          TestTrack::Fake::SplitRegistry::Split.new('banner_color', 'blue' => 100, 'white' => 0, 'red' => 0),
+          TestTrack::Fake::SplitRegistry::Split.new('decided_split', 'control' => 0, 'treatment' => 100)
         ]
       end
     end

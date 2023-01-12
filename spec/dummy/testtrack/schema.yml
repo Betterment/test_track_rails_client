@@ -10,3 +10,8 @@ splits:
   weights:
     "false": 50
     "true": 50
+- name: decided_split
+  weights:
+    control: 0
+    treatment: 100
+  decided: true

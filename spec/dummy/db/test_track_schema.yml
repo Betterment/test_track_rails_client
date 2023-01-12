@@ -7,3 +7,6 @@ splits:
     blue: 34
     red: 33
     white: 33
+  decided_split:
+    control: 0
+    treatment: 100
