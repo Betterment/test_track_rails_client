@@ -13,10 +13,10 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   def notify
     assignments.each do |assignment|
-      TestTrack::AssignmentEventJob.perform_now assignment_job_args(assignment)
+      TestTrack::AssignmentEventJob.perform_now(**assignment_job_args(assignment))
     rescue *TestTrack::SERVER_ERRORS => e
       Rails.logger.error "TestTrack failed to notify unsynced assignments, retrying. #{e}"
-      TestTrack::AssignmentEventJob.perform_later assignment_job_args(assignment)
+      TestTrack::AssignmentEventJob.perform_later(**assignment_job_args(assignment))
     end
   end
 
