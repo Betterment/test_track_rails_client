@@ -3,24 +3,20 @@ class TestTrack::OfflineSession
     @remote_visitor = remote_visitor
   end
 
-  def self.with_visitor_for(identifier_type, identifier_value)
+  def self.with_visitor_for(identifier_type, identifier_value, &block)
     raise ArgumentError, "must provide block to `with_visitor_for`" unless block_given?
 
     remote_visitor = TestTrack::Remote::Visitor.from_identifier(identifier_type, identifier_value)
 
-    new(remote_visitor).send :manage do |visitor_dsl|
-      yield visitor_dsl
-    end
+    new(remote_visitor).send(:manage, &block)
   end
 
-  def self.with_visitor_id(visitor_id)
+  def self.with_visitor_id(visitor_id, &block)
     raise ArgumentError, "must provide block to `with_visitor_id`" unless block_given?
 
     remote_visitor = TestTrack::Remote::Visitor.find(visitor_id)
 
-    new(remote_visitor).send :manage do |visitor_dsl|
-      yield visitor_dsl
-    end
+    new(remote_visitor).send(:manage, &block)
   end
 
   private

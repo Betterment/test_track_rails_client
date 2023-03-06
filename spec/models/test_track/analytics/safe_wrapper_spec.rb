@@ -40,10 +40,13 @@ RSpec.describe TestTrack::Analytics::SafeWrapper do
       end
 
       context 'when sign_up! method does not accept one argument' do
-        class TestClient
-          def sign_up!(visitor_id, extraneous_arg); end
+        let(:underlying) do
+          klass = Class.new do
+            def sign_up!(visitor_id, extraneous_arg); end
+          end
+
+          klass.new
         end
-        let(:underlying) { TestClient.new }
 
         it 'logs an argument error' do
           expect(Rails.logger).to receive(:error).with(ArgumentError)

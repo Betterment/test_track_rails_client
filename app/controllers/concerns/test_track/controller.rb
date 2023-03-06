@@ -27,10 +27,8 @@ module TestTrack::Controller
     test_track_session.visitor_dsl
   end
 
-  def manage_test_track_session
+  def manage_test_track_session(&block)
     RequestStore[:test_track_web_session] = test_track_session
-    test_track_session.manage do
-      yield
-    end
+    test_track_session.manage(&block)
   end
 end

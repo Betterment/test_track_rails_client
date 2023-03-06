@@ -5,7 +5,7 @@ class TestTrack::IdentitySessionLocator
     @identity = identity
   end
 
-  def with_visitor # rubocop:disable Metrics/AbcSize
+  def with_visitor(&block) # rubocop:disable Metrics/AbcSize
     raise ArgumentError, "must provide block to `with_visitor`" unless block_given?
 
     if web_session.present?
@@ -13,9 +13,7 @@ class TestTrack::IdentitySessionLocator
     elsif job_session.present?
       yield job_session.visitor_dsl_for(identity)
     else
-      TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value) do |v|
-        yield v
-      end
+      TestTrack::OfflineSession.with_visitor_for(identity.test_track_identifier_type, identity.test_track_identifier_value, &block)
     end
   end
 

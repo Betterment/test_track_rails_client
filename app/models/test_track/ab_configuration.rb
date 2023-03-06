@@ -1,7 +1,7 @@
 class TestTrack::AbConfiguration
   include TestTrack::RequiredOptions
 
-  def initialize(opts) # rubocop:disable Metrics/AbcSize
+  def initialize(opts)
     @split_name = require_option!(opts, :split_name).to_s
     true_variant = require_option!(opts, :true_variant, allow_nil: true)
     @split_registry = require_option!(opts, :split_registry)

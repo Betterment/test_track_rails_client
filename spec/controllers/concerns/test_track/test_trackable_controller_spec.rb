@@ -94,7 +94,7 @@ RSpec.describe TestTrack::Controller do
   it "sets a UUID tt_visitor_id cookie if unset" do
     expect(request.cookies['tt_visitor_id']).to eq nil
     get :index
-    expect(response.cookies['tt_visitor_id']).to match(/[0-9a-f\-]{36}/)
+    expect(response.cookies['tt_visitor_id']).to match(/[0-9a-f-]{36}/)
   end
 
   it "preserves tt_visitor_id cookie if set" do

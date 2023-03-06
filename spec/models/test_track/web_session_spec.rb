@@ -46,7 +46,7 @@ RSpec.describe TestTrack::WebSession do
 
         it "returns a new visitor id" do
           subject.manage {}
-          expect(cookies['tt_visitor_id'][:value]).to match(/\A[a-z0-9\-]{36}\z/)
+          expect(cookies['tt_visitor_id'][:value]).to match(/\A[a-z0-9-]{36}\z/)
         end
       end
     end
@@ -122,7 +122,7 @@ RSpec.describe TestTrack::WebSession do
           expect(TestTrack::Visitor).to have_received(:new)
           expect(TestTrack::Remote::Identifier).to have_received(:create!).with(
             identifier_type: "clown_id",
-            visitor_id: /\A[a-f0-9\-]{36}\z/,
+            visitor_id: /\A[a-f0-9-]{36}\z/,
             value: "1234"
           )
         end

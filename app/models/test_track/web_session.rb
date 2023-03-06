@@ -51,7 +51,7 @@ class TestTrack::WebSession
   attr_reader :controller
 
   def current_identity
-    raise <<~ERROR unless controller.class.test_track_identity&.is_a?(Symbol)
+    raise <<~ERROR unless controller.class.test_track_identity.is_a?(Symbol)
       Your controller (or controller base class) must set test_track_identity for
       TestTrack to work properly. e.g.:
 
@@ -106,7 +106,7 @@ class TestTrack::WebSession
   end
 
   def wildcard_domain
-    "." + (public_suffix_domain || request.host)
+    ".#{public_suffix_domain || request.host}"
   end
 
   def public_suffix_domain
