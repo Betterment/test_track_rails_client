@@ -43,27 +43,27 @@ RSpec.describe TestTrack::AssignmentEventJob do
 
   describe "#perform_now" do
     it "blows up with empty visitor id" do
-      expect { described_class.perform_now(params.merge(visitor_id: nil)) }
+      expect { described_class.perform_now(**params.merge(visitor_id: nil)) }
         .to raise_error(/visitor_id/)
     end
 
     it "blows up with empty assignment" do
-      expect { described_class.perform_now(params.merge(split_name: nil, variant: nil, context: nil)) }
+      expect { described_class.perform_now(**params.merge(split_name: nil, variant: nil, context: nil)) }
         .to raise_error(/split_name/)
     end
 
     it "blows up with unknown opts" do
-      expect { described_class.perform_now(params.merge(extra_stuff: true)) }
+      expect { described_class.perform_now(**params.merge(extra_stuff: true)) }
         .to raise_error(ArgumentError, /unknown keyword/)
     end
 
     it "does not send analytics events when test track is not enabled" do
-      described_class.perform_now(params)
+      described_class.perform_now(**params)
       expect(TestTrack.analytics).to_not have_received(:track)
     end
 
     it "sends analytics event" do
-      with_test_track_enabled { described_class.perform_now(params) }
+      with_test_track_enabled { described_class.perform_now(**params) }
 
       expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
     end
@@ -71,7 +71,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
     it "sends analytics events when feature gate events are disabled" do
       allow(split_registry).to receive(:experience_sampling_weight).and_return(0)
 
-      with_test_track_enabled { described_class.perform_now(params) }
+      with_test_track_enabled { described_class.perform_now(**params) }
 
       expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
     end
@@ -79,13 +79,13 @@ RSpec.describe TestTrack::AssignmentEventJob do
     it "sends analytics events when rand returns something other than zero" do
       allow(Kernel).to receive(:rand).with(1).and_return(1) # this is nonsensical, but an easy test setup
 
-      with_test_track_enabled { described_class.perform_now(params) }
+      with_test_track_enabled { described_class.perform_now(**params) }
 
       expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
     end
 
     it "sends test_track assignment" do
-      with_test_track_enabled { described_class.perform_now(params) }
+      with_test_track_enabled { described_class.perform_now(**params) }
 
       expect(TestTrack::Remote::AssignmentEvent).to have_received(:create!).with(
         visitor_id: 'fake_visitor_id',
@@ -99,13 +99,13 @@ RSpec.describe TestTrack::AssignmentEventJob do
       let(:split_name) { "phaser_enabled" }
 
       it "does not send test_track assignments" do
-        with_test_track_enabled { described_class.perform_now(params) }
+        with_test_track_enabled { described_class.perform_now(**params) }
 
         expect(TestTrack::Remote::AssignmentEvent).not_to have_received(:create!)
       end
 
       it "still sends analytics events" do
-        with_test_track_enabled { described_class.perform_now(params) }
+        with_test_track_enabled { described_class.perform_now(**params) }
 
         expect(TestTrack.analytics).to have_received(:track).with(instance_of(TestTrack::AnalyticsEvent))
       end
@@ -113,7 +113,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
       it "doesn't send analytics events when feature gate events are disabled" do
         allow(split_registry).to receive(:experience_sampling_weight).and_return(0)
 
-        with_test_track_enabled { described_class.perform_now(params) }
+        with_test_track_enabled { described_class.perform_now(**params) }
 
         expect(TestTrack.analytics).not_to have_received(:track)
       end
@@ -121,7 +121,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
       it "doesn't send analytics events when rand returns something other than zero" do
         allow(Kernel).to receive(:rand).with(1).and_return(1) # this is nonsensical, but an easy test setup
 
-        with_test_track_enabled { described_class.perform_now(params) }
+        with_test_track_enabled { described_class.perform_now(**params) }
 
         expect(TestTrack.analytics).not_to have_received(:track)
       end
@@ -133,7 +133,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
       end
 
       it "sends test_track assignment with mixpanel_result set to failure" do
-        with_test_track_enabled { described_class.perform_now(params) }
+        with_test_track_enabled { described_class.perform_now(**params) }
 
         expect(TestTrack::Remote::AssignmentEvent).to have_received(:create!).with(
           visitor_id: 'fake_visitor_id',
@@ -155,7 +155,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
 
       perform_enqueued_jobs do
         expect {
-          with_test_track_enabled { described_class.perform_later(params) }
+          with_test_track_enabled { described_class.perform_later(**params) }
         }.to change { performed_jobs.count }.to 1
       end
 
