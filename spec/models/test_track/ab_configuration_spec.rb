@@ -104,7 +104,7 @@ RSpec.describe TestTrack::AbConfiguration do
 
   describe "#variants" do
     it "should only have true and false keys" do
-      expect(subject.variants.keys).to eq %i(true false) # rubocop:disable Lint/BooleanSymbol
+      expect(subject.variants.keys).to eq %i(true false)
     end
 
     it "tells notifier if there are more than two variants" do

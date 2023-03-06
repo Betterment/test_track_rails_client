@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry-rails'
   s.add_development_dependency 'rails-controller-testing'
   s.add_development_dependency 'rspec-rails'
-  s.add_development_dependency 'rubocop', '~> 0.81.0'
+  s.add_development_dependency 'rubocop', '~> 1.48.0'
   s.add_development_dependency 'rubocop-performance'
   s.add_development_dependency 'rubocop-rails'
   s.add_development_dependency 'shoulda-matchers', '>= 2.8'

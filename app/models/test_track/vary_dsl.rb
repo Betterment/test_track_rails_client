@@ -33,6 +33,7 @@ class TestTrack::VaryDsl
   private
 
   attr_reader :split_registry, :assignment, :context
+
   delegate :split_name, to: :assignment
 
   def split
