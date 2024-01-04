@@ -17,7 +17,7 @@ module TestTrack
 
   SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
   BUILD_TIMESTAMP_FILE_PATH = 'testtrack/build_timestamp'.freeze
-  BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/.freeze
+  BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/
 
   mattr_accessor :enabled_override, :app_name
   mattr_accessor(:job_base_class_name) { 'ActiveJob::Base' }
