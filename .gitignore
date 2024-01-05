@@ -9,8 +9,6 @@
 /spec/dummy/.sass-cache
 /spec/examples.txt
 /coverage
-Gemfile.lock
-/gemfiles/*.gemfile.lock
 /bower_components
 /node_modules
 !.keep
