@@ -98,6 +98,8 @@ GEM
     mixpanel-ruby (1.7.0)
     multi_json (1.15.0)
     multipart-post (2.3.0)
+    nokogiri (1.16.0-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.16.0-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.0-x86_64-linux)
@@ -205,6 +207,7 @@ GEM
     zeitwerk (2.6.12)
 
 PLATFORMS
+  arm64-darwin-23
   x86_64-darwin-21
   x86_64-darwin-22
   x86_64-linux
