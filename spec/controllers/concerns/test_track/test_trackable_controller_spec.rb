@@ -6,6 +6,7 @@ RSpec.describe TestTrack::Controller do
   controller(ApplicationController) do
     include mixin
     require_feature_flag :cool_feature_enabled
+    prohibit_feature_flag :lame_feature_enabled
 
     self.test_track_identity = :current_clown
 
@@ -50,12 +51,15 @@ RSpec.describe TestTrack::Controller do
       ]
     }
   end
-  let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, ab: true) }
+  let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl) }
 
   before do
     allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
     allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
     allow(TestTrack::VisitorDsl).to receive(:new).and_return(visitor_dsl)
+    allow(visitor_dsl).to receive(:ab).with(:cool_feature_enabled, { context: "anonymous_controller" }).and_return(true)
+    allow(visitor_dsl).to receive(:ab).with(:lame_feature_enabled, { context: "anonymous_controller" }).and_return(false)
+    allow(visitor_dsl).to receive(:ab).with('time', 'beer_thirty').and_return(true)
     allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
   end
 
@@ -116,9 +120,14 @@ RSpec.describe TestTrack::Controller do
   end
 
   it "raises a RoutingError when a feature flag is required and the ab value is false" do
-    allow(TestTrack::VisitorDsl).to receive(:new).and_return(
-      instance_double(TestTrack::VisitorDsl, ab: false)
-    )
+    allow(visitor_dsl).to receive(:ab).with(:cool_feature_enabled, { context: "anonymous_controller" }).and_return(false)
+
+    expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
+  end
+
+  it "raises a RoutingError when a feature flag is prohibited and the ab value is true" do
+    allow(visitor_dsl).to receive(:ab).with(:lame_feature_enabled, { context: "anonymous_controller" }).and_return(true)
+
     expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
   end
 end
