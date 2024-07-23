@@ -169,7 +169,7 @@ RSpec.describe TestTrack do
 
         before do
           stub_test_track_assignments(dummy_feature: 'false')
-          allow(identity.instance_variable_get(:@identity)).to receive(:test_track_ab).and_call_original
+          allow(identity.send(:identity)).to receive(:test_track_ab).and_call_original
         end
 
         it "uses the same instance of the ApplicationIdentity for each call" do
