@@ -163,6 +163,22 @@ RSpec.describe TestTrack do
           expect(TestTrack.app_ab(:dummy_feature, context: 'test_context')).to eq false
         end
       end
+
+      context "when called twice" do
+        let(:identity) { TestTrack::ApplicationIdentity.instance }
+
+        before do
+          stub_test_track_assignments(dummy_feature: 'false')
+          allow(identity.instance_variable_get(:@identity)).to receive(:test_track_ab).and_call_original
+        end
+
+        it "uses the same instance of the ApplicationIdentity for each call" do
+          TestTrack.app_ab(:dummy_feature, context: 'test_context')
+          TestTrack.app_ab(:dummy_feature, context: 'test_context')
+
+          expect(identity.instance_variable_get(:@identity)).to have_received(:test_track_ab).twice
+        end
+      end
     end
 
     context "when app_name is not specified" do
