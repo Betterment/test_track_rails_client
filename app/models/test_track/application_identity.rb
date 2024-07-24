@@ -12,7 +12,7 @@ class TestTrack::ApplicationIdentity
   end
 
   def identity
-    Identity.new(app_name)
+    @identity ||= Identity.new(app_name)
   end
 
   class Identity
