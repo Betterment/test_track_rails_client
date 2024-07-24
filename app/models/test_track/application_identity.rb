@@ -12,7 +12,7 @@ class TestTrack::ApplicationIdentity
   end
 
   def identity
-    @identity = @identity&.app_name == app_name ? @identity : Identity.new(app_name)
+    @identity ||= Identity.new(app_name)
   end
 
   class Identity
@@ -23,6 +23,8 @@ class TestTrack::ApplicationIdentity
     def initialize(app_name)
       @app_name = app_name
     end
+
+    private
 
     attr_reader :app_name
   end

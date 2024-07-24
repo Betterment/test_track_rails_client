@@ -56,5 +56,7 @@ RSpec.configure do |config|
   config.before(:each) do
     clear_enqueued_jobs
     clear_performed_jobs
+
+    TestTrack::ApplicationIdentity.instance.tap { |i| i.remove_instance_variable(:@identity) if i.instance_variable_defined?(:@identity) }
   end
 end
