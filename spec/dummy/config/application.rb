@@ -19,9 +19,7 @@ module Dummy
       )
     end
 
-    config.load_defaults 5.1 if rails_version_between?('5.1', '5.2')
-    config.load_defaults 5.2 if rails_version_between?('5.2', '6.0')
-    config.load_defaults 6.0 if rails_version_between?('6.0', '6.1')
-    config.load_defaults 6.1 if rails_version_between?('6.1', '6.2')
+    config.load_defaults 7.0 if rails_version_between?('7.0', '7.1')
+    config.load_defaults 7.1 if rails_version_between?('7.1', '7.2')
   end
 end
