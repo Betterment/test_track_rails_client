@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     test_track_rails_client (7.1.2)
-      activejob (>= 6.0)
-      activemodel (>= 6.0)
+      activejob (>= 7.0)
+      activemodel (>= 7.0)
       faraday (>= 0.8)
       faraday_middleware
       mixpanel-ruby (~> 1.4)

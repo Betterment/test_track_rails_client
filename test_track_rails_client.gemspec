@@ -16,8 +16,8 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency 'activejob', '>= 6.0'
-  s.add_dependency 'activemodel', '>= 6.0'
+  s.add_dependency 'activejob', '>= 7.0'
+  s.add_dependency 'activemodel', '>= 7.0'
   s.add_dependency "faraday", ">= 0.8"
   s.add_dependency 'faraday_middleware'
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
