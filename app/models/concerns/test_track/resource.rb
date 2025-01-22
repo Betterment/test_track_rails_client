@@ -34,4 +34,12 @@ module TestTrack::Resource
   module ClassMethods
     include Helpers
   end
+
+  private
+
+  def _assign_attribute(name, value)
+    super
+  rescue ActiveModel::UnknownAttributeError
+    # Don't raise when we encounter an unknown attribute.
+  end
 end
