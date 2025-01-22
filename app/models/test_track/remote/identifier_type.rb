@@ -12,8 +12,4 @@ class TestTrack::Remote::IdentifierType
     connection.post("api/v1/identifier_type", body) unless faked?
     true
   end
-
-  def fake_save_response_attributes
-    nil # :no_content is the expected response type
-  end
 end

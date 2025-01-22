@@ -18,8 +18,4 @@ class TestTrack::Remote::SplitConfig
     connection.post("api/v1/split_configs", body) unless faked?
     true
   end
-
-  def fake_save_response_attributes
-    nil # :no_content is the expected response type
-  end
 end
