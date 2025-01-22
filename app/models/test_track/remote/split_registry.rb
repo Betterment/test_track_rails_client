@@ -1,8 +1,5 @@
 class TestTrack::Remote::SplitRegistry
-  extend TestTrack::Remote::Client
-
-  include ActiveModel::API
-  include ActiveModel::Attributes
+  include TestTrack::Resource
 
   CACHE_KEY = 'test_track_split_registry'.freeze
 
@@ -18,7 +15,7 @@ class TestTrack::Remote::SplitRegistry
       # TODO: FakeableHer needs to make this faking a feature of `get`
       return new(fake_instance_attributes(nil)) if faked?
 
-      response = get("api/v3/builds/#{TestTrack.build_timestamp}/split_registry")
+      response = connection.get("api/v3/builds/#{TestTrack.build_timestamp}/split_registry")
       new(response.body)
     end
 
