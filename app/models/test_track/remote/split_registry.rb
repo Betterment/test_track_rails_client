@@ -12,7 +12,6 @@ class TestTrack::Remote::SplitRegistry
     end
 
     def instance
-      # TODO: FakeableHer needs to make this faking a feature of `get`
       return new(fake_instance_attributes(nil)) if faked?
 
       response = connection.get("api/v3/builds/#{TestTrack.build_timestamp}/split_registry")

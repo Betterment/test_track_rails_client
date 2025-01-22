@@ -12,7 +12,6 @@ class TestTrack::Remote::SplitDetail
   attr_reader :variant_details
 
   def self.from_name(name)
-    # TODO: FakeableHer needs to make this faking a feature of `get`
     return new(fake_instance_attributes(name)) if faked?
 
     response = connection.get("api/v1/split_details/#{name}")
