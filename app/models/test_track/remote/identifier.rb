@@ -33,18 +33,11 @@ class TestTrack::Remote::Identifier
       value:,
     }
 
-    if faked?
-      self.visitor = { id: visitor_id, assignments: [] }
+    self.visitor = if faked?
+      { 'id' => visitor_id, 'assignments' => [] }
     else
-      # FIXME: TestTrack::Remote::Visitor should parse this
       response = connection.post('api/v1/identifier', body)
-      visitor = response.body.fetch('visitor')
-      id = visitor.fetch('id')
-      assignments = visitor.fetch('assignments').map do |assignment|
-        TestTrack::Remote::Assignment.new(assignment)
-      end
-
-      self.visitor = { id:, assignments: }
+      response.body.fetch('visitor')
     end
 
     true
