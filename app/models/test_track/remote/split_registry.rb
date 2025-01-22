@@ -1,9 +1,13 @@
 class TestTrack::Remote::SplitRegistry
-  include TestTrack::RemoteModel
+  extend TestTrack::Remote::Client
+
+  include ActiveModel::API
+  include ActiveModel::Attributes
 
   CACHE_KEY = 'test_track_split_registry'.freeze
 
-  collection_path 'api/v3/builds/:build_timestamp/split_registry'
+  attribute :splits
+  attribute :experience_sampling_weight
 
   class << self
     def fake_instance_attributes(_)
@@ -12,11 +16,10 @@ class TestTrack::Remote::SplitRegistry
 
     def instance
       # TODO: FakeableHer needs to make this faking a feature of `get`
-      if faked?
-        new(fake_instance_attributes(nil))
-      else
-        get("api/v3/builds/#{TestTrack.build_timestamp}/split_registry")
-      end
+      return new(fake_instance_attributes(nil)) if faked?
+
+      response = get("api/v3/builds/#{TestTrack.build_timestamp}/split_registry")
+      new(response.body)
     end
 
     def reset
