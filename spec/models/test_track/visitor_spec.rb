@@ -129,7 +129,7 @@ RSpec.describe TestTrack::Visitor do
     let(:blue_block) { -> { '.blue' } }
     let(:red_block) { -> { '.red' } }
     let(:split_name) { 'quagmire' }
-    let(:assignment) { instance_double(TestTrack::Assignment, split_name: split_name, variant: "manageable", unsynced?: true) }
+    let(:assignment) { instance_double(TestTrack::Assignment, split_name:, variant: "manageable", unsynced?: true) }
 
     context "new_visitor" do
       before do
@@ -150,7 +150,7 @@ RSpec.describe TestTrack::Visitor do
 
       it "creates a new assignment" do
         expect(vary_quagmire_split).to eq "#winning"
-        expect(TestTrack::Assignment).to have_received(:new).with(visitor: new_visitor, split_name: split_name)
+        expect(TestTrack::Assignment).to have_received(:new).with(visitor: new_visitor, split_name:)
         expect(assignment).to have_received(:context=).with(:spec)
       end
 

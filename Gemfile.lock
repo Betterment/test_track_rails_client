@@ -261,8 +261,5 @@ DEPENDENCIES
   timecop
   webmock
 
-RUBY VERSION
-   ruby 3.0.5p211
-
 BUNDLED WITH
    2.6.3

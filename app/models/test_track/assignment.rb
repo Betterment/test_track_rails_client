@@ -28,7 +28,7 @@ class TestTrack::Assignment
   def _variant
     return if visitor.offline?
 
-    variant = TestTrack::VariantCalculator.new(visitor: visitor, split_name: split_name).variant
+    variant = TestTrack::VariantCalculator.new(visitor:, split_name:).variant
     variant&.to_s
   end
 end

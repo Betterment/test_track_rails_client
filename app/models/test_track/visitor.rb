@@ -24,7 +24,7 @@ class TestTrack::Visitor
 
     raise ArgumentError, "must provide block to `vary` for #{split_name}" unless block_given?
 
-    v = TestTrack::VaryDsl.new(assignment: assignment_for(split_name), context: context, split_registry: split_registry)
+    v = TestTrack::VaryDsl.new(assignment: assignment_for(split_name), context:, split_registry:)
     yield v
     v.send :run
   end
@@ -36,9 +36,9 @@ class TestTrack::Visitor
     context = require_option!(opts, :context)
     raise "unknown opts: #{opts.keys.to_sentence}" if opts.present?
 
-    ab_configuration = TestTrack::AbConfiguration.new split_name: split_name, true_variant: true_variant, split_registry: split_registry
+    ab_configuration = TestTrack::AbConfiguration.new(split_name:, true_variant:, split_registry:)
 
-    vary(split_name, context: context) do |v|
+    vary(split_name, context:) do |v|
       v.when ab_configuration.variants[:true] do # rubocop:disable Lint/BooleanSymbol
         true
       end
@@ -148,7 +148,7 @@ class TestTrack::Visitor
   end
 
   def generate_assignment_for(split_name)
-    assignment_registry[split_name] = TestTrack::Assignment.new(visitor: self, split_name: split_name)
+    assignment_registry[split_name] = TestTrack::Assignment.new(visitor: self, split_name:)
   end
 
   def maybe_prefix(split_name)

@@ -13,14 +13,14 @@ class TestTrack::Fake::SplitDetail
 
   def _details
     {
-      name: name,
+      name:,
       hypothesis: "user will interact more with blue banner",
       location: "home screen",
       platform: "mobile",
       owner: "mobile team",
       assignment_criteria: "user has mobile app",
       description: "banner test to see if users will interact more",
-      variant_details: variant_details
+      variant_details:
     }
   end
 

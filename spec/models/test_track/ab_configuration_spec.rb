@@ -9,7 +9,7 @@ RSpec.describe TestTrack::AbConfiguration do
     {
       split_name: :button_color,
       true_variant: :red,
-      split_registry: split_registry
+      split_registry:
     }
   end
 

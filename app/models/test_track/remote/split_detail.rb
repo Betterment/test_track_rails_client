@@ -16,7 +16,7 @@ class TestTrack::Remote::SplitDetail
 
   def self.fake_instance_attributes(name)
     {
-      name: name,
+      name:,
       hypothesis: "fake hypothesis",
       assignment_criteria: "fake criteria for everyone",
       description: "fake but still good description",

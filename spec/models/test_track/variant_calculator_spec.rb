@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::VariantCalculator do
-  let(:params) { { visitor: visitor, split_name: 'blue_button' } }
+  let(:params) { { visitor:, split_name: 'blue_button' } }
 
-  let(:visitor) { instance_double(TestTrack::Visitor, id: fake_visitor_id, split_registry: split_registry) }
+  let(:visitor) { instance_double(TestTrack::Visitor, id: fake_visitor_id, split_registry:) }
 
   let(:fake_visitor_id) { "00000000-0000-0000-0000-000000000000" }
 

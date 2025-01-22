@@ -28,7 +28,7 @@ class TestTrack::Fake::Visitor
 
   def _assignments
     split_registry.split_names.map do |split_name|
-      variant = TestTrack::VariantCalculator.new(visitor: self, split_name: split_name).variant
+      variant = TestTrack::VariantCalculator.new(visitor: self, split_name:).variant
       Assignment.new(split_name, variant, false, "the_context")
     end
   end

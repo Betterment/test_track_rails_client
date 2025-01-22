@@ -7,8 +7,8 @@ RSpec.describe TestTrack::WebSessionVisitorRepository do
 
   subject do
     described_class.new(
-      current_identity: current_identity,
-      unauthenticated_visitor_id: unauthenticated_visitor_id
+      current_identity:,
+      unauthenticated_visitor_id:
     )
   end
 

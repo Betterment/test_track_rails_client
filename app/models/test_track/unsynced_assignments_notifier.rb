@@ -24,7 +24,7 @@ class TestTrack::UnsyncedAssignmentsNotifier
 
   def assignment_job_args(assignment)
     {
-      visitor_id: visitor_id,
+      visitor_id:,
       context: assignment.context,
       split_name: assignment.split_name,
       variant: assignment.variant

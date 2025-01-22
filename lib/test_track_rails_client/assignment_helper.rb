@@ -18,10 +18,10 @@ module TestTrackRailsClient::AssignmentHelper
         weights: { variant.to_s => 100 },
         feature_gate: split_name.end_with?('_enabled')
       }
-      assignments << { split_name: split_name, variant: variant.to_s, unsynced: false }
+      assignments << { split_name:, variant: variant.to_s, unsynced: false }
     end
 
-    visitor_attributes = { id: "fake_visitor_id", assignments: assignments }
+    visitor_attributes = { id: "fake_visitor_id", assignments: }
 
     allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(visitor_attributes)
     allow(TestTrack::Remote::SplitRegistry).to receive(:fake_instance_attributes).and_return(split_registry)
