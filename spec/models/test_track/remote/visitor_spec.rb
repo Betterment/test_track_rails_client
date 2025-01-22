@@ -43,9 +43,9 @@ RSpec.describe TestTrack::Remote::Visitor do
       let(:url) { "http://someapp.test/tt/api/v1/visitors/fake_visitor_id_from_server" }
       let(:scoped_connection) do
         Faraday.new(url: 'http://dummy:fakepassword@someapp.test/tt') do |conn|
-          conn.request :json
-          conn.response :json
-          conn.response :raise_error
+          conn.use Faraday::Request::Json
+          conn.use Faraday::Response::Json, content_type: []
+          conn.use Faraday::Response::RaiseError
         end
       end
 

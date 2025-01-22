@@ -1,4 +1,7 @@
 require 'faraday'
+require 'faraday/request/json'
+require 'faraday/response/json'
+require 'faraday/response/raise_error'
 
 module TestTrack::Resource
   extend ActiveSupport::Concern
@@ -10,11 +13,12 @@ module TestTrack::Resource
     attr_writer :connection
 
     # FIXME: Raise UnrecoverableConnectivityError when we have a server error
+    # FIXME: Remove `content_type` option and respect `Content-Type` header
     def connection
       @connection ||= Faraday.new(url: ENV['TEST_TRACK_API_URL']) do |conn|
-        conn.request :json
-        conn.response :json
-        conn.response :raise_error
+        conn.use Faraday::Request::Json
+        conn.use Faraday::Response::Json, content_type: []
+        conn.use Faraday::Response::RaiseError
         conn.options[:open_timeout] = (ENV['TEST_TRACK_OPEN_TIMEOUT'] || 2).to_i # Number of seconds to wait for the connection to open.
         conn.options[:timeout] = (ENV['TEST_TRACK_TIMEOUT'] || 4).to_i # Number of seconds to wait for one block to be read (via one read(2) call).
       end
