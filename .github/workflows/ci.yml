@@ -14,6 +14,8 @@ jobs:
         ruby: ["3.2"]
         gemfile:
           - gemfiles/rails_7_0.gemfile
+          - gemfiles/rails_7_1.gemfile
+          - gemfiles/rails_7_2.gemfile
     name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}
     steps:
       - uses: technote-space/auto-cancel-redundant-job@v1
