@@ -296,7 +296,6 @@ PLATFORMS
 DEPENDENCIES
   appraisal
   betterlint
-  concurrent-ruby (= 1.3.4)
   jbuilder
   pry-rails
   rails-controller-testing
