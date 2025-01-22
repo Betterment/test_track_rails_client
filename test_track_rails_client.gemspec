@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
   s.add_dependency 'multi_json', '~> 1.7'
   s.add_dependency 'public_suffix', '>= 2.0.0'
-  s.add_dependency 'railties', '>= 5.1'
+  s.add_dependency 'railties', rails_constraints
   s.add_dependency 'request_store', '~> 1.3'
   s.add_dependency 'sprockets-rails'
 
