@@ -26,4 +26,8 @@ class TestTrack::Remote::Visitor
       ]
     }
   end
+
+  def to_visitor
+    TestTrack::Visitor.new(id:, assignments:)
+  end
 end

@@ -15,7 +15,8 @@ RSpec.describe TestTrack::Remote::Identifier do
           assignments: [
             { split_name: "time", variant: "clownin_around", unsynced: false, context: "context_a" },
             { split_name: "car_size", variant: "mini", unsynced: true, context: "context_b" }
-          ]
+          ],
+          extra_data: %w(a b c d) # This should be ignored
         }
       }.to_json)
   end
@@ -47,16 +48,6 @@ RSpec.describe TestTrack::Remote::Identifier do
         expect(assignment.unsynced).to eq true
       end
     end
-  end
-
-  it "ignores extra data in the response body" do
-    allow(subject).to receive(:fake_save_response_attributes).and_return(
-      visitor: { id: "fake_visitor_id", assignments: [], other_data: %w(a b c d) }
-    )
-
-    subject.save
-    expect(subject.visitor.id).to eq "fake_visitor_id"
-    expect(subject.visitor.assignment_registry).to eq({})
   end
 
   describe "#visitor" do

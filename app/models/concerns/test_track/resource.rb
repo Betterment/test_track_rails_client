@@ -6,6 +6,7 @@ module TestTrack::Resource
   include ActiveModel::API
   include ActiveModel::Attributes
 
+  # FIXME: Raise UnrecoverableConnectivityError when we have a server error
   def self.connection
     @connection ||= Faraday.new(url: ENV['TEST_TRACK_API_URL']) do |conn|
       conn.request :json

@@ -1,27 +1,52 @@
 class TestTrack::Remote::Identifier
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
 
-  collection_path 'api/v1/identifier'
-
-  has_one :remote_visitor, data_key: :visitor, class_name: "TestTrack::Remote::Visitor"
-
-  attributes :identifier_type, :visitor_id, :value
+  attribute :identifier_type
+  attribute :visitor_id
+  attribute :value
 
   validates :identifier_type, :visitor_id, :value, presence: true
 
-  def fake_save_response_attributes
-    { visitor: { id: visitor_id, assignments: [] } }
+  def self.create!(attributes)
+    identifier = new(attributes)
+    identifier.validate!
+    identifier.save
+    identifier
   end
 
   def visitor
-    @visitor ||= TestTrack::Visitor.new(visitor_opts!)
+    @visitor or raise('Visitor data unavailable until you save this identifier.')
   end
 
-  private
+  def visitor=(value)
+    raise "Invalid visitor: #{value.inspect}" unless value.is_a?(Hash)
 
-  def visitor_opts!
-    raise("Visitor data unavailable until you save this identifier.") unless attributes[:remote_visitor]
+    @visitor = TestTrack::Remote::Visitor.new(value).to_visitor
+  end
 
-    { id: remote_visitor.id, assignments: remote_visitor.assignments }
+  def save
+    return false unless valid?
+
+    body = {
+      identifier_type:,
+      visitor_id:,
+      value:,
+    }
+
+    if faked?
+      self.visitor = { id: visitor_id, assignments: [] }
+    else
+      # FIXME: TestTrack::Remote::Visitor should parse this
+      response = connection.post('api/v1/identifier', body)
+      visitor = response.body.fetch('visitor')
+      id = visitor.fetch('id')
+      assignments = visitor.fetch('assignments').map do |assignment|
+        TestTrack::Remote::Assignment.new(assignment)
+      end
+
+      self.visitor = { id:, assignments: }
+    end
+
+    true
   end
 end
