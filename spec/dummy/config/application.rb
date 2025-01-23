@@ -12,16 +12,6 @@ require "test_track_rails_client"
 
 module Dummy
   class Application < Rails::Application
-    def rails_version_between?(version_1, version_2)
-      Rails.gem_version.between?(
-        Gem::Version.new(version_1),
-        Gem::Version.new(version_2),
-      )
-    end
-
-    config.load_defaults 7.0 if rails_version_between?('7.0', '7.1')
-    config.load_defaults 7.1 if rails_version_between?('7.1', '7.2')
-    config.load_defaults 7.2 if rails_version_between?('7.2', '8.0')
-    config.load_defaults 8.0 if rails_version_between?('8.0', '8.1')
+    config.load_defaults Rails::VERSION::STRING.to_f
   end
 end
