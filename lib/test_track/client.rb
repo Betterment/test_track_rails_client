@@ -21,17 +21,23 @@ module TestTrack
       response.body
     end
 
-    # FIXME: Remove `content_type` option and respect `Content-Type` header
     def connection
-      @connection ||= Faraday.new(url: ENV['TEST_TRACK_API_URL']) do |conn|
+      @connection ||= build_connection(
+        url: ENV.fetch('TEST_TRACK_API_URL'),
+        options: {
+          open_timeout: ENV.fetch('TEST_TRACK_OPEN_TIMEOUT', '2').to_i,
+          timeout: ENV.fetch('TEST_TRACK_TIMEOUT', '4').to_i
+        }
+      )
+    end
+
+    def build_connection(url:, options: {})
+      Faraday.new(url) do |conn|
         conn.use Faraday::Request::Json
         conn.use Faraday::Response::Json, content_type: []
         conn.use ErrorMiddleware
         conn.use Faraday::Response::RaiseError
-        # Number of seconds to wait for the connection to open.
-        conn.options[:open_timeout] = (ENV['TEST_TRACK_OPEN_TIMEOUT'] || 2).to_i
-        # Number of seconds to wait for one block to be read (via one read(2) call).
-        conn.options[:timeout] = (ENV['TEST_TRACK_TIMEOUT'] || 4).to_i
+        conn.options.merge!(options)
       end
     end
 

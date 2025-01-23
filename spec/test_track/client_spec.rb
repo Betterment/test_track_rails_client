@@ -15,9 +15,31 @@ RSpec.describe TestTrack::Client do
     end
   end
 
+  describe '.build_connection' do
+    it 'constructs a Faraday::Connection' do
+      connection = described_class.build_connection(
+        url: 'https://example.org',
+        options: { open_timeout: 99, timeout: 42 }
+      )
+
+      expect(connection).to have_attributes(
+        scheme: 'https',
+        host: 'example.org',
+        port: 443,
+        options: have_attributes(open_timeout: 99, timeout: 42)
+      )
+    end
+  end
+
   describe '.connection' do
     it 'is a Faraday::Connection' do
       expect(described_class.connection).to be_a(Faraday::Connection)
+      expect(described_class.connection).to have_attributes(
+        scheme: 'http',
+        host: 'testtrack.dev',
+        port: 80,
+        options: have_attributes(open_timeout: 2, timeout: 4)
+      )
     end
 
     shared_examples 'HTTP error' do |status, error|
