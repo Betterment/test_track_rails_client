@@ -19,8 +19,6 @@ class TestTrack::Remote::Identifier
   end
 
   def visitor=(value)
-    raise "Invalid visitor: #{value.inspect}" unless value.is_a?(Hash)
-
     @visitor = TestTrack::Remote::Visitor.new(value).to_visitor
   end
 
