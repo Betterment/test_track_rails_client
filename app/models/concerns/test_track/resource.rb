@@ -33,7 +33,8 @@ module TestTrack::Resource
     end
 
     def request(method:, path:, fake:, body: nil, headers: nil)
-      return fake if fake_requests?
+      # Ensure that fake responses are consistent with real responses
+      return JSON.parse(JSON.generate(fake)) if fake_requests?
 
       response = TestTrack::Resource.connection.run_request(method, path, body, headers)
       response.body
