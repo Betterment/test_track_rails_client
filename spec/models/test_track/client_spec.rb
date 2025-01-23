@@ -1,0 +1,62 @@
+require 'rails_helper'
+
+RSpec.describe TestTrack::Client do
+  describe '.fake?' do
+    it 'is fake when TestTrack is not enabled' do
+      allow(TestTrack).to receive(:enabled?).and_return(false)
+
+      expect(described_class).to be_fake
+    end
+
+    it 'is not fake when TestTrack is enabled' do
+      allow(TestTrack).to receive(:enabled?).and_return(true)
+
+      expect(described_class).not_to be_fake
+    end
+  end
+
+  describe '.connection' do
+    it 'is a Faraday::Connection' do
+      expect(described_class.connection).to be_a(Faraday::Connection)
+    end
+  end
+
+  describe '.connection=' do
+    around do |example|
+      original_connection = described_class.connection
+      example.run
+    ensure
+      described_class.connection = original_connection
+    end
+
+    it 'allows the connection to be reassigned' do
+      new_connection = instance_double(Faraday::Connection)
+      described_class.connection = new_connection
+      expect(described_class.connection).to be(new_connection)
+    end
+  end
+
+  describe '.request' do
+    let!(:endpoint) do
+      stub_request(:get, 'http://testtrack.dev/foo').to_return(status: 200, body: '{"type": "REAL"}')
+    end
+
+    let(:response) do
+      described_class.request(method: :get, path: '/foo', fake: { type: 'FAKE' })
+    end
+
+    it 'executes real HTTP requests when TestTrack is enabled' do
+      allow(TestTrack).to receive(:enabled?).and_return(true)
+
+      expect(response).to eq('type' => 'REAL')
+      expect(endpoint).to have_been_requested
+    end
+
+    it 'returns fake responses when TestTrack is not enabled' do
+      allow(TestTrack).to receive(:enabled?).and_return(false)
+
+      expect(response).to eq('type' => 'FAKE')
+      expect(endpoint).not_to have_been_requested
+    end
+  end
+end
