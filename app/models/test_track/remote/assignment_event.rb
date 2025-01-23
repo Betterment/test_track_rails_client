@@ -21,7 +21,7 @@ class TestTrack::Remote::AssignmentEvent
   def save
     return false unless valid?
 
-    request(
+    TestTrack::Client.request(
       method: :post,
       path: 'api/v1/assignment_event',
       body: { context: context, visitor_id: visitor_id, split_name: split_name, mixpanel_result: mixpanel_result },

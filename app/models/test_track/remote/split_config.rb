@@ -7,7 +7,7 @@ class TestTrack::Remote::SplitConfig
   validates :name, :weighting_registry, presence: true
 
   def self.destroy_existing(id)
-    request(
+    TestTrack::Client.request(
       method: :delete,
       path: "api/v1/split_configs/#{id}",
       fake: nil
@@ -19,7 +19,7 @@ class TestTrack::Remote::SplitConfig
   def save
     return false unless valid?
 
-    request(
+    TestTrack::Client.request(
       method: :post,
       path: 'api/v1/split_configs',
       body: { name: name, weighting_registry: weighting_registry },

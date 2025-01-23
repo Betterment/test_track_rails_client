@@ -12,7 +12,7 @@ class TestTrack::Remote::SplitRegistry
     end
 
     def instance
-      result = request(
+      result = TestTrack::Client.request(
         method: :get,
         path: "api/v3/builds/#{TestTrack.build_timestamp}/split_registry",
         fake: fake_instance_attributes(nil)
@@ -26,7 +26,7 @@ class TestTrack::Remote::SplitRegistry
     end
 
     def to_hash
-      if fake_requests?
+      if TestTrack::Client.fake?
         instance.attributes.freeze
       else
         fetch_cache { instance.attributes }.freeze

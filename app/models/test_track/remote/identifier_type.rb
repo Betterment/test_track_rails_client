@@ -8,7 +8,7 @@ class TestTrack::Remote::IdentifierType
   def save
     return false unless valid?
 
-    request(
+    TestTrack::Client.request(
       method: :post,
       path: 'api/v1/identifier_type',
       body: { name: name },

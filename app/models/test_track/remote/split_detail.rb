@@ -12,7 +12,7 @@ class TestTrack::Remote::SplitDetail
   attr_reader :variant_details
 
   def self.from_name(name)
-    result = request(
+    result = TestTrack::Client.request(
       method: :get,
       path: "api/v1/split_details/#{name}",
       fake: fake_instance_attributes(name)

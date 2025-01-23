@@ -6,7 +6,7 @@ class TestTrack::Remote::Visitor
   attr_reader :assignments
 
   def self.find(id)
-    result = request(
+    result = TestTrack::Client.request(
       method: :get,
       path: "api/v1/visitors/#{id}",
       fake: fake_instance_attributes(nil)
@@ -19,7 +19,7 @@ class TestTrack::Remote::Visitor
     raise "must provide an identifier_type" if identifier_type.blank?
     raise "must provide an identifier_value" if identifier_value.blank?
 
-    result = request(
+    result = TestTrack::Client.request(
       method: :get,
       path: "api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor",
       fake: fake_instance_attributes(nil)

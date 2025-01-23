@@ -50,11 +50,11 @@ RSpec.describe TestTrack::Remote::Visitor do
       end
 
       around do |example|
-        original_connection = TestTrack::Resource.connection
-        TestTrack::Resource.connection = scoped_connection
+        original_connection = TestTrack::Client.connection
+        TestTrack::Client.connection = scoped_connection
         example.run
       ensure
-        TestTrack::Resource.connection = original_connection
+        TestTrack::Client.connection = original_connection
       end
 
       it "fetches attributes from the test track server" do

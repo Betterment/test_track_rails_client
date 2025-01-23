@@ -4,7 +4,7 @@ class TestTrack::Remote::VisitorDetail
   attr_reader :assignment_details
 
   def self.from_identifier(identifier_type, identifier_value)
-    result = request(
+    result = TestTrack::Client.request(
       method: :get,
       path: "api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor_detail",
       fake: fake_instance_attributes(nil)
