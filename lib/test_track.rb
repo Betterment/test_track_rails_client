@@ -3,10 +3,11 @@ require 'mixpanel-ruby'
 require 'resolv'
 require 'faraday'
 require 'request_store'
-require 'test_track/unrecoverable_connectivity_error'
 
 module TestTrack
   module_function
+
+  UnrecoverableConnectivityError = Class.new(RuntimeError)
 
   SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ServerError].freeze
   BUILD_TIMESTAMP_FILE_PATH = 'testtrack/build_timestamp'.freeze
