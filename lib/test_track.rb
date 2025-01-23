@@ -1,8 +1,8 @@
 require 'public_suffix'
 require 'mixpanel-ruby'
 require 'resolv'
-require 'faraday'
 require 'request_store'
+require_relative 'test_track/client'
 
 module TestTrack
   module_function
