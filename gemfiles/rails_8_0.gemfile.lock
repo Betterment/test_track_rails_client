@@ -12,7 +12,6 @@ PATH
       railties (>= 7.0, < 8.1)
       request_store (~> 1.3)
       sprockets-rails
-      zeitwerk (< 2.7)
 
 GEM
   remote: https://rubygems.org/
@@ -308,6 +307,7 @@ DEPENDENCIES
   test_track_rails_client!
   timecop
   webmock
+  zeitwerk (< 2.7)
 
 BUNDLED WITH
    2.6.3

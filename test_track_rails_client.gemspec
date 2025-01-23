@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'railties', rails_constraints
   s.add_dependency 'request_store', '~> 1.3'
   s.add_dependency 'sprockets-rails'
-  s.add_dependency 'zeitwerk', '< 2.7'
 
   s.add_development_dependency 'appraisal'
   s.add_development_dependency 'betterlint'
@@ -39,6 +38,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'timecop'
   s.add_development_dependency 'webmock'
+  s.add_development_dependency 'zeitwerk', '< 2.7'
 
   s.required_ruby_version = '>= 3.1'
 end
