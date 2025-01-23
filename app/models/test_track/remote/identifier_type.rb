@@ -8,8 +8,13 @@ class TestTrack::Remote::IdentifierType
   def save
     return false unless valid?
 
-    body = { name: }
-    connection.post("api/v1/identifier_type", body) unless faked?
+    request(
+      method: :post,
+      path: 'api/v1/identifier_type',
+      body: { name: },
+      fake: nil,
+    )
+
     true
   end
 end

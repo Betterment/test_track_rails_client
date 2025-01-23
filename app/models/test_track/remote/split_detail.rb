@@ -12,10 +12,13 @@ class TestTrack::Remote::SplitDetail
   attr_reader :variant_details
 
   def self.from_name(name)
-    return new(fake_instance_attributes(name)) if faked?
+    result = request(
+      method: :get,
+      path: "api/v1/split_details/#{name}",
+      fake: fake_instance_attributes(name)
+    )
 
-    response = connection.get("api/v1/split_details/#{name}")
-    new(response.body)
+    new(result)
   end
 
   def self.fake_instance_attributes(name)

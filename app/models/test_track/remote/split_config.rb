@@ -7,15 +7,25 @@ class TestTrack::Remote::SplitConfig
   validates :name, :weighting_registry, presence: true
 
   def self.destroy_existing(id)
-    connection.delete("api/v1/split_configs/#{id}") unless faked?
+    request(
+      method: :delete,
+      path: "api/v1/split_configs/#{id}",
+      fake: nil,
+    )
+
     nil
   end
 
   def save
     return false unless valid?
 
-    body = { name:, weighting_registry: }
-    connection.post("api/v1/split_configs", body) unless faked?
+    request(
+      method: :post,
+      path: 'api/v1/split_configs',
+      body: { name:, weighting_registry: },
+      fake: nil,
+    )
+
     true
   end
 end

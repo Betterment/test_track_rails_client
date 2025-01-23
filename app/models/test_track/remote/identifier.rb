@@ -27,18 +27,14 @@ class TestTrack::Remote::Identifier
   def save
     return false unless valid?
 
-    body = {
-      identifier_type:,
-      visitor_id:,
-      value:,
-    }
+    result = request(
+      method: :post,
+      path: 'api/v1/identifier',
+      body: { identifier_type:, visitor_id:, value: },
+      fake: { 'visitor' => { 'id' => visitor_id, 'assignments' => [] } }
+    )
 
-    self.visitor = if faked?
-      { 'id' => visitor_id, 'assignments' => [] }
-    else
-      response = connection.post('api/v1/identifier', body)
-      response.body.fetch('visitor')
-    end
+    self.visitor = result.fetch('visitor')
 
     true
   end

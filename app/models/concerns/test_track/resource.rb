@@ -28,12 +28,15 @@ module TestTrack::Resource
   module Helpers
     private
 
-    def faked?
+    def fake_requests?
       !TestTrack.enabled?
     end
 
-    def connection
-      TestTrack::Resource.connection
+    def request(method:, path:, fake:, body: nil, headers: nil)
+      return fake if fake_requests?
+
+      response = TestTrack::Resource.connection.run_request(method, path, body, headers)
+      response.body
     end
   end
 

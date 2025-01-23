@@ -21,14 +21,13 @@ class TestTrack::Remote::AssignmentEvent
   def save
     return false unless valid?
 
-    body = {
-      context:,
-      visitor_id:,
-      split_name:,
-      mixpanel_result:,
-    }
+    request(
+      method: :post,
+      path: 'api/v1/assignment_event',
+      body: { context:, visitor_id:, split_name:, mixpanel_result: },
+      fake: nil
+    )
 
-    connection.post('api/v1/assignment_event', body) unless faked?
     true
   end
 end
