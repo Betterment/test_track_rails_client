@@ -19,6 +19,28 @@ RSpec.describe TestTrack::Client do
     it 'is a Faraday::Connection' do
       expect(described_class.connection).to be_a(Faraday::Connection)
     end
+
+    shared_examples 'HTTP error' do |status, error|
+      it "raises #{error} when the server returns a #{status} status code" do
+        stub_request(:post, 'http://testtrack.dev/foo').to_return(status: status)
+        expect { described_class.connection.post('/foo') }.to raise_error(error)
+      end
+    end
+
+    include_examples 'HTTP error', 400, Faraday::BadRequestError
+    include_examples 'HTTP error', 401, Faraday::UnauthorizedError
+    include_examples 'HTTP error', 403, Faraday::ForbiddenError
+    include_examples 'HTTP error', 404, Faraday::ResourceNotFound
+    include_examples 'HTTP error', 422, Faraday::UnprocessableEntityError
+    include_examples 'HTTP error', 500, TestTrack::UnrecoverableConnectivityError
+    include_examples 'HTTP error', 502, TestTrack::UnrecoverableConnectivityError
+    include_examples 'HTTP error', 503, TestTrack::UnrecoverableConnectivityError
+    include_examples 'HTTP error', 504, TestTrack::UnrecoverableConnectivityError
+
+    it 'raises TestTrack::UnrecoverableConnectivityError when the connection fails' do
+      stub_request(:post, 'http://testtrack.dev/foo').to_raise(Faraday::ConnectionFailed)
+      expect { described_class.connection.post('/foo') }.to raise_error(TestTrack::UnrecoverableConnectivityError)
+    end
   end
 
   describe '.connection=' do

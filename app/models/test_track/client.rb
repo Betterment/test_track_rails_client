@@ -2,6 +2,7 @@ require 'faraday'
 require 'faraday/request/json'
 require 'faraday/response/json'
 require 'faraday/response/raise_error'
+require 'test_track/server_error_middleware'
 
 module TestTrack::Client
   extend self # rubocop:disable Style/ModuleFunction
@@ -20,12 +21,12 @@ module TestTrack::Client
     response.body
   end
 
-  # FIXME: Raise UnrecoverableConnectivityError when we have a server error
   # FIXME: Remove `content_type` option and respect `Content-Type` header
   def connection
     @connection ||= Faraday.new(url: ENV['TEST_TRACK_API_URL']) do |conn|
       conn.use Faraday::Request::Json
       conn.use Faraday::Response::Json, content_type: []
+      conn.use TestTrack::ServerErrorMiddleware
       conn.use Faraday::Response::RaiseError
       # Number of seconds to wait for the connection to open.
       conn.options[:open_timeout] = (ENV['TEST_TRACK_OPEN_TIMEOUT'] || 2).to_i
