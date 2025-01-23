@@ -1,7 +1,7 @@
 module TestTrack::Resource
   extend ActiveSupport::Concern
 
-  include ActiveModel::API
+  include ActiveModel::Model
   include ActiveModel::Attributes
 
   private
