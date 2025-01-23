@@ -24,7 +24,7 @@ class TestTrack::Remote::AssignmentEvent
     request(
       method: :post,
       path: 'api/v1/assignment_event',
-      body: { context:, visitor_id:, split_name:, mixpanel_result: },
+      body: { context: context, visitor_id: visitor_id, split_name: split_name, mixpanel_result: mixpanel_result },
       fake: nil
     )
 

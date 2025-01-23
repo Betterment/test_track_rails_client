@@ -9,7 +9,7 @@ class TestTrack::Remote::Visitor
     result = request(
       method: :get,
       path: "api/v1/visitors/#{id}",
-      fake: fake_instance_attributes(nil),
+      fake: fake_instance_attributes(nil)
     )
 
     new(result)
@@ -22,7 +22,7 @@ class TestTrack::Remote::Visitor
     result = request(
       method: :get,
       path: "api/v1/identifier_types/#{identifier_type}/identifiers/#{identifier_value}/visitor",
-      fake: fake_instance_attributes(nil),
+      fake: fake_instance_attributes(nil)
     )
 
     new(result)
@@ -47,6 +47,6 @@ class TestTrack::Remote::Visitor
   end
 
   def to_visitor
-    TestTrack::Visitor.new(id:, assignments:)
+    TestTrack::Visitor.new(id: id, assignments: assignments)
   end
 end

@@ -19,8 +19,10 @@ module TestTrack::Resource
         conn.use Faraday::Request::Json
         conn.use Faraday::Response::Json, content_type: []
         conn.use Faraday::Response::RaiseError
-        conn.options[:open_timeout] = (ENV['TEST_TRACK_OPEN_TIMEOUT'] || 2).to_i # Number of seconds to wait for the connection to open.
-        conn.options[:timeout] = (ENV['TEST_TRACK_TIMEOUT'] || 4).to_i # Number of seconds to wait for one block to be read (via one read(2) call).
+        # Number of seconds to wait for the connection to open.
+        conn.options[:open_timeout] = (ENV['TEST_TRACK_OPEN_TIMEOUT'] || 2).to_i
+        # Number of seconds to wait for one block to be read (via one read(2) call).
+        conn.options[:timeout] = (ENV['TEST_TRACK_TIMEOUT'] || 4).to_i
       end
     end
   end

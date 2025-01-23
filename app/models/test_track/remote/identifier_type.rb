@@ -11,8 +11,8 @@ class TestTrack::Remote::IdentifierType
     request(
       method: :post,
       path: 'api/v1/identifier_type',
-      body: { name: },
-      fake: nil,
+      body: { name: name },
+      fake: nil
     )
 
     true

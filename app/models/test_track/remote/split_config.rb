@@ -10,7 +10,7 @@ class TestTrack::Remote::SplitConfig
     request(
       method: :delete,
       path: "api/v1/split_configs/#{id}",
-      fake: nil,
+      fake: nil
     )
 
     nil
@@ -22,8 +22,8 @@ class TestTrack::Remote::SplitConfig
     request(
       method: :post,
       path: 'api/v1/split_configs',
-      body: { name:, weighting_registry: },
-      fake: nil,
+      body: { name: name, weighting_registry: weighting_registry },
+      fake: nil
     )
 
     true
