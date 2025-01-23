@@ -1,5 +1,3 @@
-require 'faraday'
-
 module TestTrack::Persistence
   extend ActiveSupport::Concern
 
