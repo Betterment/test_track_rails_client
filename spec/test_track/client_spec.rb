@@ -63,6 +63,11 @@ RSpec.describe TestTrack::Client do
       stub_request(:post, 'http://testtrack.dev/foo').to_raise(Faraday::ConnectionFailed)
       expect { described_class.connection.post('/foo') }.to raise_error(TestTrack::UnrecoverableConnectivityError)
     end
+
+    it 'raises status errors before attempting to parse' do
+      stub_request(:post, 'http://testtrack.dev/foo').to_return(status: 500, body: '<html></html>')
+      expect { described_class.connection.post('/foo') }.to raise_error(TestTrack::UnrecoverableConnectivityError)
+    end
   end
 
   describe '.connection=' do
