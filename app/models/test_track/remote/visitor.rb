@@ -39,9 +39,7 @@ class TestTrack::Remote::Visitor
 
   def assignments=(values)
     assignments = values.map do |value|
-      assignment = TestTrack::Remote::Assignment.new(value)
-      assignment.clear_changes_information
-      assignment
+      TestTrack::Remote::Assignment.new(value)
     end
 
     super(assignments)

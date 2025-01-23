@@ -9,6 +9,11 @@ class TestTrack::Remote::Assignment
 
   validates :split_name, :variant, :mixpanel_result, presence: true
 
+  def initialize(...)
+    super
+    clear_changes_information
+  end
+
   def unsynced?
     unsynced || variant_changed?
   end
