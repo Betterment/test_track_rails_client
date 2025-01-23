@@ -1,7 +1,7 @@
 class TestTrack::Remote::VisitorDetail
   include TestTrack::Resource
 
-  attr_reader :assignment_details
+  attribute :assignment_details
 
   def self.from_identifier(identifier_type, identifier_value)
     result = TestTrack::Client.request(
@@ -23,8 +23,10 @@ class TestTrack::Remote::VisitorDetail
   end
 
   def assignment_details=(values)
-    @assignment_details = values.map do |value|
+    assignment_details = values.map do |value|
       TestTrack::Remote::AssignmentDetail.new(value)
     end
+
+    super(assignment_details)
   end
 end

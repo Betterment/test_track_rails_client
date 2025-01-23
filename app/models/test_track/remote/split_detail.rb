@@ -8,8 +8,7 @@ class TestTrack::Remote::SplitDetail
   attribute :owner
   attribute :location
   attribute :platform
-
-  attr_reader :variant_details
+  attribute :variant_details
 
   def self.from_name(name)
     result = TestTrack::Client.request(
@@ -48,6 +47,6 @@ class TestTrack::Remote::SplitDetail
   end
 
   def variant_details=(values)
-    @variant_details = values.map(&:symbolize_keys)
+    super(values.map(&:symbolize_keys))
   end
 end

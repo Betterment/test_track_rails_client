@@ -2,8 +2,7 @@ class TestTrack::Remote::Visitor
   include TestTrack::Resource
 
   attribute :id
-
-  attr_reader :assignments
+  attribute :assignments
 
   def self.find(id)
     result = TestTrack::Client.request(
@@ -39,11 +38,13 @@ class TestTrack::Remote::Visitor
   end
 
   def assignments=(values)
-    @assignments = values.map do |value|
+    assignments = values.map do |value|
       assignment = TestTrack::Remote::Assignment.new(value)
-      assignment.clear_changes_information # FIXME: This should not be necessary
+      assignment.clear_changes_information
       assignment
     end
+
+    super(assignments)
   end
 
   def to_visitor
