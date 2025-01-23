@@ -1,5 +1,6 @@
 class TestTrack::Remote::SplitConfig
   include TestTrack::Resource
+  include TestTrack::Persistence
 
   attribute :name
   attribute :weighting_registry
@@ -16,16 +17,14 @@ class TestTrack::Remote::SplitConfig
     nil
   end
 
-  def save
-    return false unless valid?
+  private
 
+  def persist!
     TestTrack::Client.request(
       method: :post,
       path: 'api/v1/split_configs',
       body: { name: name, weighting_registry: weighting_registry },
       fake: nil
     )
-
-    true
   end
 end
