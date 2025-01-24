@@ -14,7 +14,7 @@ RSpec.describe TestTrack::NotifyAssignmentJob do
   let(:params) do
     {
       visitor_id: "fake_visitor_id",
-      assignment: assignment
+      assignment:
     }
   end
   let(:split_registry_url) { "http://testtrack.dev/api/v2/split_registry" }

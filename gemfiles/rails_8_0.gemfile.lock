@@ -1,5 +1,5 @@
 PATH
-  remote: .
+  remote: ..
   specs:
     test_track_rails_client (8.0.0)
       activejob (>= 7.0, < 8.1)
@@ -129,11 +129,21 @@ GEM
     mixpanel-ruby (1.7.0)
     multi_json (1.15.0)
     multipart-post (2.4.1)
+    nokogiri (1.18.2-aarch64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.2-aarch64-linux-musl)
+      racc (~> 1.4)
+    nokogiri (1.18.2-arm-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.2-arm-linux-musl)
+      racc (~> 1.4)
     nokogiri (1.18.2-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.2-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.2-x86_64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.2-x86_64-linux-musl)
       racc (~> 1.4)
     parallel (1.26.3)
     parser (3.3.7.0)
@@ -275,11 +285,14 @@ GEM
     zeitwerk (2.6.18)
 
 PLATFORMS
-  arm64-darwin-22
-  arm64-darwin-23
-  x86_64-darwin-21
-  x86_64-darwin-22
-  x86_64-linux
+  aarch64-linux-gnu
+  aarch64-linux-musl
+  arm-linux-gnu
+  arm-linux-musl
+  arm64-darwin
+  x86_64-darwin
+  x86_64-linux-gnu
+  x86_64-linux-musl
 
 DEPENDENCIES
   appraisal
@@ -287,6 +300,7 @@ DEPENDENCIES
   jbuilder
   pry-rails
   rails-controller-testing
+  railties (~> 8.0.0)
   rspec-rails
   shoulda-matchers (>= 2.8)
   simplecov

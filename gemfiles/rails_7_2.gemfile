@@ -3,7 +3,6 @@
 source "https://rubygems.org"
 
 gem "jbuilder"
-gem "concurrent-ruby", "1.3.4"
-gem "railties", "~> 7.0.0"
+gem "railties", "~> 7.2.0"
 
 gemspec path: "../"

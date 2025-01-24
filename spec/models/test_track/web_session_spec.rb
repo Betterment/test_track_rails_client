@@ -19,7 +19,7 @@ RSpec.describe TestTrack::WebSession do
 
   let(:cookies) { { tt_visitor_id: "fake_visitor_id" }.with_indifferent_access }
   let(:headers) { {} }
-  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers: headers, local?: local?) }
+  let(:request) { double(:request, host: "www.foo.com", ssl?: true, headers:, local?: local?) }
   let(:local?) { false }
   let(:response) { double(:response, headers: {}) }
   let(:unsynced_assignments_notifier) { instance_double(TestTrack::UnsyncedAssignmentsNotifier, notify: true) }
@@ -345,7 +345,7 @@ RSpec.describe TestTrack::WebSession do
           {
             id: "fake_visitor_id",
             assignments: [
-              { split_name: 'switched_split', variant: 'not_what_i_thought', unsynced: unsynced }
+              { split_name: 'switched_split', variant: 'not_what_i_thought', unsynced: }
             ]
           }
         end
@@ -533,7 +533,7 @@ RSpec.describe TestTrack::WebSession do
     let(:sampling_weight) { 1 }
 
     let(:split_registry) { instance_double(TestTrack::SplitRegistry) }
-    let(:visitor) { instance_double(TestTrack::Visitor, split_registry: split_registry, assignment_json: "assignments") }
+    let(:visitor) { instance_double(TestTrack::Visitor, split_registry:, assignment_json: "assignments") }
     before do
       allow(subject).to receive(:current_visitor).and_return(visitor)
       allow(split_registry).to receive(:to_hash).and_return(split_registry_hash)

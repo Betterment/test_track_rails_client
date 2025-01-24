@@ -4,7 +4,7 @@ RSpec.describe TestTrack::Assignment do
   let(:visitor) { instance_double(TestTrack::Visitor, offline?: offline) }
   let(:offline) { false }
 
-  subject { described_class.new(visitor: visitor, split_name: :split_name) }
+  subject { described_class.new(visitor:, split_name: :split_name) }
 
   describe "#split_name" do
     it "returns a string" do
@@ -14,7 +14,7 @@ RSpec.describe TestTrack::Assignment do
 
   describe "#variant" do
     let(:variant) { :the_variant }
-    let(:variant_calculator) { instance_double(TestTrack::VariantCalculator, variant: variant) }
+    let(:variant_calculator) { instance_double(TestTrack::VariantCalculator, variant:) }
 
     before do
       allow(TestTrack::VariantCalculator).to receive(:new).and_return(variant_calculator)
@@ -55,7 +55,7 @@ RSpec.describe TestTrack::Assignment do
     end
 
     context "for a feature gate" do
-      subject { described_class.new(visitor: visitor, split_name: :feature_enabled) }
+      subject { described_class.new(visitor:, split_name: :feature_enabled) }
 
       it "also returns true" do
         expect(subject.unsynced?).to eq true
@@ -65,7 +65,7 @@ RSpec.describe TestTrack::Assignment do
 
   describe "#feature_gate?" do
     context "when the split name ends with '_enabled'" do
-      subject { described_class.new(visitor: visitor, split_name: :feature_enabled) }
+      subject { described_class.new(visitor:, split_name: :feature_enabled) }
 
       it "returns true" do
         expect(subject.feature_gate?).to eq true
@@ -73,7 +73,7 @@ RSpec.describe TestTrack::Assignment do
     end
 
     context "when the split name ends with something else" do
-      subject { described_class.new(visitor: visitor, split_name: :feature_experiment) }
+      subject { described_class.new(visitor:, split_name: :feature_experiment) }
 
       it "returns false" do
         expect(subject.feature_gate?).to eq false

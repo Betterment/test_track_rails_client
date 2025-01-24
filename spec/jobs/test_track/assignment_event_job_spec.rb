@@ -4,7 +4,7 @@ RSpec.describe TestTrack::AssignmentEventJob do
   let(:split_name) { "phaser" }
   let(:assignment) do
     {
-      split_name: split_name,
+      split_name:,
       variant: "stun",
       context: "the_context"
     }

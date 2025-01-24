@@ -12,9 +12,10 @@ AllCops:
     - 'vendor/**/*'
     - 'spec/dummy/**/*'
     - 'Gemfile'
+    - 'gemfiles/*.gemfile'
   DisplayStyleGuide: true
   DisplayCopNames: true
-  TargetRubyVersion: 3.0
+  TargetRubyVersion: 3.1
 
 Layout/ParameterAlignment:
   Enabled: false

@@ -49,7 +49,7 @@ RSpec.describe TestTrack::ConfigUpdater do
 
   describe "#split" do
     let(:split_config) { instance_double(TestTrack::Remote::SplitConfig, save: true) }
-    let(:invalid_split_config) { instance_double(TestTrack::Remote::SplitConfig, save: false, errors: errors) }
+    let(:invalid_split_config) { instance_double(TestTrack::Remote::SplitConfig, save: false, errors:) }
 
     it "updates split_config" do
       allow(TestTrack::Remote::SplitConfig).to receive(:new).and_call_original
@@ -206,7 +206,7 @@ RSpec.describe TestTrack::ConfigUpdater do
 
   describe "#identifier_type" do
     let(:identifier_type) { instance_double(TestTrack::Remote::IdentifierType, save: true) }
-    let(:invalid_identifier_type) { instance_double(TestTrack::Remote::IdentifierType, save: false, errors: errors) }
+    let(:invalid_identifier_type) { instance_double(TestTrack::Remote::IdentifierType, save: false, errors:) }
 
     it "updates identifier_type" do
       allow(TestTrack::Remote::IdentifierType).to receive(:new).and_call_original

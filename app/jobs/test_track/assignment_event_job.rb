@@ -17,7 +17,7 @@ module TestTrack
     def build_assignment(visitor_id, split_name, variant, context)
       assignment = Assignment.new(
         visitor: Visitor.new(id: visitor_id),
-        split_name: split_name
+        split_name:
       )
       assignment.variant = variant
       assignment.context = context
@@ -28,7 +28,7 @@ module TestTrack
       tracking_result = maybe_track
       unless assignment.feature_gate?
         Remote::AssignmentEvent.create!(
-          visitor_id: visitor_id,
+          visitor_id:,
           split_name: assignment.split_name,
           context: assignment.context,
           mixpanel_result: tracking_result

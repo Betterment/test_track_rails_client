@@ -15,7 +15,7 @@ class TestTrack::NotifyAssignmentJob
     tracking_result = maybe_track
     unless assignment.feature_gate?
       TestTrack::Remote::AssignmentEvent.create!(
-        visitor_id: visitor_id,
+        visitor_id:,
         split_name: assignment.split_name,
         context: assignment.context,
         mixpanel_result: tracking_result

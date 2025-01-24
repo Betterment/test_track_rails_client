@@ -16,28 +16,29 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency 'activejob', '>= 6.0'
-  s.add_dependency 'activemodel', '>= 6.0'
+  rails_constraints = ['>= 7.0', '< 8.1']
+
+  s.add_dependency 'activejob', rails_constraints
+  s.add_dependency 'activemodel', rails_constraints
   s.add_dependency "faraday", ">= 0.8"
   s.add_dependency 'faraday_middleware'
   s.add_dependency 'mixpanel-ruby', '~> 1.4'
   s.add_dependency 'multi_json', '~> 1.7'
   s.add_dependency 'public_suffix', '>= 2.0.0'
-  s.add_dependency 'railties', '>= 5.1'
+  s.add_dependency 'railties', rails_constraints
   s.add_dependency 'request_store', '~> 1.3'
   s.add_dependency 'sprockets-rails'
 
   s.add_development_dependency 'appraisal'
+  s.add_development_dependency 'betterlint'
   s.add_development_dependency 'pry-rails'
   s.add_development_dependency 'rails-controller-testing'
   s.add_development_dependency 'rspec-rails'
-  s.add_development_dependency 'rubocop', '~> 1.48.0'
-  s.add_development_dependency 'rubocop-performance'
-  s.add_development_dependency 'rubocop-rails'
   s.add_development_dependency 'shoulda-matchers', '>= 2.8'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'timecop'
   s.add_development_dependency 'webmock'
+  s.add_development_dependency 'zeitwerk', '< 2.7'
 
-  s.required_ruby_version = '>= 3.0'
+  s.required_ruby_version = '>= 3.1'
 end

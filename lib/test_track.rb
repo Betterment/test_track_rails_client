@@ -142,6 +142,6 @@ module TestTrack
   end
 
   def app_ab(split_name, context:)
-    app.test_track_ab(split_name, context: context)
+    app.test_track_ab(split_name, context:)
   end
 end

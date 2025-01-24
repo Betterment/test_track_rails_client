@@ -2,9 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby ">= 2.7.0"
-
 gem "jbuilder"
-gem "railties", "~> 6.1.0"
+gem "railties", "~> 8.0.0"
 
 gemspec path: "../"

@@ -70,8 +70,8 @@ class TestTrack::WebSession
 
   def visitors
     @visitors ||= TestTrack::WebSessionVisitorRepository.new(
-      current_identity: current_identity,
-      unauthenticated_visitor_id: unauthenticated_visitor_id
+      current_identity:,
+      unauthenticated_visitor_id:
     )
   end
 
@@ -81,7 +81,7 @@ class TestTrack::WebSession
 
   def set_cookie(name, value)
     cookies[name] = {
-      value: value,
+      value:,
       domain: cookie_domain,
       secure: request.ssl?,
       httponly: false,

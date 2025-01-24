@@ -1,8 +1,11 @@
 module Her
   module Model
     module Associations
-      class AssociationProxy < (ActiveSupport.const_defined?('ProxyObject') ? ActiveSupport::ProxyObject : ActiveSupport::BasicObject)
+      class AssociationProxy < BasicObject
 
+        undef_method :==
+        undef_method :equal?
+       
         # @private
         def self.install_proxy_methods(target_name, *names)
           names.each do |name|
@@ -24,6 +27,10 @@ module Her
 
         def association
           @_her_association
+        end
+
+        def raise(*args)
+          ::Object.send(:raise, *args)
         end
 
         # @private
