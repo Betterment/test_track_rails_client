@@ -64,6 +64,11 @@ RSpec.describe TestTrack::Client do
       expect { described_class.connection.post('/foo') }.to raise_error(TestTrack::UnrecoverableConnectivityError)
     end
 
+    it 'raises TestTrack::UnrecoverableConnectivityError when a timeout occurs' do
+      stub_request(:post, 'http://testtrack.dev/foo').to_timeout
+      expect { described_class.connection.post('/foo') }.to raise_error(TestTrack::UnrecoverableConnectivityError)
+    end
+
     it 'raises status errors before attempting to parse' do
       stub_request(:post, 'http://testtrack.dev/foo').to_return(status: 500, body: '<html></html>')
       expect { described_class.connection.post('/foo') }.to raise_error(TestTrack::UnrecoverableConnectivityError)
