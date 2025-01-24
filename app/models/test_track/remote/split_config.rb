@@ -23,7 +23,7 @@ class TestTrack::Remote::SplitConfig
     TestTrack::Client.request(
       method: :post,
       path: 'api/v1/split_configs',
-      body: { name: name, weighting_registry: weighting_registry },
+      body: { name:, weighting_registry: },
       fake: nil
     )
   end

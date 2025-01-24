@@ -22,7 +22,7 @@ class TestTrack::Remote::Identifier
     result = TestTrack::Client.request(
       method: :post,
       path: 'api/v1/identifier',
-      body: { identifier_type: identifier_type, visitor_id: visitor_id, value: value },
+      body: { identifier_type:, visitor_id:, value: },
       fake: { visitor: { id: visitor_id, assignments: [] } }
     )
 

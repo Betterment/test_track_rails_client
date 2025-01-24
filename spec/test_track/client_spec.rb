@@ -44,7 +44,7 @@ RSpec.describe TestTrack::Client do
 
     shared_examples 'HTTP error' do |status, error|
       it "raises #{error} when the server returns a #{status} status code" do
-        stub_request(:post, 'http://testtrack.dev/foo').to_return(status: status)
+        stub_request(:post, 'http://testtrack.dev/foo').to_return(status:)
         expect { described_class.connection.post('/foo') }.to raise_error(error)
       end
     end

@@ -12,7 +12,7 @@ class TestTrack::Remote::IdentifierType
     TestTrack::Client.request(
       method: :post,
       path: 'api/v1/identifier_type',
-      body: { name: name },
+      body: { name: },
       fake: nil
     )
   end
