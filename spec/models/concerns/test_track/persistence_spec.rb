@@ -45,7 +45,7 @@ RSpec.describe TestTrack::Persistence do
       expect(subject).to be_valid
       expect(subject.save).to be(false)
       expect(subject.saved).to be(false)
-      expect(subject.errors[:base]).to include('could not be saved')
+      expect(subject.errors[:base]).to include('The HTTP request failed with a 422 status code')
     end
   end
 
@@ -65,7 +65,7 @@ RSpec.describe TestTrack::Persistence do
       allow(subject).to receive(:persist!).and_raise(Faraday::UnprocessableEntityError, 'kaboom')
 
       expect { subject.save! }.to raise_error(ActiveModel::ValidationError)
-      expect(subject.errors[:base]).to include('could not be saved')
+      expect(subject.errors[:base]).to include('The HTTP request failed with a 422 status code')
     end
   end
 

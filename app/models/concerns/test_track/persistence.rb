@@ -13,7 +13,7 @@ module TestTrack::Persistence
     persist!
     true
   rescue Faraday::UnprocessableEntityError
-    errors.add(:base, 'could not be saved')
+    errors.add(:base, 'The HTTP request failed with a 422 status code')
     false
   end
 
