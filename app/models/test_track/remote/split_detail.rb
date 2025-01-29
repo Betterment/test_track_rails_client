@@ -1,17 +1,23 @@
 class TestTrack::Remote::SplitDetail
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
 
-  collection_path 'api/v1/split_details'
-
-  attributes :name, :hypothesis, :assignment_criteria, :description, :owner, :location, :platform, :variant_details
+  attribute :name
+  attribute :hypothesis
+  attribute :assignment_criteria
+  attribute :description
+  attribute :owner
+  attribute :location
+  attribute :platform
+  attribute :variant_details
 
   def self.from_name(name)
-    # TODO: FakeableHer needs to make this faking a feature of `get`
-    if faked?
-      new(fake_instance_attributes(name))
-    else
-      get("api/v1/split_details/#{name}")
-    end
+    result = TestTrack::Client.request(
+      method: :get,
+      path: "api/v1/split_details/#{name}",
+      fake: fake_instance_attributes(name)
+    )
+
+    new(result)
   end
 
   def self.fake_instance_attributes(name)
@@ -38,5 +44,9 @@ class TestTrack::Remote::SplitDetail
         description: "There are FAQ links in the default footer"
       }
     ]
+  end
+
+  def variant_details=(values)
+    super(values.map(&:symbolize_keys))
   end
 end

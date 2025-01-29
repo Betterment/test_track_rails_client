@@ -15,8 +15,8 @@ module TestTrackRailsClient::AssignmentHelper
                    end
 
       split_registry['splits'][split_name] = {
-        weights: { variant.to_s => 100 },
-        feature_gate: split_name.end_with?('_enabled')
+        'weights' => { variant.to_s => 100 },
+        'feature_gate' => split_name.end_with?('_enabled')
       }
       assignments << { split_name:, variant: variant.to_s, unsynced: false }
     end

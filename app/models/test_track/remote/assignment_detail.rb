@@ -1,16 +1,11 @@
 class TestTrack::Remote::AssignmentDetail
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
 
-  attributes :split_location, :split_name, :variant_name, :variant_description, :assigned_at
-
-  def assigned_at
-    original = super
-    if original.blank? || !original.respond_to?(:in_time_zone)
-      nil
-    else
-      original.in_time_zone rescue nil # rubocop:disable Style/RescueModifier
-    end
-  end
+  attribute :split_location
+  attribute :split_name
+  attribute :variant_name
+  attribute :variant_description
+  attribute :assigned_at, :datetime
 
   def self.fake_instance_attributes(_)
     {

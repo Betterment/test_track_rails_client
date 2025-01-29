@@ -41,20 +41,16 @@ RSpec.describe TestTrack::Remote::Visitor do
 
     context 'when TestTrack is mounted at a path' do
       let(:url) { "http://someapp.test/tt/api/v1/visitors/fake_visitor_id_from_server" }
-      let(:fake_api) do
-        Her::API.new.setup url: 'http://dummy:fakepassword@someapp.test/tt' do |c|
-          c.request :json
-          c.use TestTrack::ServerErrorMiddleware
-          c.use Her::Middleware::DefaultParseJSON
-          c.adapter Faraday.default_adapter
-        end
+      let(:scoped_connection) do
+        TestTrack::Client.build_connection(url: 'http://dummy:fakepassword@someapp.test/tt')
       end
 
       around do |example|
-        TestTrack::Remote::Visitor.use_api fake_api
+        original_connection = TestTrack::Client.connection
+        TestTrack::Client.connection = scoped_connection
         example.run
       ensure
-        TestTrack::Remote::Visitor.use_api TestTrack::TestTrackApi
+        TestTrack::Client.connection = original_connection
       end
 
       it "fetches attributes from the test track server" do

@@ -1,13 +1,30 @@
 class TestTrack::Remote::SplitConfig
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
+  include TestTrack::Persistence
 
-  collection_path 'api/v1/split_configs'
-
-  attributes :name, :weighting_registry
+  attribute :name
+  attribute :weighting_registry
 
   validates :name, :weighting_registry, presence: true
 
-  def fake_save_response_attributes
-    nil # :no_content is the expected response type
+  def self.destroy_existing(id)
+    TestTrack::Client.request(
+      method: :delete,
+      path: "api/v1/split_configs/#{id}",
+      fake: nil
+    )
+
+    nil
+  end
+
+  private
+
+  def persist!
+    TestTrack::Client.request(
+      method: :post,
+      path: 'api/v1/split_configs',
+      body: { name:, weighting_registry: },
+      fake: nil
+    )
   end
 end

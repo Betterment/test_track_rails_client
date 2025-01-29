@@ -1,21 +1,15 @@
-# Source vendored gems the hard way in all environments
-%w(her fakeable_her public_suffix).each do |gem_name|
-  lib = File.expand_path("../../vendor/gems/#{gem_name}/lib", __FILE__)
-  $LOAD_PATH.push(lib) unless $LOAD_PATH.include?(lib)
-  require gem_name
-end
-
 require 'public_suffix'
 require 'mixpanel-ruby'
 require 'resolv'
-require 'faraday_middleware'
 require 'request_store'
-require 'test_track/unrecoverable_connectivity_error'
+require_relative 'test_track/client'
 
 module TestTrack
   module_function
 
-  SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Her::Errors::RemoteServerError].freeze
+  UnrecoverableConnectivityError = Class.new(RuntimeError)
+
+  SERVER_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ServerError].freeze
   BUILD_TIMESTAMP_FILE_PATH = 'testtrack/build_timestamp'.freeze
   BUILD_TIMESTAMP_REGEX = /\A\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(.\d+)?([+-][0-2]\d:[0-5]\d|Z)\z/
 

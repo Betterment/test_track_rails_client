@@ -1,13 +1,19 @@
 class TestTrack::Remote::IdentifierType
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
+  include TestTrack::Persistence
 
-  collection_path 'api/v1/identifier_type'
-
-  attributes :name
+  attribute :name
 
   validates :name, presence: true
 
-  def fake_save_response_attributes
-    nil # :no_content is the expected response type
+  private
+
+  def persist!
+    TestTrack::Client.request(
+      method: :post,
+      path: 'api/v1/identifier_type',
+      body: { name: },
+      fake: nil
+    )
   end
 end

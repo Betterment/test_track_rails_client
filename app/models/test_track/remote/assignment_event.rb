@@ -1,15 +1,25 @@
 class TestTrack::Remote::AssignmentEvent
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
+  include TestTrack::Persistence
 
-  collection_path 'api/v1/assignment_event'
-
-  attributes :visitor_id, :split_name, :unsynced
+  attribute :visitor_id
+  attribute :split_name
+  attribute :mixpanel_result
+  attribute :context
+  attribute :unsynced, :boolean
 
   validates :visitor_id, :split_name, :mixpanel_result, presence: true
 
   alias unsynced? unsynced
 
-  def fake_save_response_attributes
-    nil # :no_content is the expected response type
+  private
+
+  def persist!
+    TestTrack::Client.request(
+      method: :post,
+      path: 'api/v1/assignment_event',
+      body: { context:, visitor_id:, split_name:, mixpanel_result: },
+      fake: nil
+    )
   end
 end

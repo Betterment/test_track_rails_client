@@ -1,9 +1,18 @@
 class TestTrack::Remote::Assignment
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
+  include ActiveModel::Dirty
 
-  attributes :split_name, :variant, :context, :unsynced
+  attribute :split_name
+  attribute :variant
+  attribute :context
+  attribute :unsynced, :boolean
 
   validates :split_name, :variant, :mixpanel_result, presence: true
+
+  def initialize(...)
+    super
+    clear_changes_information
+  end
 
   def unsynced?
     unsynced || variant_changed?

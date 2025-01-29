@@ -1,27 +1,31 @@
 class TestTrack::Remote::Identifier
-  include TestTrack::RemoteModel
+  include TestTrack::Resource
+  include TestTrack::Persistence
 
-  collection_path 'api/v1/identifier'
-
-  has_one :remote_visitor, data_key: :visitor, class_name: "TestTrack::Remote::Visitor"
-
-  attributes :identifier_type, :visitor_id, :value
+  attribute :identifier_type
+  attribute :visitor_id
+  attribute :value
 
   validates :identifier_type, :visitor_id, :value, presence: true
 
-  def fake_save_response_attributes
-    { visitor: { id: visitor_id, assignments: [] } }
+  def visitor
+    @visitor or raise('Visitor data unavailable until you save this identifier.')
   end
 
-  def visitor
-    @visitor ||= TestTrack::Visitor.new(visitor_opts!)
+  def visitor=(visitor_attributes)
+    @visitor = TestTrack::Remote::Visitor.new(visitor_attributes).to_visitor
   end
 
   private
 
-  def visitor_opts!
-    raise("Visitor data unavailable until you save this identifier.") unless attributes[:remote_visitor]
+  def persist!
+    result = TestTrack::Client.request(
+      method: :post,
+      path: 'api/v1/identifier',
+      body: { identifier_type:, visitor_id:, value: },
+      fake: { visitor: { id: visitor_id, assignments: [] } }
+    )
 
-    { id: remote_visitor.id, assignments: remote_visitor.assignments }
+    assign_attributes(result)
   end
 end

@@ -1,28 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe TestTrack::Remote::SplitDetail do
-  let(:fake_details) do
-    {
-      name: "great_name",
-      hypothesis: "fake hypothesis",
-      assignment_criteria: "fake criteria for everyone",
-      description: "fake but still good description",
-      owner: "fake owner",
-      location: "fake activity",
-      platform: "mobile",
-      variant_details: [
-        {
-          name: "fake first variant detail",
-          description: "There are FAQ links in a sidebar"
-        },
-        {
-          name: "fake second variant detail",
-          description: "There are FAQ links in the default footer"
-        }
-      ]
-    }
-  end
-
   before do
     stub_request(:get, url)
       .with(basic_auth: %w(dummy fakepassword))
@@ -45,11 +23,9 @@ RSpec.describe TestTrack::Remote::SplitDetail do
           }
         ]
       }.to_json)
-
-    allow(TestTrack::Remote::SplitDetail).to receive(:fake_instance_attributes).with("great_name").and_return(fake_details)
   end
 
-  describe ".find" do
+  describe ".find_name" do
     let(:url) { "http://testtrack.dev/api/v1/split_details/great_name" }
     subject { described_class.from_name("great_name") }
 
