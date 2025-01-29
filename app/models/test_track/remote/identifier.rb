@@ -12,8 +12,8 @@ class TestTrack::Remote::Identifier
     @visitor or raise('Visitor data unavailable until you save this identifier.')
   end
 
-  def visitor=(value)
-    @visitor = TestTrack::Remote::Visitor.new(value).to_visitor
+  def visitor=(visitor_attributes)
+    @visitor = TestTrack::Remote::Visitor.new(visitor_attributes).to_visitor
   end
 
   private
