@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'public_suffix', '>= 2.0.0'
   s.add_dependency 'railties', rails_constraints
   s.add_dependency 'request_store', '~> 1.3'
-  s.add_dependency 'sprockets-rails'
 
   s.add_development_dependency 'appraisal'
   s.add_development_dependency 'betterlint'
@@ -36,6 +35,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec-rails'
   s.add_development_dependency 'shoulda-matchers', '>= 2.8'
   s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'sprockets-rails'
   s.add_development_dependency 'timecop'
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'zeitwerk', '< 2.7'
