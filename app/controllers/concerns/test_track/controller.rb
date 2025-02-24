@@ -12,12 +12,16 @@ module TestTrack::Controller
   class_methods do
     def require_feature_flag(feature_flag, *args)
       before_action(*args) do
-        raise ActionController::RoutingError, 'Not Found' unless test_track_visitor.ab(feature_flag, context: self.class.name.underscore)
+        raise ActionController::RoutingError, 'Not Found' unless feature_flagged?(feature_flag)
       end
     end
   end
 
   private
+
+  def feature_flagged?(feature_flag)
+    test_track_visitor.ab(feature_flag, context: self.class.name.underscore)
+  end
 
   def test_track_session
     @test_track_session ||= TestTrack::WebSession.new(self)
