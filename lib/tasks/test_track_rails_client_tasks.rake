@@ -11,7 +11,7 @@ namespace :test_track do
   end
 
   desc 'Generates build timestamp for fetching point-in-time split registries'
-  task generate_build_timestamp: :environment do
+  task :generate_build_timestamp do # rubocop:disable Rails/RakeEnvironment
     cli = TesttrackCli.instance
 
     result = cli.call('generate_build_timestamp')
