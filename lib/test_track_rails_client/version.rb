@@ -1,3 +1,3 @@
 module TestTrackRailsClient
-  VERSION = "8.2.1".freeze
+  VERSION = "9.0.0".freeze
 end
