@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE", "Rakefile", "README.md"]
 
-  rails_constraints = ['>= 7.0', '< 8.1']
+  rails_constraints = ['>= 7.1', '< 8.1']
 
   s.add_dependency 'activejob', rails_constraints
   s.add_dependency 'activemodel', rails_constraints
