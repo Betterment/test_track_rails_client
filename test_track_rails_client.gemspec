@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib,vendor}/**/*", "LICENSE", "Rakefile", "README.md"]
 
-  rails_constraints = ['>= 7.0', '< 8.1']
+  rails_constraints = ['>= 7.2', '< 8.1']
 
   s.add_dependency 'activejob', rails_constraints
   s.add_dependency 'activemodel', rails_constraints
@@ -40,5 +40,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'webmock'
   s.add_development_dependency 'zeitwerk', '< 2.7'
 
-  s.required_ruby_version = '>= 3.1'
+  s.required_ruby_version = '>= 3.2'
 end
