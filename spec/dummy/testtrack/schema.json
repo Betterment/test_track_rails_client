@@ -1,0 +1,29 @@
+{
+  "serializer_version": 1,
+  "schema_version": "",
+  "splits": [
+    {
+      "name": "banner_color",
+      "weights": {
+        "blue": 34,
+        "red": 33,
+        "white": 33
+      }
+    },
+    {
+      "name": "buy_one_get_one_promotion_enabled",
+      "weights": {
+        "false": 50,
+        "true": 50
+      }
+    },
+    {
+      "name": "decided_split",
+      "weights": {
+        "control": 0,
+        "treatment": 100
+      },
+      "decided": true
+    }
+  ]
+}

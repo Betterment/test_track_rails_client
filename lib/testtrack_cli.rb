@@ -9,7 +9,7 @@ class TesttrackCli
   end
 
   def project_initialized?
-    File.exist?(File.join('testtrack', 'schema.yml'))
+    File.exist?('testtrack/schema.json') || File.exist?('testtrack/schema.yml')
   end
 
   def call(*args)

@@ -37,16 +37,26 @@ class TestTrack::Fake::SplitRegistry
   end
 
   def _schema_registry
-    file = File.exist?(schema_yml_path) &&
-      YAML.load_file(schema_yml_path)
+    file =
+      if File.exist?(schema_json_path)
+        JSON.parse(File.read(schema_json_path))
+      elsif File.exist?(schema_yml_path)
+        YAML.load_file(schema_yml_path)
+      end
+
     file && file['splits'].each_with_object(ActiveSupport::HashWithIndifferentAccess.new) do |split, h|
       h[split['name']] = split['weights']
     end
   end
 
+  def schema_json_path
+    base = ENV['TEST_TRACK_SCHEMA_ROOT'] || Rails.root
+    File.join(base, 'testtrack/schema.json')
+  end
+
   def schema_yml_path
     base = ENV['TEST_TRACK_SCHEMA_ROOT'] || Rails.root
-    File.join(base, 'testtrack', 'schema.yml')
+    File.join(base, 'testtrack/schema.yml')
   end
 
   def legacy_test_track_schema_yml
