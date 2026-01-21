@@ -7,6 +7,36 @@ RSpec.describe TesttrackCli do
     end
   end
 
+  describe '#project_initialized?' do
+    subject { TesttrackCli.instance.project_initialized? }
+
+    context 'when schema.json exists' do
+      before do
+        allow(File).to receive(:exist?).with('testtrack/schema.json').and_return(true)
+      end
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'when only schema.yml exists' do
+      before do
+        allow(File).to receive(:exist?).with('testtrack/schema.json').and_return(false)
+        allow(File).to receive(:exist?).with('testtrack/schema.yml').and_return(true)
+      end
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'when neither schema.json nor schema.yml exists' do
+      before do
+        allow(File).to receive(:exist?).with('testtrack/schema.json').and_return(false)
+        allow(File).to receive(:exist?).with('testtrack/schema.yml').and_return(false)
+      end
+
+      it { is_expected.to eq(false) }
+    end
+  end
+
   describe '#skip_testtrack_cli?' do
     subject { TesttrackCli.instance.skip_testtrack_cli? }
 
