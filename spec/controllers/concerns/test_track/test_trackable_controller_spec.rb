@@ -121,4 +121,51 @@ RSpec.describe TestTrack::Controller do
     )
     expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
   end
+
+  it "passes the required_variant option to the ab method" do
+    get :index
+    expect(visitor_dsl).to have_received(:ab).with(:cool_feature_enabled, true_variant: nil, context: "anonymous_controller")
+  end
+
+  describe "require_feature_flag with custom required_variant" do
+    mixin = described_class
+
+    controller(ApplicationController) do
+      include mixin
+      require_feature_flag :custom_feature, required_variant: false
+
+      self.test_track_identity = :none
+
+      def index
+        head :ok
+      end
+    end
+
+    let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, ab: true) }
+
+    before do
+      allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(
+        {
+          'splits' => {
+            'custom_feature' => { 'weights' => { 'true' => 0, 'false' => 100 }, 'feature_gate' => true }
+          },
+          'experience_sampling_weight' => 1
+        }
+      )
+      allow(TestTrack::VisitorDsl).to receive(:new).and_return(visitor_dsl)
+      allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
+    end
+
+    it "passes the required_variant as true_variant to the ab method" do
+      get :index
+      expect(visitor_dsl).to have_received(:ab).with(:custom_feature, true_variant: false, context: "anonymous_controller")
+    end
+
+    it "raises a RoutingError when visitor does not have the required_variant" do
+      allow(TestTrack::VisitorDsl).to receive(:new).and_return(
+        instance_double(TestTrack::VisitorDsl, ab: false)
+      )
+      expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
+    end
+  end
 end
