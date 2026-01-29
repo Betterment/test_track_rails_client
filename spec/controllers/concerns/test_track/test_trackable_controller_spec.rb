@@ -121,4 +121,45 @@ RSpec.describe TestTrack::Controller do
     )
     expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
   end
+
+  context "with enabled: false" do
+    controller(ApplicationController) do
+      include TestTrack::Controller
+      require_feature_flag :cool_feature_enabled, enabled: false
+
+      self.test_track_identity = :current_clown
+
+      def index
+        render json: { status: 'ok' }
+      end
+
+      private
+
+      def current_clown; end
+    end
+
+    let(:visitor_dsl) { instance_double(TestTrack::VisitorDsl, ab: true) }
+
+    before do
+      allow(TestTrack::Remote::SplitRegistry).to receive(:to_hash).and_return(split_registry)
+      allow(TestTrack::Remote::Visitor).to receive(:fake_instance_attributes).and_return(remote_visitor)
+      allow(TestTrack::VisitorDsl).to receive(:new).and_return(visitor_dsl)
+      allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
+    end
+
+    it "raises a RoutingError when the ab value is true" do
+      allow(TestTrack::VisitorDsl).to receive(:new).and_return(
+        instance_double(TestTrack::VisitorDsl, ab: true)
+      )
+      expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
+    end
+
+    it "allows access when the ab value is false" do
+      allow(TestTrack::VisitorDsl).to receive(:new).and_return(
+        instance_double(TestTrack::VisitorDsl, ab: false)
+      )
+      get :index
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end
