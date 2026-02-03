@@ -122,10 +122,15 @@ RSpec.describe TestTrack::Controller do
     expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
   end
 
-  context "with enabled: false" do
+  it "passes the context to the ab call" do
+    get :index
+    expect(visitor_dsl).to have_received(:ab).with(:cool_feature_enabled, true_variant: nil, context: 'anonymous_controller')
+  end
+
+  context "with required_variant" do
     controller(ApplicationController) do
       include TestTrack::Controller
-      require_feature_flag :cool_feature_enabled, enabled: false
+      require_feature_flag :experiment_split, required_variant: 'treatment'
 
       self.test_track_identity = :current_clown
 
@@ -147,19 +152,24 @@ RSpec.describe TestTrack::Controller do
       allow(RequestStore).to receive(:[]=).and_return(visitor_dsl)
     end
 
-    it "raises a RoutingError when the ab value is true" do
+    it "passes the required_variant to the ab call as true_variant" do
+      get :index
+      expect(visitor_dsl).to have_received(:ab).with(:experiment_split, true_variant: 'treatment', context: 'anonymous_controller')
+    end
+
+    it "allows access when the variant matches" do
       allow(TestTrack::VisitorDsl).to receive(:new).and_return(
         instance_double(TestTrack::VisitorDsl, ab: true)
       )
-      expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
+      get :index
+      expect(response).to have_http_status(:ok)
     end
 
-    it "allows access when the ab value is false" do
+    it "raises a RoutingError when the variant does not match" do
       allow(TestTrack::VisitorDsl).to receive(:new).and_return(
         instance_double(TestTrack::VisitorDsl, ab: false)
       )
-      get :index
-      expect(response).to have_http_status(:ok)
+      expect { get :index }.to raise_error ActionController::RoutingError, 'Not Found'
     end
   end
 end
