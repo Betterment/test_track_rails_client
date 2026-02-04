@@ -10,10 +10,15 @@ module TestTrack::Controller
   end
 
   class_methods do
-    def require_feature_flag(feature_flag, *args, required_variant: nil, **kwargs)
-      before_action(*args, **kwargs) do
-        raise ActionController::RoutingError, 'Not Found' unless test_track_visitor.ab(feature_flag, true_variant: required_variant,
-                                                                                                     context: self.class.name.underscore)
+    def require_feature_flag(feature_flag, *args)
+      before_action(*args) do
+        raise ActionController::RoutingError, 'Not Found' unless test_track_visitor.ab(feature_flag, context: self.class.name.underscore)
+      end
+    end
+
+    def reject_feature_flag(feature_flag, *args)
+      before_action(*args) do
+        raise ActionController::RoutingError, 'Not Found' if test_track_visitor.ab(feature_flag, context: self.class.name.underscore)
       end
     end
   end
