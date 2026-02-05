@@ -15,6 +15,12 @@ module TestTrack::Controller
         raise ActionController::RoutingError, 'Not Found' unless test_track_visitor.ab(feature_flag, context: self.class.name.underscore)
       end
     end
+
+    def reject_feature_flag(feature_flag, *args)
+      before_action(*args) do
+        raise ActionController::RoutingError, 'Not Found' if test_track_visitor.ab(feature_flag, context: self.class.name.underscore)
+      end
+    end
   end
 
   private

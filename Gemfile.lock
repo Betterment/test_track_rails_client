@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    test_track_rails_client (8.4.0)
+    test_track_rails_client (8.5.0)
       activejob (>= 7.2, < 8.1)
       activemodel (>= 7.2, < 8.1)
       faraday (>= 0.8)
