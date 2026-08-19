@@ -11,9 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ["3.2"]
+        ruby: ["3.3"]
         gemfile:
-          - gemfiles/rails_7_2.gemfile
           - gemfiles/rails_8_0.gemfile
     name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}
     steps:

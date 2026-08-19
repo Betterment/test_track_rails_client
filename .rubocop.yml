@@ -15,8 +15,8 @@ AllCops:
     - 'gemfiles/*.gemfile'
   DisplayStyleGuide: true
   DisplayCopNames: true
-  TargetRubyVersion: 3.2
-  TargetRailsVersion: 7.2
+  TargetRubyVersion: 3.3
+  TargetRailsVersion: 8.0
 
 Layout/ParameterAlignment:
   Enabled: false
