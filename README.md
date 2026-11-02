@@ -331,6 +331,17 @@ it "shows the right info" do
 end
 ```
 
+View specs render through `ActionView::TestCase::TestController`, which doesn't mix in `TestTrack::Controller`, so views that call `test_track_visitor` raise. Install TestTrack on it once, passing the identity method your controllers use (it's stubbed to return `nil` if the test controller doesn't define it), or omit `identity:` to use `:none`:
+
+```ruby
+# spec/rails_helper.rb
+RSpec.configure do |config|
+  config.before(:suite) do
+    TestTrackRailsClient::ViewSpecHelpers.install!(identity: :current_user)
+  end
+end
+```
+
 ## Analytics
 
 TestTrack does not offer built-in functionality for analyzing the results of split tests. TestTrack does provide hooks to easily integrate with your preferred analytics tool. By default, TestTrack will use Mixpanel as an analytics backend. If you wish to use another tool, you can set the `analytics` attribute on `TestTrack` with your custom client. You should do this in a Rails initializer.
