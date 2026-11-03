@@ -6,7 +6,9 @@ module TestTrackRailsClient::ViewSpecHelpers
       include TestTrack::Controller unless include?(TestTrack::Controller)
       self.test_track_identity = identity
 
-      define_method(identity) { nil } unless identity == :none || method_defined?(identity)
+      unless identity == :none || method_defined?(identity) || private_method_defined?(identity)
+        define_method(identity) { nil }
+      end
     end
   end
 end
