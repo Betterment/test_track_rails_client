@@ -27,6 +27,24 @@ RSpec.describe TestTrackRailsClient::ViewSpecHelpers, type: :view do
       expect(ActionView::TestCase::TestController.new.current_spec_user).to be_nil
     end
 
+    context "when the controller already has a private identity method" do
+      before do
+        ActionView::TestCase::TestController.class_eval do
+          private
+
+          def current_private_spec_user = :existing_user
+        end
+      end
+
+      after { ActionView::TestCase::TestController.send(:remove_method, :current_private_spec_user) }
+
+      it "keeps the existing method" do
+        described_class.install!(identity: :current_private_spec_user)
+
+        expect(ActionView::TestCase::TestController.new.send(:current_private_spec_user)).to eq :existing_user
+      end
+    end
+
     it "can be called more than once" do
       2.times { described_class.install! }
 
